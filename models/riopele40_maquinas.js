@@ -1,5 +1,4 @@
-const connection = require('../utilities/connection').connection;
-const sequelize = connection; 
+const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
 const Servidor_OPCUA = require('./riopele40_servidores_opcua')

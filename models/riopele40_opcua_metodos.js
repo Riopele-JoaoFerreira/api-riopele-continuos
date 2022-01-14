@@ -1,5 +1,4 @@
-const connection = require('../utilities/connection').connection;
-const sequelize = connection; 
+const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
 class Metodo_OPCUA extends Model {}
