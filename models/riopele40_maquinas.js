@@ -15,13 +15,13 @@ Maquina.init({
   posicao: DataTypes.INTEGER,
   ativa: DataTypes.TINYINT,
   identificador_opcua: DataTypes.STRING,
-  id_servidor: {
-    type: DataTypes.INTEGER,
-    references: {
-       model: 'riopele40_servidores_opcua', 
-       key: 'id', 
-    }
- }
+   id_servidor: {
+      type: DataTypes.INTEGER,
+      references: {
+         model: 'riopele40_servidores_opcua', 
+         key: 'id', 
+      }
+   }
 }, { sequelize, modelName: 'riopele40_maquinas', tableName: 'riopele40_maquinas' });
 
 Servidor_OPCUA.hasMany(Maquina, {foreignKey: 'id_servidor'})

@@ -12,4 +12,6 @@ Servidor_OPCUA.init({
   repeticoes: DataTypes.INTEGER
 }, { sequelize, modelName: 'riopele40_servidores_opcua', tableName: 'riopele40_servidores_opcua' });
 
+console.log(Servidor_OPCUA);
+
 module.exports = Servidor_OPCUA; 

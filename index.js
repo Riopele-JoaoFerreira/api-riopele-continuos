@@ -1,7 +1,6 @@
 const express = require('express')
 const config = require('./config/config').config
 const connection = require('./utilities/connection').connection
-const imports = require('./utilities/imports')
 const app = express();
 
 app.use(express.json()); 
@@ -18,8 +17,6 @@ app.listen(config.port, () => {
         if (errors) {
             console.error('Unable to connect to the database:', errors);
         } else {
-            // Sync Database Tables
-            imports.importModels(() => {}); 
             console.log('Connected to SQL Server');
         }
     });

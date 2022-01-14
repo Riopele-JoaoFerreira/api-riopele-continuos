@@ -17,6 +17,14 @@ router.get('/raw', [validation], function (req, res) {
     controller.listRaw(req, res);
 })
 
+router.get('/read', [validation], function (req, res) {
+    controller.readOPCUA(req, res);
+})
+
+router.get('/write', [validation], function (req, res) {
+    controller.writeOPCUA(req, res);
+})
+
 // POST EXAMPLE
 /*router.post('/', [
     body('field').notEmpty().isBoolean().isEmail().isNumeric().isString().isArray().optional() // Validations Examples
