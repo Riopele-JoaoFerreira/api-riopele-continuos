@@ -43,7 +43,7 @@ OrdemPlaneada.init({
          key: 'id', 
       }
    }
-}, { sequelize, modelName: 'riopele40_calendario', tableName: 'riopele40_calendario' });
+}, { sequelize, modelName: 'riopele40_ordens_planeadas', tableName: 'riopele40_ordens_planeadas' });
 
 OrdemMaquina.hasMany(OrdemPlaneada, {foreignKey: 'id_ordem_maquina'})
 OrdemPlaneada.belongsTo(OrdemMaquina, {foreignKey: 'id_ordem_maquina'})
