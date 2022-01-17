@@ -16,6 +16,8 @@
     "momentjs": "^2.0.0",
     "mssql": "^7.3.0",
     "node-cron": "^3.0.0",
+    "node-opcua": "^2.62.7",
+    "nodemon": "^2.0.15",
     "sequelize": "^6.13.0"
   }
 }
