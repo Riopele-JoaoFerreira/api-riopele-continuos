@@ -1,0 +1,24 @@
+{
+  "name": "api-riopele-continuos",
+  "version": "1.0.0",
+  "description": "API Riopele Contínuos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "asunc": "^1.0.1",
+    "async": "^3.2.3",
+    "express": "^4.17.2",
+    "express-validator": "^6.14.0",
+    "momentjs": "^2.0.0",
+    "mssql": "^7.3.0",
+    "node-cron": "^3.0.0",
+    "node-opcua": "^2.62.7",
+    "nodemon": "^2.0.15",
+    "sequelize": "^6.13.0"
+  }
+}
