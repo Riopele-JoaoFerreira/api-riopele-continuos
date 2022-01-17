@@ -7,21 +7,13 @@ const app = express();
 
 app.use(express.json()); 
 
-<<<<<<< HEAD
-app.use(function(req, res, next) {
-=======
 /*app.use(function(req, res, next) {
->>>>>>> develop
     middlewares.verifyToken(req,res,next)
 });
 
 app.use(function(req, res, next) {
     middlewares.verifyIP(req,res,next)
-<<<<<<< HEAD
-});
-=======
 });*/
->>>>>>> develop
 
 // ROUTES
 const servidores_opcua = require('./routes/riopele40_servidores_opcua')
