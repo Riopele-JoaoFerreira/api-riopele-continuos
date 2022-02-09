@@ -1,9 +1,12 @@
 var cron = require('node-cron');
+const utilities_opcua = require('../utilities/opcua')
 
 exports.schedule1 = () => {
-    cron.schedule('0,10,20,30,40,50 * * * * *', () => {
-        console.log('running a task every 10 secondes');
-      });
+    cron.schedule('*/2 * * * * *', () => {
+      utilities_opcua.Cycle_eventos((callback)=> {
+        console.log("done")
+      })
+    });
 }
 
 exports.schedule2 = () => {

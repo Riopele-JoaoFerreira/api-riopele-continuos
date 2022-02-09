@@ -36,3 +36,9 @@ exports.writeOPCUA = (req, res) => {
         res.status(200).send(result)
     })
 } 
+
+exports.CycleOPCUA = (req, res) => {
+    OPCUA.CycleOPCUA('server', [], (result) => {
+        res.status(200).send(result)
+    })
+} 

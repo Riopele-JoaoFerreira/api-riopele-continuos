@@ -30,11 +30,11 @@ Evento.init({
          key: 'cod_maquina_fabricante', 
       }
    },
-   data_inicio: DataTypes.DATE, 
-   data_fim: DataTypes.DATE, 
+   data_inicio: DataTypes.STRING, 
+   data_fim: DataTypes.STRING, 
    enviou_para_sap: DataTypes.CHAR, 
    ordem: DataTypes.STRING
-}, { sequelize, modelName: 'riopele40_eventos', tableName: 'riopele40_eventos' });
+}, { sequelize, modelName: 'riopele40_eventos_TESTES', tableName: 'riopele40_eventos_TESTES' });
 
 Maquina.hasMany(Evento, {foreignKey: 'cod_maquina_fabricante'})
 Evento.belongsTo(Maquina, {foreignKey: 'cod_maquina_fabricante'})
@@ -45,4 +45,4 @@ Evento.belongsTo(MotivoParagem, {foreignKey: 'cod_evento'})
 MotivoParagem.hasMany(Evento, {foreignKey: 'cod_estado'})
 Evento.belongsTo(MotivoParagem, {foreignKey: 'cod_estado'})
 
-module.exports = Calendario; 
+module.exports = Evento; 

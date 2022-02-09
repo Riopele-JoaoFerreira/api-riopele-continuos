@@ -8,7 +8,7 @@ Metodo_OPCUA.init({
   identificador: DataTypes.STRING,
   prefixo: DataTypes.STRING,
   chave: DataTypes.STRING,
-  descicao: DataTypes.STRING,
+  descricao: DataTypes.STRING,
   repeticoes: DataTypes.INTEGER, 
   tipo: DataTypes.STRING,
 }, { sequelize, modelName: 'riopele40_opcua_metodos', tableName: 'riopele40_opcua_metodos' });
