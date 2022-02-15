@@ -4,6 +4,11 @@ const { Model, DataTypes } = require('sequelize');
 class Servidor_OPCUA extends Model {}
 
 Servidor_OPCUA.init({
+  id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    primaryKey: true
+  },
   descricao: DataTypes.STRING,
   protocolo: DataTypes.STRING,
   url: DataTypes.STRING,

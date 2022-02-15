@@ -22,6 +22,9 @@ const maquinas = require('./routes/riopele40_maquinas')
 app.use('/maquinas', maquinas)
 const opcua = require('./routes/opcua')
 app.use('/opcua', opcua)
+const ordens = require('./routes/riopele40_ordens')
+app.use('/ordens', ordens)
+
 
 app.listen(config.port, () => {
     console.log("API is running on " + config.port);

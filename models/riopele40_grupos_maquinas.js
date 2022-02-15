@@ -4,6 +4,11 @@ const { Model, DataTypes } = require('sequelize');
 class GrupoMaquina extends Model {}
 
 GrupoMaquina.init({
+   id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true
+   },
    id_seccao: DataTypes.INTEGER,
    nome: DataTypes.STRING,
    posicao: DataTypes.INTEGER,
