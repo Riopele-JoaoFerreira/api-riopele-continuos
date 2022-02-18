@@ -3,7 +3,6 @@ const { Model, DataTypes } = require('sequelize');
 
 const Maquina = require('./riopele40_maquinas')
 const OrdemSAP = require('./riopele40_ordens_sap')
-const OrdemPlaneada = require('./riopele40_ordens_planeadas')
 
 class OrdemMaquina extends Model {}
 
@@ -30,6 +29,5 @@ OrdemMaquina.init({
 }, { sequelize, modelName: 'riopele40_ordem_maquinas', tableName: 'riopele40_ordem_maquinas' });
 
 OrdemMaquina.belongsTo(Maquina, {foreignKey: 'id_maquina'})
-OrdemMaquina.hasOne(OrdemPlaneada, {foreignKey: 'id_ordem_maquina'})
 
 module.exports = OrdemMaquina; 
