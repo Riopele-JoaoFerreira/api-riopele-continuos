@@ -46,7 +46,7 @@ exports.updateTable = (req, res) => {
                 }).then(metodos_opcua => {
                     let repeticoes = metodos_opcua[0].repeticoes
                     let nodes_to_write = []; 
-                    for (let i = 1; i < repeticoes; i++) {
+                    for (let i = 1; i <= repeticoes; i++) {
                         metodos_opcua.forEach(metodo => {
                             value = 0;
                             try {
