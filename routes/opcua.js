@@ -3,6 +3,13 @@ var express = require('express')
 var router = express.Router()
 var controller = require('../controllers/opcua')
 
+// SET TABLE ON "ORDENS PLANEADAS" MENU
+router.post('/table', function (req, res) {
+    controller.setTableOrders(req, res);
+})
+
+
+
 // Read Eventos
 router.get('/', function (req, res) {
     controller.ler_Eventos(req, res);
@@ -18,10 +25,7 @@ router.get('/c', function (req, res) {
     controller.cycle_eventos(req, res);
 })
 
-// Set Table Ordem (set ordens no painel)
-router.get('/st', function (req, res) {
-    controller.set_table_ordem(req, res);
-})
+
 
 // Set Ordem (recebe 3 e escreve na 3ª ordem)
 router.get('/so', function (req, res) {

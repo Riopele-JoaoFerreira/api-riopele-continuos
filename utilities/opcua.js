@@ -6,27 +6,10 @@ const config = require('../config/config')
 const moment= require('moment');
 const { data_hora } = require('../controllers/opcua');
 const Op = require('sequelize').Op; 
-
-const options = {
-    applicationName: "MyClient",
-    connectionStrategy: {
-        initialDelay: 1000,
-        maxRetry: 1
-    },
-    securityMode: OPCUAClient.MessageSecurityMode.None,
-    securityPolicy: OPCUAClient.SecurityPolicy.None,
-    //endpoint_must_exist: false,
-    endpointMustExist: false,
-};
-
+const options = require('../config/opcua').config
+const endpointUrl = require('../config/opcua').url
 const client = OPCUAClient.OPCUAClient.create(options);
 let session = null;
-const endpointUrl = "opc.tcp://SRVRIOT03:48012";
-
-// async function disconnect(client) {
-//     await client.disconnect();
-//     console.log("disconnected!");
-// }
 
 async function connect() {
     try {
@@ -38,6 +21,31 @@ async function connect() {
     console.log("An error has occured : ",err);
     }
 }
+
+
+// SET TABLE ON "ORDENS PLANEADAS" MENU
+exports.setTableOrders = function (table, callback) {
+    connect().then(() => {
+        let error = null; 
+        let stack = [];
+        table.forEach(node => {
+            stack.push((callback) => {
+                session.write(node, function(err,statusCode,diagnosticInfo) {
+                    console.log(err);
+                    if (err) {
+                        error = err;  
+                    }
+                    return callback();
+                });
+            })
+        })
+        async.waterfall(stack, () => {
+            console.log(error);
+            return callback(error);
+        })
+    });
+}
+
 
 // READ EVENTOS (DONE)
 function ReadEvento(callback) {
@@ -337,27 +345,7 @@ exports.Cycle_eventos = function (callback) {
     });
 }
 
-// SET TABLE ORDEM (preenche os campos no display)
-exports.Set_TableOrdem = function (table, callback) {
-    connect().then(() => {
-        let erro = null; 
-        let stack = [];
-        table.forEach(node => {
-            stack.push((callback) => {
-                session.write(node, function(err,statusCode,diagnosticInfo) {
-                    if (err) {
-                        erro = err;  
-                    }
-                    return callback();
-                });
-                 
-            })
-        })
-        async.waterfall(stack, () => {
-            return callback(erro);
-        })
-    });
-}
+
 
 // SetOrdem (recebeu 3 e escreve a 3ª ordem)
 function SetOrdem(){

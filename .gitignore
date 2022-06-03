@@ -105,3 +105,4 @@ dist
 
 # Config 
 config/config.js
+config/opcua.js

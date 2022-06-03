@@ -1,103 +1,144 @@
-const Servidor_OPCUA = require('../models/riopele40_servidores_opcua')
-const Maquina = require('../models/riopele40_maquinas')
-const OrdensMaquina = require('../models/riopele40_ordem_maquinas')
-const OrdemPlaneada = require('../models/riopele40_ordens_planeadas')
-const MetodoOpcua = require('../models/riopele40_opcua_metodos')
 const Op = require('sequelize').Op
+const async = require('async')
+const Servidor_OPCUA = require('../models/riopele40_servidores_opcua')
+const Machine = require('../models/riopele40_maquinas')
+const Orders_Machine = require('../models/riopele40_ordem_maquinas')
+const Orders_Planned = require('../models/riopele40_ordens_planeadas')
+const Methods = require('../models/riopele40_opcua_metodos')
 const utilities = require('../utilities/utilities')
 const OPCUAClient = require('node-opcua');
 const Opcua = require('../utilities/opcua')
 
+
 exports.updateTable = (req, res) => {
-    Maquina.findAll(
-        {
-            include: {
-                model: Servidor_OPCUA, 
-            },
-            where: {
-                id: req.body.id
+
+    let machine_info = null;  
+    let orders_planned = []; 
+    let orders_info = null; 
+    let error = null; 
+    let nodes_to_write = []; 
+
+    let getMachineInfo = (callback) => {
+        Machine.findAll(
+            {
+                include: {
+                    model: Servidor_OPCUA, 
+                },
+                where: {
+                    id: req.body.id
+                }
             }
-        }
-    ).then((info_maquina)=> {
-        OrdensMaquina.findAll({
+        ).then((res)=> {
+            machine_info = res; 
+            return callback(); 
+        }).catch((err) => {
+
+            error = err; 
+            return callback(); 
+        })
+    }
+
+    let getOrdersInMachine = (callback) => {
+        Orders_Machine.findAll({
             where: {
                 id_maquina: req.body.id
             },
-        }).then(ordens_maquina => {
-            let ids = []; 
-            ordens_maquina.forEach(ordem_maquina => {
-                ids.push(ordem_maquina.id)
+        }).then(res => {
+            let array = []; 
+            res.forEach(order_planned => {
+                array.push(order_planned.id)
             })
-            OrdemPlaneada.findAll({
-                where: {
-                    id_ordem_maquina: {
-                        [Op.in]: ids
-                    }
-                }, 
-                order: [['ordenacao']],
-                include: {
-                    model: OrdensMaquina
-                }
-            }).then(ordens_planeadas => {
-                MetodoOpcua.findAll({
-                    where: {
-                        grupo: 'ordens'
-                    }
-                }).then(metodos_opcua => {
-                    let repeticoes = metodos_opcua[0].repeticoes
-                    let nodes_to_write = []; 
-                    for (let i = 1; i <= repeticoes; i++) {
-                        metodos_opcua.forEach(metodo => {
-                            value = 0;
-                            try {
-                                // EXCEPÇÃO NECESSÁRIA
-                                if(metodo.map == 'ordem') {
-                                    if(ordens_planeadas[i-1].riopele40_ordem_maquina.ordem) {
-                                        value = ordens_planeadas[i-1].riopele40_ordem_maquina.ordem
-                                    } else {
-                                        value = metodo.default; 
-                                    }
-                                } else {
-                                    if(ordens_planeadas[i-1][metodo.map]) {
-                                        value = ordens_planeadas[i-1][metodo.map]
-                                    } else {
-                                        value = metodo.default; 
-                                    }
-                                }
-                            } catch (error) {}
-
-                            let node_ID = metodo.prefixo + info_maquina[0].identificador_opcua+metodo.identificador+i+"_"+metodo.chave; 
-                            let obj_data =  {
-                                nodeId: node_ID,
-                                attributeId: OPCUAClient.AttributeIds.Value,
-                                value: {
-                                    value: {
-                                        dataType: utilities.getTipo(metodo.tipo).dataType,
-                                        value: utilities.converter(metodo.tipo, value)
-                                    }
-                                }
-                            }
-                            nodes_to_write.push(obj_data)
-                        })
-                    }
-                    //res.status(200).json(nodes_to_write); 
-                    Opcua.Set_TableOrdem(nodes_to_write, (erro) => {
-                        if(!erro) {
-                            res.status(200).json("Tabela Atualizada!"); 
-                        } else {
-                            res.status(400).send("Error!");
-                        }
-                    })
-                }).catch(error => {
-                    res.status(400).send("Error!");
-                })
-            }).catch(error => {
-                res.status(400).send("Error!");
-            })
-        }).catch(error => {
-            res.status(400).send("Error!");
+            orders_planned = array; 
+            return callback(); 
+        }).catch((err) => {
+            error =  err; 
+            return callback(); 
         })
-    }).catch(error=> {
-        res.status(400).send("Error!");
+    }
+
+    let getOrdersInfo = (callback) => {
+        Orders_Planned.findAll({
+            where: {
+                id_ordem_maquina: {
+                    [Op.in]: orders_planned
+                }
+            }, 
+            order: [['ordenacao']],
+            include: {
+                model: Orders_Machine
+            }
+        }).then(res => {   
+            orders_info = res; 
+            return callback(); 
+        }).catch((err) => {
+            error = err; 
+            return callback(); 
+        })
+    }
+
+    let getMethods = (callback) => {
+        Methods.findAll({
+            where: {
+                grupo: 'ordens'
+            }
+        }).then(res => {
+            let loops = res[0].repeticoes
+            let array = []; 
+            for (let i = 1; i <= loops; i++) {
+                res.forEach(method => {
+                    value = 0;
+                    try {
+                        if(method.map == 'ordem') {
+                            if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
+                                value = orders_info[i-1].riopele40_ordem_maquina.ordem
+                            } else {
+                                value = method.default; 
+                            }
+                        } else {
+                            if(orders_info[i-1][method.map]) {
+                                value = orders_info[i-1][method.map]
+                            } else {
+                                value = method.default; 
+                            }
+                        }
+                    } catch (err) {
+                        value = method.default; 
+                    }
+
+                    let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
+                    let obj =  {
+                        nodeId: node_ID,
+                        attributeId: OPCUAClient.AttributeIds.Value,
+                        value: {
+                            value: {
+                                dataType: utilities.getType(method.tipo).dataType,
+                                value: utilities.convert(method.tipo, value)
+                            }
+                        }
+                    }
+                    array.push(obj)
+                })
+            }
+            nodes_to_write = array
+            return callback(); 
+        }).catch((err) => {
+            console.log(err);
+            error = err; 
+            return callback();
+        })
+    }
+
+    async.waterfall([getMachineInfo, getOrdersInMachine, getOrdersInfo, getMethods], () => {
+        if(error) {
+            res.status(400).send('Error'); 
+        } else {
+            Opcua.setTableOrders(nodes_to_write, (error) => {
+                if(!error) {
+                    res.status(200).send("Success"); 
+                } else {
+                    res.status(400).send("Error");
+                }
+            })
+        }
     })
 } 

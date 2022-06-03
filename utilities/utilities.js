@@ -1,7 +1,7 @@
 const OPCUAClient = require('node-opcua');
 
-exports.getTipo = (tipo) => {
-    switch (tipo) {
+exports.getType = (type) => {
+    switch (type) {
         case 'int16':
             return { dataType: OPCUAClient.DataType.Int16 };
         break;
@@ -23,29 +23,29 @@ exports.getTipo = (tipo) => {
     }
 }
 
-exports.converter = (tipo, valor) => {
-    switch (tipo) {
+exports.convert = (type, value) => {
+    switch (type) {
         case 'int16':
-            return parseInt(valor);
+            return parseInt(value);
         break;
         case 'int32':
-            return parseInt(valor);
+            return parseInt(value);
         break;
         case 'string':
-            if(valor == 0) {
+            if(value == 0) {
                 return ''; 
             } else {
-                 return String(valor);
+                 return String(value);
             }
         break;
         case 'uint16':
-            return parseInt(valor);
+            return parseInt(value);
         break;
         case 'uint32':
-            return parseInt(valor);
+            return parseInt(value);
         break;
         case 'real32':
-            return parseFloat(valor);
+            return parseFloat(value);
         break;
     }
 }
