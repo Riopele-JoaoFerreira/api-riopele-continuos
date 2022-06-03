@@ -31,7 +31,6 @@ exports.setTableOrders = function (table, callback) {
         table.forEach(node => {
             stack.push((callback) => {
                 session.write(node, function(err,statusCode,diagnosticInfo) {
-                    console.log(err);
                     if (err) {
                         error = err;  
                     }
@@ -40,7 +39,6 @@ exports.setTableOrders = function (table, callback) {
             })
         })
         async.waterfall(stack, () => {
-            console.log(error);
             return callback(error);
         })
     });
