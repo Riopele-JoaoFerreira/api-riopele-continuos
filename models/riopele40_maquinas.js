@@ -1,12 +1,12 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const ServidorOPCUA = require('./riopele40_servidores_opcua')
-const GrupoMaquina = require('./riopele40_grupos_maquinas')
+const OPCUA_Server = require('./riopele40_servidores_opcua')
+const Machine_Group = require('./riopele40_grupos_maquinas')
 
-class Maquina extends Model {}
+class Machine extends Model {}
 
-Maquina.init({
+Machine.init({
    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -23,20 +23,20 @@ Maquina.init({
    id_servidor: {
       type: DataTypes.INTEGER,
       references: {
-         model: ServidorOPCUA, 
+         model: OPCUA_Server, 
          key: 'id', 
       }
    },
    id_grupo: {
       type: DataTypes.INTEGER,
       references: {
-         model: GrupoMaquina, 
+         model: Machine_Group, 
          key: 'id', 
       }
    }
 }, { sequelize, modelName: 'riopele40_maquinas', tableName: 'riopele40_maquinas' });
 
-Maquina.belongsTo(ServidorOPCUA, {foreignKey: 'id_servidor'})
-Maquina.belongsTo(GrupoMaquina, {foreignKey: 'id_grupo'})
+Machine.belongsTo(OPCUA_Server, {foreignKey: 'id_servidor'})
+Machine.belongsTo(Machine_Group, {foreignKey: 'id_grupo'})
 
-module.exports = Maquina; 
+module.exports = Machine; 

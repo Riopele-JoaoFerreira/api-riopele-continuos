@@ -1,24 +1,24 @@
-const OPCUAClient = require('node-opcua');
+const OPCUA_Client = require('node-opcua');
 
 exports.getType = (type) => {
     switch (type) {
         case 'int16':
-            return { dataType: OPCUAClient.DataType.Int16 };
+            return { dataType: OPCUA_Client.DataType.Int16 };
         break;
         case 'int32':
-            return { dataType: OPCUAClient.DataType.Int32 };
+            return { dataType: OPCUA_Client.DataType.Int32 };
         break;
         case 'string':
-            return { dataType: OPCUAClient.DataType.String };
+            return { dataType: OPCUA_Client.DataType.String };
         break;
         case 'uint16':
-            return { dataType: OPCUAClient.DataType.UInt16 };
+            return { dataType: OPCUA_Client.DataType.UInt16 };
         break;
         case 'uint32':
-            return { dataType: OPCUAClient.DataType.UInt32 };
+            return { dataType: OPCUA_Client.DataType.UInt32 };
         break;
         case 'real32':
-            return { dataType: OPCUAClient.DataType.Float };
+            return { dataType: OPCUA_Client.DataType.Float };
         break;
     }
 }

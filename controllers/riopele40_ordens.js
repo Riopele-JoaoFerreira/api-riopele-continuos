@@ -1,14 +1,13 @@
 const Op = require('sequelize').Op
 const async = require('async')
-const Servidor_OPCUA = require('../models/riopele40_servidores_opcua')
+const utilities = require('../utilities/utilities')
+const OPCUA_Client = require('node-opcua');
+const Opcua = require('../utilities/opcua')
+const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Machine = require('../models/riopele40_maquinas')
 const Orders_Machine = require('../models/riopele40_ordem_maquinas')
 const Orders_Planned = require('../models/riopele40_ordens_planeadas')
 const Methods = require('../models/riopele40_opcua_metodos')
-const utilities = require('../utilities/utilities')
-const OPCUAClient = require('node-opcua');
-const Opcua = require('../utilities/opcua')
-
 
 exports.updateTable = (req, res) => {
 
@@ -22,7 +21,7 @@ exports.updateTable = (req, res) => {
         Machine.findAll(
             {
                 include: {
-                    model: Servidor_OPCUA, 
+                    model: OPCUA_Server, 
                 },
                 where: {
                     id: req.body.id
@@ -108,7 +107,7 @@ exports.updateTable = (req, res) => {
                     let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
                     let obj =  {
                         nodeId: node_ID,
-                        attributeId: OPCUAClient.AttributeIds.Value,
+                        attributeId: OPCUA_Client.AttributeIds.Value,
                         value: {
                             value: {
                                 dataType: utilities.getType(method.tipo).dataType,

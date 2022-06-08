@@ -1,12 +1,12 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const Maquina = require('./riopele40_maquinas')
-const OrdemSAP = require('./riopele40_ordens_sap')
+const Machine = require('./riopele40_maquinas')
+const Order = require('./riopele40_ordens_sap')
 
-class OrdemMaquina extends Model {}
+class Order_Machine extends Model {}
 
-OrdemMaquina.init({
+Order_Machine.init({
    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -15,19 +15,19 @@ OrdemMaquina.init({
    id_maquina: {
       type: DataTypes.INTEGER,
       references: {
-         model: Maquina, 
+         model: Machine, 
          key: 'id', 
       }
    },
    ordem: {
       type: DataTypes.STRING,
       references: {
-         model: OrdemSAP, 
+         model: Order, 
          key: 'ordem', 
       }
    },
 }, { sequelize, modelName: 'riopele40_ordem_maquinas', tableName: 'riopele40_ordem_maquinas' });
 
-OrdemMaquina.belongsTo(Maquina, {foreignKey: 'id_maquina'})
+Order_Machine.belongsTo(Machine, {foreignKey: 'id_maquina'})
 
-module.exports = OrdemMaquina; 
+module.exports = Order_Machine; 

@@ -1,12 +1,12 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const Maquina = require('./riopele40_maquinas')
-const Ordem = require('./riopele40_ordens_sap')
+const Machine = require('./riopele40_maquinas')
+const Order = require('./riopele40_ordens_sap')
 
-class Historico extends Model {}
+class History extends Model {}
 
-Historico.init({
+History.init({
    id_seccao: DataTypes.INTEGER, 
    cod_maquina_arum: {
       type: DataTypes.INTEGER,
@@ -41,11 +41,10 @@ Historico.init({
    id_seccao: DataTypes.INTEGER, 
 }, { sequelize, modelName: 'riopele40_fiacao_historico', tableName: 'riopele40_fiacao_historico' });
 
-Maquina.hasMany(Historico, {foreignKey: 'cod_maquina_arum'})
-Historico.belongsTo(Maquina, {foreignKey: 'cod_maquina_arum'})
+Machine.hasMany(History, {foreignKey: 'cod_maquina_arum'})
+History.belongsTo(Machine, {foreignKey: 'cod_maquina_arum'})
 
+Order.hasMany(History, {foreignKey: 'ordem'})
+History.belongsTo(Order, {foreignKey: 'ordem'})
 
-Ordem.hasMany(Historico, {foreignKey: 'ordem'})
-Historico.belongsTo(Ordem, {foreignKey: 'ordem'})
-
-module.exports = Historico; 
+module.exports = History; 

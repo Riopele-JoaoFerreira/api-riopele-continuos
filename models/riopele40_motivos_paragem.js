@@ -1,9 +1,9 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-class MotivoParagem extends Model {}
+class Stop_Reason extends Model {}
 
-MotivoParagem.init({
+Stop_Reason.init({
    cod_paragem: DataTypes.INTEGER,
    designacao: DataTypes.STRING,
    id_seccao: DataTypes.INTEGER,
@@ -16,4 +16,4 @@ MotivoParagem.init({
    e_paragem: DataTypes.CHAR
 }, { sequelize, modelName: 'riopele40_motivos_paragem', tableName: 'riopele40_motivos_paragem' });
 
-module.exports = MotivoParagem; 
+module.exports = Stop_Reason; 

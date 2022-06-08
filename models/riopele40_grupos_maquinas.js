@@ -1,9 +1,9 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-class GrupoMaquina extends Model {}
+class Machine_Group extends Model {}
 
-GrupoMaquina.init({
+Machine_Group.init({
    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -16,4 +16,4 @@ GrupoMaquina.init({
    visivel: DataTypes.CHAR
 }, { sequelize, modelName: 'riopele40_grupos_maquinas', tableName: 'riopele40_grupos_maquinas' });
 
-module.exports = GrupoMaquina; 
+module.exports = Machine_Group; 

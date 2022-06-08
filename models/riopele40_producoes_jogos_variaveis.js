@@ -1,12 +1,12 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const Maquina = require('./riopele40_maquinas')
-const Ordem = require('./riopele40_ordens_sap')
+const Machine = require('./riopele40_maquinas')
+const Order = require('./riopele40_ordens_sap')
 
-class Variaveis extends Model {}
+class Variables  extends Model {}
 
-Variaveis.init({
+Variables.init({
    id_seccao: DataTypes.INTEGER, 
    cod_maquina_fabricante: DataTypes.INTEGER,
    cod_sap: {
@@ -29,10 +29,10 @@ Variaveis.init({
    data: DataTypes.DATE
 }, { sequelize, modelName: 'riopele40_producoes_jogos_variaveis', tableName: 'riopele40_producoes_jogos_variaveis' });
 
-Maquina.hasMany(Variaveis, {foreignKey: 'cod_sap'})
-Variaveis.belongsTo(Maquina, {foreignKey: 'cod_sap'})
+Machine.hasMany(Variables, {foreignKey: 'cod_sap'})
+Variables.belongsTo(Machine, {foreignKey: 'cod_sap'})
 
-Ordem.hasMany(Variaveis, {foreignKey: 'ordem'})
-Variaveis.belongsTo(Ordem, {foreignKey: 'ordem'})
+Order.hasMany(Variables, {foreignKey: 'ordem'})
+Variables.belongsTo(Order, {foreignKey: 'ordem'})
 
-module.exports = Variaveis; 
+module.exports = Variables; 

@@ -1,12 +1,12 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const Maquina = require('./riopele40_maquinas')
-const Ordem = require('./riopele40_ordens_sap')
+const Machine = require('./riopele40_maquinas')
+const Order = require('./riopele40_ordens_sap')
 
-class Movimentos extends Model {}
+class Movements extends Model {}
 
-Movimentos.init({
+Movements.init({
    id_seccao: DataTypes.INTEGER, 
    cod_maquina_fabricante: DataTypes.INTEGER,
    cod_sap: {
@@ -30,10 +30,10 @@ Movimentos.init({
    num_jogo: DataTypes.INTEGER
 }, { sequelize, modelName: 'riopele40_producoes_jogos_movimentos', tableName: 'riopele40_producoes_jogos_movimentos' });
 
-Maquina.hasMany(Movimentos, {foreignKey: 'cod_sap'})
-Movimentos.belongsTo(Maquina, {foreignKey: 'cod_sap'})
+Machine.hasMany(Movements, {foreignKey: 'cod_sap'})
+Movements.belongsTo(Machine, {foreignKey: 'cod_sap'})
 
-Ordem.hasMany(Movimentos, {foreignKey: 'ordem'})
-Movimentos.belongsTo(Ordem, {foreignKey: 'ordem'})
+Order.hasMany(Movements, {foreignKey: 'ordem'})
+Movements.belongsTo(Order, {foreignKey: 'ordem'})
 
-module.exports = Movimentos; 
+module.exports = Movements; 

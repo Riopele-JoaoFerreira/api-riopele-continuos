@@ -1,10 +1,11 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
-const OrdemMaquina = require('./riopele40_ordem_maquinas');
 
-class OrdemPlaneada extends Model {}
+const Order_Machine = require('./riopele40_ordem_maquinas');
 
-OrdemPlaneada.init({
+class Order_Planned extends Model {}
+
+Order_Planned.init({
    id_seccao: DataTypes.INTEGER,
    sequencia: DataTypes.INTEGER, 
    artigo: DataTypes.STRING, 
@@ -44,6 +45,6 @@ OrdemPlaneada.init({
    }
 }, { sequelize, modelName: 'riopele40_ordens_planeadas', tableName: 'riopele40_ordens_planeadas' });
 
-OrdemPlaneada.belongsTo(OrdemMaquina, {foreignKey: 'id_ordem_maquina'})
+Order_Planned.belongsTo(Order_Machine, {foreignKey: 'id_ordem_maquina'})
 
-module.exports = OrdemPlaneada; 
+module.exports = Order_Planned; 

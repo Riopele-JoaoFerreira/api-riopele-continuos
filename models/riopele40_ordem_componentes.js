@@ -1,11 +1,11 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const OrdemSAP = require('./riopele40_ordens_sap')
+const Order = require('./riopele40_ordens_sap')
 
-class OrdemComponentes extends Model {}
+class Order_Components extends Model {}
 
-OrdemComponentes.init({
+Order_Components.init({
    ordem: {
       type: DataTypes.STRING,
       references: {
@@ -26,7 +26,7 @@ OrdemComponentes.init({
    tonalidade: DataTypes.STRING
 }, { sequelize, modelName: 'riopele40_ordens_componentes', tableName: 'riopele40_ordens_componentes' });
 
-OrdemSAP.hasMany(OrdemComponentes, {foreignKey: 'cod_sap'})
-OrdemComponentes.belongsTo(OrdemSAP, {foreignKey: 'cod_sap'})
+Order.hasMany(Order_Components, {foreignKey: 'cod_sap'})
+Order_Components.belongsTo(Order, {foreignKey: 'cod_sap'})
 
-module.exports = OrdemComponentes; 
+module.exports = Order_Components; 

@@ -1,11 +1,11 @@
 const sequelize = require('../utilities/connection').connection;
 const { Model, DataTypes } = require('sequelize');
 
-const Maquina = require('./riopele40_maquinas')
+const Machine = require('./riopele40_maquinas')
 
-class Calendario extends Model {}
+class Calendar extends Model {}
 
-Calendario.init({
+Calendar.init({
    id_seccao: DataTypes.INTEGER,
    dia: DataTypes.DATEONLY,
    cod_maquina_fabricante: DataTypes.STRING,
@@ -22,7 +22,7 @@ Calendario.init({
    }
 }, { sequelize, modelName: 'riopele40_calendario', tableName: 'riopele40_calendario' });
 
-Maquina.hasMany(Calendario, {foreignKey: 'id_riopele40_maquina'})
-Calendario.belongsTo(Maquina, {foreignKey: 'id_riopele40_maquina'})
+Machine.hasMany(Calendar, {foreignKey: 'id_riopele40_maquina'})
+Calendar.belongsTo(Machine, {foreignKey: 'id_riopele40_maquina'})
 
-module.exports = Calendario; 
+module.exports = Calendar; 
