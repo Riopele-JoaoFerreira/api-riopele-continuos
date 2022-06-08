@@ -20,6 +20,7 @@ Machine.init({
    posicao: DataTypes.INTEGER,
    ativa: DataTypes.TINYINT,
    identificador_opcua: DataTypes.STRING,
+   id_seccao: DataTypes.INTEGER,
    id_servidor: {
       type: DataTypes.INTEGER,
       references: {
