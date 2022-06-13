@@ -133,9 +133,13 @@ exports.updateTable = (req, res) => {
         } else {
             Opcua.setTableOrders(nodes_to_write, (error) => {
                 if(!error) {
-                    res.status(200).send("Success"); 
+                    if(res) {
+                         res.status(200).send("Success"); 
+                    }
                 } else {
-                    res.status(400).send("Error");
+                    if(res) {
+                        res.status(400).send("Error");
+                    }
                 }
             })
         }

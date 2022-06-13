@@ -1,6 +1,7 @@
 const moment= require('moment');
 const OPCUA_Client = require('node-opcua');
 const async = require('async');
+const sequelize = require('../utilities/connection').connection;
 const Op = require('sequelize').Op; 
 const options = require('../config/opcua').config
 const endpoint_Url = require('../config/opcua').url
@@ -10,6 +11,8 @@ const Machine = require('../models/riopele40_maquinas')
 const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
+const Controller = require('../controllers/riopele40_ordens');
+
 
 let session = null;
 let running_job = false; 
@@ -19,16 +22,13 @@ async function connect() {
     try {
         await client.connect(endpoint_Url);
         session = await client.createSession();
-    } catch(err) {
-        console.log("An error has occured : ",err);
-    }
+    } catch(err) {}
 }
 
 async function disconnect() {
     await client.disconnect();
 }
 
-// SET TABLE ON "ORDENS PLANEADAS" MENU
 exports.setTableOrders = function (table, callback) {
     connect().then(() => {
         let error = null; 
@@ -49,7 +49,6 @@ exports.setTableOrders = function (table, callback) {
     });
 }
 
-// EXPORT NEW EVENTS FROM OPCUA
 exports.exportEvents = function () {
 
     if(!running_job) {
@@ -188,13 +187,13 @@ exports.exportEvents = function () {
     }
 }
 
-// EXPORT NEW EVENTS FROM OPCUA
 exports.updateOrders = function () {
 
     if(!running_job) {
         running_job = true; 
         let machines_list = null;
-        let machine_index = []; 
+        let opcua_identifiers = []; 
+        let machines_id = []; 
         let nodes_to_read = [];  
         
         let getMachineInfo = (callback) => {
@@ -230,6 +229,7 @@ exports.updateOrders = function () {
                             let loops = res[0].repeticoes
                             let array = []; 
                             let machines_array = []; 
+                            let ids = []; 
                             for (let i = 1; i <= loops; i++) {
                                 res.forEach(method => {
                                     let obj =  {
@@ -237,10 +237,12 @@ exports.updateOrders = function () {
                                     }
                                     array.push(obj)
                                     machines_array.push(machine.identificador_opcua)
+                                    ids.push(machine.id)
                                 })
                             }
                             nodes_to_read = array
-                            machine_index = machines_array
+                            opcua_identifiers = machines_array
+                            machines_id = ids; 
                             return callback(); 
                         }).catch((err) => {
                             return callback();
@@ -263,7 +265,7 @@ exports.updateOrders = function () {
                     res = await session.read(node);
                     let order = res.value.value[0]
                     if(order != '') {
-                        await updateOrder(order, machine_index[i], i + 1)
+                        await updateOrder(order, opcua_identifiers[i], machines_id[i], i + 1)
                     }
                     i ++; 
                 });
@@ -342,7 +344,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj) {
     return obj
 }
 
-async function updateOrder(order, identificador_opcua, index) {
+async function updateOrder(order, identificador_opcua, machine_id, index) {
 
     let getMethodID = async (callback) => {
         method_order_id = await getMethod('ordem_atual', "ID"); 
@@ -376,15 +378,25 @@ async function updateOrder(order, identificador_opcua, index) {
         let state_res = await session.read(state_obj);
         let state = await state_res.map(result => result.value.value)[0];
 
-        Order_Planned.update({
-            fusos: splindles, 
-            estado: state 
-        }, {
-            where: {
-                id: id
-            }
-        }).then((res) => {
-            return true;
+        sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = 0 WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')").then((res) => {
+            Order_Planned.update({
+                fusos: splindles, 
+                estado: state 
+            }, {
+                where: {
+                    id: id
+                }
+            }).then((res) => {
+                let req = {
+                    body: {
+                        id: machine_id
+                    }
+                }
+                Controller.updateTable(req, null)
+                return true;
+            }).catch((err) => {
+                return false;
+            })
         }).catch((err) => {
             return false;
         })
