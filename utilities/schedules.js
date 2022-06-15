@@ -12,4 +12,9 @@ exports.eventsSchedule = () => {
       console.log('Update Running Orders');
       utilities_opcua.updateOrders((callback)=> {})
   });
+
+  cron.schedule(' * * * * *', () => {
+    //console.log('Wake Session');
+    //utilities_opcua.connect()
+});
 }

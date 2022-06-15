@@ -14,4 +14,14 @@ router.post('/',
     controller.updateTable(req, res);
 })
 
+router.post('/running',
+  body('id').notEmpty().isNumeric(), 
+  function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    controller.updateRunningTable(req, res);
+})
+
 module.exports = router
