@@ -255,9 +255,7 @@ exports.updateOrders = function () {
         nodes_to_read.forEach(async node => {
             res = await session.read(node);
             let order = res.value.value[0]
-            if(order != '') {
-                await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update)
-            }
+            await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update)
             i ++; 
         });
     })
@@ -363,28 +361,36 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list) 
         let splindles = await splindles_res.map(result => result.value.value)[0];
         let state_res = await session.read(state_obj);
         let state = await state_res.map(result => result.value.value)[0];
-        sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"' AND ordem NOT IN ("+orders_list.join(',')+"))").then((res) => {
-            Order_Planned.update({
-                fusos: splindles, 
-                estado: state 
-            }, {
-                where: {
-                    id: id
-                }
-            }).then((res) => {
-                let req = {
-                    body: {
-                        id: machine_id
+
+      
+
+        if(orders_list.length == 0) {
+            await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
+            return true; 
+        } else {
+            sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"' AND ordem NOT IN ("+orders_list.join(',')+"))").then((res) => {
+                Order_Planned.update({
+                    fusos: splindles, 
+                    estado: state 
+                }, {
+                    where: {
+                        id: id
                     }
-                }
-                Controller.updateTable(req, null)
-                return true;
+                }).then((res) => {
+                    let req = {
+                        body: {
+                            id: machine_id
+                        }
+                    }
+                    Controller.updateTable(req, null)
+                    return true;
+                }).catch((err) => {
+                    return false;
+                })
             }).catch((err) => {
                 return false;
             })
-        }).catch((err) => {
-            return false;
-        })
+        }
     })
 }
 
