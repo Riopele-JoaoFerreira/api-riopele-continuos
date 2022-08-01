@@ -288,7 +288,7 @@ exports.updateOrders = function () {
             let i = 0; 
             nodes_to_read.forEach(async node => {
                 res = await session_.read(node);
-                await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
+                await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_updatecle, session_)
                 i ++; 
             });
             return callback(); 
