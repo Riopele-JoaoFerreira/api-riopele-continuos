@@ -3,8 +3,8 @@ const utilities_opcua = require('../utilities/opcua')
 
 exports.eventsSchedule = () => {
     cron.schedule('*/30 * * * * *', () => {
-        console.log('Exporting Events');
-        utilities_opcua.exportEvents((callback)=> {})
+      console.log('Exporting Events');
+      utilities_opcua.exportEvents((callback)=> {})
     });
 
    
@@ -13,7 +13,7 @@ exports.eventsSchedule = () => {
       utilities_opcua.updateOrders((callback)=> {})
   });
 
-  cron.schedule(' * * * * *', () => {
+  cron.schedule('*/10 * * * * *', () => {
     //console.log('Wake Session');
     //utilities_opcua.connect()
 });

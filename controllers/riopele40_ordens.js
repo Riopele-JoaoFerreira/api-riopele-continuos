@@ -128,10 +128,11 @@ exports.updateTable = (req, res) => {
     }
 
     async.waterfall([getMachineInfo, getOrdersInMachine, getOrdersInfo, getMethods], () => {
+        let server_name = machine_info[0].riopele40_servidores_opcua.url; 
         if(error) {
             res.status(400).send('Error'); 
         } else {
-            Opcua.setTableOrders(nodes_to_write, (error) => {
+            Opcua.setTableOrders(nodes_to_write, server_name, (error) => {
                 if(!error) {
                     if(res) {
                          res.status(200).send("Success"); 
@@ -153,6 +154,7 @@ exports.updateRunningTable = (req, res) => {
     let orders_info = null; 
     let error = null; 
     let nodes_to_write = []; 
+    let server_name = null; 
 
     let getMachineInfo = (callback) => {
         Machine.findAll(
@@ -166,9 +168,9 @@ exports.updateRunningTable = (req, res) => {
             }
         ).then((res)=> {
             machine_info = res; 
+            server_name = machine_info[0].riopele40_servidores_opcua.url; 
             return callback(); 
         }).catch((err) => {
-
             error = err; 
             return callback(); 
         })
@@ -228,7 +230,7 @@ exports.updateRunningTable = (req, res) => {
                 let method_obj = [
                     { nodeId: method_order.prefixo + machine_info[0].identificador_opcua + method_order.identificador + i + '_' + method_order.chave},
                 ];
-                let method_res = await Opcua.readNode(method_obj);
+                let method_res = await Opcua.readNode(method_obj, server_name);
                 let order_running = await method_res.map(result => result.value.value)[0];
                 
                 if(order_running[0] != '') {
@@ -281,10 +283,12 @@ exports.updateRunningTable = (req, res) => {
     }
 
     async.waterfall([getMachineInfo, getOrdersInMachine, getOrdersInfo, getMethods], () => {
+        
         if(error) {
+            console.log(error);
             res.status(400).send('Error'); 
         } else {
-            Opcua.setTableOrders(nodes_to_write, (error) => {
+            Opcua.setTableOrders(nodes_to_write, server_name, (error) => {
                 if(!error) {
                     if(res) {
                          res.status(200).send("Success"); 
