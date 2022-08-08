@@ -238,10 +238,10 @@ exports.updateOrders = function () {
         let server_name = null; 
         let session_ = null;
         machines_list.forEach(machine => {
-            stack.push((callback) => {
-                server_name = machine.riopele40_servidores_opcua.url; 
+            stack.push((callback) => {  
+                server_name = machine.riopele40_servidores_opcua.url;
                 session_ = searchServerName(server_name, sessions);
-                if(machine.id == 233 || machine.id == 220) {
+                if(machine.id == 220 || machine.id == 233) {
                     Method.findAll({
                         where: {
                             grupo: 'ordem_atual',
@@ -252,6 +252,11 @@ exports.updateOrders = function () {
                         let array = []; 
                         let machines_array = []; 
                         let ids = []; 
+                        let orders_to_update = []; 
+                        let nodes_to_read = []; 
+                        let opcua_identifiers = []; 
+                        let machines_id = []; 
+                        let stack1 = []; 
                         for (let i = 1; i <= loops; i++) {
                             res.forEach(method => {
                                 let obj =  {
@@ -265,7 +270,36 @@ exports.updateOrders = function () {
                         nodes_to_read = array
                         opcua_identifiers = machines_array
                         machines_id = ids; 
-                        return callback(); 
+                        nodes_to_read.forEach(async node => {
+                            stack1.push(async(callback) => {  
+                                res = await session_.read(node);
+                                try {
+                                    let order = res.value.value[0]
+                                
+                                    if(order != '') {
+                                        orders_to_update.push(order)
+                                    }
+
+                                    return callback(); 
+                                } catch (error) {
+                                    return callback()
+                                } 
+                            })
+                        });
+                        async.waterfall(stack1, () => {
+                            let i = 0; 
+                            let stack2 = []; 
+                            nodes_to_read.forEach(async node => {
+                                stack2.push(async(callback) => {  
+                                    res = await session_.read(node);
+                                    await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
+                                    i++; 
+                                })
+                            });
+                            async.waterfall(stack2, () => {
+                                return callback(); 
+                            })  
+                        })  
                     }).catch((err) => {
                         return callback();
                     })
@@ -274,25 +308,9 @@ exports.updateOrders = function () {
                 }
             })
         });
-        async.parallel(stack, () => {
-            let orders_to_update = []; 
-            nodes_to_read.forEach(async node => {
-                res = await session_.read(node);
-                try {
-                    let order = res.value.value[0]
-                    if(order != '') {
-                        orders_to_update.push(order)
-                    }
-                } catch (error) {} 
-            });
-            let i = 0; 
-            nodes_to_read.forEach(async node => {
-                res = await session_.read(node);
-                await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
-                i ++; 
-            });
+        async.waterfall(stack, () => {
             return callback(); 
-        })
+        })  
     }
 
     async.waterfall([getMachineInfo, getMethods], () => {})
