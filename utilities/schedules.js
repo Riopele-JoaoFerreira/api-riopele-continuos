@@ -7,14 +7,14 @@ exports.eventsSchedule = () => {
       utilities_opcua.exportEvents((callback)=> {})
     });
 
+    cron.schedule(' */2 * * * *', () => {
+      console.log('Record Productions');
+      utilities_opcua.recordProductions((callback)=> {})
+    });
    
     cron.schedule('*/10 * * * * *', () => {
       console.log('Update Running Orders');
       utilities_opcua.updateOrders((callback)=> {})
   });
 
-  cron.schedule('*/10 * * * * *', () => {
-    //console.log('Wake Session');
-    //utilities_opcua.connect()
-});
 }

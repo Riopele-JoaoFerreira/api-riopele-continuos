@@ -24,11 +24,11 @@ Movements.init({
       }
    },
    quantidade_produzida: DataTypes.FLOAT,
-   data_inicio: DataTypes.DATE,
-   data_fim: DataTypes.DATE,
+   data_inicio: DataTypes.STRING,
+   data_fim: DataTypes.STRING,
    estado_sap: DataTypes.CHAR, 
    num_jogo: DataTypes.INTEGER
-}, { sequelize, modelName: 'riopele40_producoes_jogos_movimentos', tableName: 'riopele40_producoes_jogos_movimentos' });
+}, { sequelize, modelName: 'riopele40_producoes_jogos_movimentos_TESTES', tableName: 'riopele40_producoes_jogos_movimentos_TESTES' });
 
 Machine.hasMany(Movements, {foreignKey: 'cod_sap'})
 Movements.belongsTo(Machine, {foreignKey: 'cod_sap'})

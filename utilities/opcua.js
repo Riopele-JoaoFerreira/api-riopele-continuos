@@ -9,9 +9,16 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
+const { calculateEstimatedWeight, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo } = require('./utilities');
+const Production = require('../models/riopele40_producoes');
+const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 
 let clients = []; 
 let sessions = []; 
+let startOrderEvents = [11];
+let startGameEvents = [7];
+let endOrderEvents = [13];
+let endGameEvents = [9];
 
 async function connect() {
 
@@ -49,6 +56,24 @@ async function connect() {
 }
 
 connect(); 
+
+/*setTimeout(function() {
+    let obj_test = {
+        id_seccao: 18,
+        cod_sap: 'PCON0101',
+        cod_evento: 1,                
+        cod_maquina_fabricante: 101,
+        data_inicio: '2022-08-11 12:15:00', 
+        cod_estado: 1,
+        ordem: '200020962',
+    }
+
+    let server_name_test = 'SRVRIOT02'; 
+    let session_test = searchServerName(server_name_test, sessions);
+
+    startGame(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
+
+}, 5000)*/
 
 exports.setTableOrders = function (table, server_name, callback) {
     let error = null; 
@@ -187,7 +212,17 @@ exports.exportEvents = function () {
                                             }
                                         }
                                     }).then((res) => {
-                                        Events.create(obj).then((res) => {}).catch((err) => {
+                                        Events.create(obj).then((res) => {
+                                            if(startOrderEvents.includes(obj.cod_evento)) {
+                                                startOrder(obj, session_, machine.identificador_opcua)
+                                            } else if(startGameEvents.includes(obj.cod_evento)) {
+                                                startGame(obj, session_, machine.identificador_opcua)
+                                            } else if(endOrderEvents.includes(obj.cod_evento)) {
+                                                endOrder(obj, session_, machine.identificador_opcua)
+                                            } else if(endGameEvents.includes(obj.cod_evento)) {
+                                                endGame(obj, session_, machine.identificador_opcua)
+                                            }
+                                        }).catch((err) => {
                                             console.log(err);
                                         })
                                     }).catch((err) => {
@@ -210,9 +245,6 @@ exports.exportEvents = function () {
 exports.updateOrders = function () {
 
     let machines_list = null;
-    let opcua_identifiers = []; 
-    let machines_id = []; 
-    let nodes_to_read = [];  
     
     let getMachineInfo = (callback) => {
         Machine.findAll({
@@ -314,6 +346,117 @@ exports.updateOrders = function () {
     }
 
     async.waterfall([getMachineInfo, getMethods], () => {})
+}
+
+exports.recordProductions = function () {
+
+    let machines_list = null;
+    
+    let getMachineInfo = (callback) => {
+        Machine.findAll({
+            include: {
+                model: OPCUA_Server, 
+            },
+            where: {
+                identificador_opcua: {
+                    [Op.ne]: null
+                }
+            }
+        }).then((res)=> {
+            machines_list = res; 
+            return callback(); 
+        }).catch((err) => {
+            console.log(err);
+            return callback(); 
+        })
+    }
+
+    let getMethods = (callback) => {
+        let stack = []; 
+        let server_name = null; 
+        let session_ = null;
+        machines_list.forEach(machine => {
+            stack.push((callback) => {  
+                server_name = machine.riopele40_servidores_opcua.url;
+                session_ = searchServerName(server_name, sessions);
+                if(machine.id == 220 || machine.id == 233) {
+                    Method.findAll({
+                        where: {
+                            grupo: 'ordem_atual',
+                            chave: 'ordem'
+                        }
+                    }).then(res => {
+                        let loops = res[0].repeticoes
+                        let array = []; 
+                        let machines_array = []; 
+                        let ids = []; 
+                        let orders_to_update = []; 
+                        let nodes_to_read = []; 
+                        let opcua_identifiers = []; 
+                        let machines_id = []; 
+                        let stack1 = []; 
+                        for (let i = 1; i <= loops; i++) {
+                            res.forEach(method => {
+                                let obj =  {
+                                    nodeId: method.prefixo + machine.identificador_opcua + method.identificador + i + "_" + method.chave,
+                                }
+                                array.push(obj)
+                                machines_array.push(machine.identificador_opcua)
+                                ids.push(machine.id)
+                            })
+                        }
+                        nodes_to_read = array
+                        opcua_identifiers = machines_array
+                        machines_id = ids; 
+                        nodes_to_read.forEach(async node => {
+                            stack1.push(async(callback) => {  
+                                res = await session_.read(node);
+                                try {
+                                    let order = res.value.value[0]
+                                
+                                    if(order != '') {
+                                        orders_to_update.push(order)
+                                    }
+
+                                    return callback(); 
+                                } catch (error) {
+                                    return callback()
+                                } 
+                            })
+                        });
+                        async.waterfall(stack1, () => {
+                            let i = 0; 
+                            let stack2 = []; 
+                            nodes_to_read.forEach(async node => {
+                                stack2.push(async(callback) => {  
+                                    res = await session_.read(node);
+                                    await recordProduction(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update[i], session_)
+                                    i++; 
+                                })
+                            });
+                            async.waterfall(stack2, () => {
+                                return callback(); 
+                            })  
+                        })  
+                    }).catch((err) => {
+                        return callback();
+                    })
+                } else {
+                    return callback(); 
+                }
+            })
+        });
+        async.waterfall(stack, () => {
+            return callback(); 
+        })  
+    }
+
+    async.waterfall([getMachineInfo, getMethods], () => {})
+}
+
+exports.readNode = async function(nodeID, server_name) {
+    let session_ = searchServerName(server_name, sessions); 
+    return await session_.read(nodeID);
 }
 
 async function getMethod(group, key) {
@@ -451,9 +594,114 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
     })
 }
 
-exports.readNode = async function(nodeID, server_name) {
-    let session_ = searchServerName(server_name, sessions); 
-    return await session_.read(nodeID);
+async function recordProduction(identificador_opcua, machine_id, index, order, session_) {
+
+    let getMethodID = async (callback) => {
+        method_order_id = await getMethod('ordem_atual', "ID"); 
+    }
+
+    let getActualProduction = async (callback) => {
+        method_order_production = await getMethod('ordem_atual', "var10"); 
+    }
+
+    async.parallel([getMethodID, getActualProduction], async () => {
+        let id_obj = [
+            { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+        ];
+
+        let production_obj = [
+            { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
+        ];
+
+        let id_res = await session_.read(id_obj);
+        let id = await id_res.map(result => result.value.value)[0];
+        let production_res = await session_.read(production_obj);
+        let production = await production_res.map(result => result.value.value)[0];
+
+        if(id > 0) {
+
+            let num_jogo = null; 
+            let machine_info = null; 
+
+            let getActualGameNumber_ = (callback) => {
+                getActualGameNumber(order, machine_info.cod_sap, (res)=>{
+                    num_jogo = res; 
+                    return callback();
+                })
+            }
+            
+            let getMachineInfo_ = (callback) => {
+                getMachineInfo(machine_id, (res)=>{
+                    machine_info = res; 
+                    return callback();
+                })
+            }
+    
+            async.waterfall([getMachineInfo_, getActualGameNumber_], async () => {
+                sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_movimentos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"'").then((res) => {
+                    let old_production = null; 
+                    if(res.length > 0) {
+                        if(res[0][0].quantidade_produzida > 0) {
+                            old_production = res[0][0].quantidade_produzida; 
+                        } else {
+                            old_production = 0; 
+                        }
+                    } else {
+                        old_production = 0; 
+                    }
+                    let date = moment().format('YYYY-MM-DD HH:mm:ss'); 
+                    Movements.update({
+                        data_fim: date
+                    }, {
+                        where: {
+                            id_seccao: machine_info.id_seccao, 
+                            cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                            ordem: order,
+                            data_fim: {
+                                [Op.eq]: null
+                            }
+                        }
+                    }).then((res) => {
+                        let new_production = parseFloat(production).toFixed(3) - old_production; 
+                        Movements.create({
+                            id_seccao: machine_info.id_seccao,
+                            cod_maquina_fabricante: machine_info.cod_maquina_fabricante,
+                            cod_sap: machine_info.cod_sap,
+                            ordem: order, 
+                            quantidade_produzida: new_production, 
+                            data_inicio: date, 
+                            estado_sap: 'P',
+                            num_jogo: num_jogo 
+                        }).then((res)=> {
+
+                            Production.update({
+                                quantidade_produzida: parseFloat(production).toFixed(3)
+                            }, {
+                                where: {
+                                    id_seccao: machine_info.id_seccao, 
+                                    cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                    ordem: order, 
+                                    num_jogo: num_jogo
+                                }
+                            }).then((res) => {
+                                return true
+                            }).catch((err)=> {
+                                return false
+                            })
+                        }).catch((err) => {
+                            return false; 
+                        })
+                    }).catch((err)=> {
+                        return false; 
+                    })
+                }).catch((err) => {
+
+                    return false
+                }) 
+            })
+        }
+    })
+    return true; 
 }
 
 function searchServerName(nameKey, myArray){
@@ -462,6 +710,148 @@ function searchServerName(nameKey, myArray){
             return myArray[i][nameKey];
         }
     }
+}
+
+function startOrder(data) {
+}
+
+function endOrder(data) {
+}
+
+function startGame(data, session_, identificador_opcua) {
+
+    let num_jogo = null; 
+
+    let getMethodID = async () => {
+        method_id = await getMethod('ordem_atual', "ID"); 
+    }
+
+    let getMethodOrder = async () => {
+        method_order_id = await getMethod('ordem_atual', "ordem"); 
+    }
+
+    async.parallel([getMethodID, getMethodOrder], async () => {
+
+        let getGameNumber_ = (callback) => {
+            getGameNumber(data.ordem, data.cod_sap, (res)=>{
+                num_jogo = res; 
+                return callback();
+            })
+        }
+    
+        let closeIfOpen_ = (callback) => {
+            closeIfOpen(data.ordem, data.cod_sap, data.data_inicio, (res) => {
+                return callback();
+            })
+        }
+
+        async.waterfall([closeIfOpen_, getGameNumber_], async () => {
+
+            for (let index = 1; index <= method_order_id.repeticoes; index++) {
+                let id_obj = [
+                    { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
+                ];
+        
+                let order_obj = [
+                    { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+                ];
+
+                let id_res = await session_.read(id_obj);
+                let id = await id_res.map(result => result.value.value)[0];
+                let order_res = await session_.read(order_obj);
+                let order = await order_res.map(result => result.value.value)[0];
+                if(order == data.ordem) {
+                    // ORDER DETAIL
+                    Order_Planned.findAll({
+                        where: {
+                            id: id
+                        }
+                    }).then((res) => {
+
+                        let getMethodComprimento = async (callback) => {
+                            //method_id = await getMethod('ordem_atual', "ID"); 
+                        }
+
+                        let getMethodTempoPrevisto = async (callback) => {
+                            //method_id = await getMethod('ordem_atual', "ID"); 
+                        }
+
+                        let getMethodVelocidade = async (callback) => {
+                            method_velocity = await getMethod('ordem_atual', "velocidade_sap"); 
+                        }
+
+                        let getMethodVelocidade_SP = async (callback) => {
+                            method_velocity_sp = await getMethod('ordem_atual', "sp_velocidade"); 
+                        }
+
+                        let getMethodTorcao = async (callback) => {
+                            method_twist = await getMethod('ordem_atual', "torcao"); 
+                        }
+
+                        let getMethodNE = async (callback) => {
+                            method_ne = await getMethod('ordem_atual', "ne_final"); 
+                        }
+
+                        async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP], async () => {
+                            let method_velocity_obj = [
+                                { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
+                            ];
+                    
+                            let method_twist_obj = [
+                                { nodeId: method_twist.prefixo + identificador_opcua + method_twist.identificador + index + '_' + method_twist.chave},
+                            ];
+
+                            let method_ne_obj = [
+                                { nodeId: method_ne.prefixo + identificador_opcua + method_ne.identificador + index + '_' + method_ne.chave},
+                            ];
+
+                            let method_velocity_sp_obj = [
+                                { nodeId: method_velocity_sp.prefixo + identificador_opcua + method_velocity_sp.identificador + index + '_' + method_velocity_sp.chave},
+                            ];
+
+                            let velocity_res = await session_.read(method_velocity_obj);
+                            let velocity = await velocity_res.map(result => result.value.value)[0];
+                            let twist_res = await session_.read(method_twist_obj);
+                            let twist = await twist_res.map(result => result.value.value)[0];
+                            let ne_res = await session_.read(method_ne_obj);
+                            let ne = await ne_res.map(result => result.value.value)[0];
+                            let velocity_sp_res = await session_.read(method_velocity_sp_obj);
+                            let velocity_sp = await velocity_sp_res.map(result => result.value.value)[0];
+
+                            let obj = {
+                                id_seccao: data.id_seccao,    
+                                cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                cod_sap: data.cod_sap,
+                                ordem: data.ordem,
+                                quantidade_prevista: calculateEstimatedWeight(velocity, twist, ne), 
+                                quantidade_produzida: 0, 
+                                data_inicio: data.data_inicio, 
+                                fusos: res[0].fusos, 
+                                comprimento: 0, 
+                                tempo_previsto: 0, 
+                                velocidade_setpoint : velocity_sp,
+                                num_jogo: num_jogo 
+                            } 
+
+                            Production.create(obj).then((res)=> {
+                                console.log("Record Created");
+                            }).then((err) => {
+                                if(err) {
+                                    console.log("Error");
+                                }
+                            })
+                        })
+                    })
+                    break; 
+                } else {
+                    continue; 
+                }
+            }
+        })
+    }) 
+}
+
+function endGame(data) {
 }
 
 exports.getMethod = getMethod; 

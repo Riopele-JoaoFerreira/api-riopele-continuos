@@ -26,13 +26,13 @@ Production.init({
    num_jogo: DataTypes.INTEGER, 
    quantidade_prevista: DataTypes.FLOAT, 
    quantidade_produzida: DataTypes.FLOAT, 
-   data_inicio: DataTypes.DATE,
-   data_fim: DataTypes.DATE,
+   data_inicio: DataTypes.STRING,
+   data_fim: DataTypes.STRING,
    qtd_ordem_inicio: DataTypes.FLOAT, 
    qtd_ordem_fim: DataTypes.FLOAT,
    fusos: DataTypes.INTEGER, 
    comprimento: DataTypes.INTEGER
-}, { sequelize, modelName: 'riopele40_producoes_jogos', tableName: 'riopele40_producoes_jogos' });
+}, { sequelize, modelName: 'riopele40_producoes_jogos_TESTES', tableName: 'riopele40_producoes_jogos_TESTES' });
 
 Machine.hasMany(Production, {foreignKey: 'cod_sap'})
 Production.belongsTo(Machine, {foreignKey: 'cod_sap'})
