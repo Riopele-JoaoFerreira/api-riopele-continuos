@@ -71,7 +71,7 @@ connect();
     let server_name_test = 'SRVRIOT02'; 
     let session_test = searchServerName(server_name_test, sessions);
 
-    endOrder(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
+    startOrder(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
 
 }, 5000)*/
 
@@ -737,7 +737,52 @@ function searchServerName(nameKey, myArray){
     }
 }
 
-function startOrder(data) {
+function startOrder(data, session_, identificador_opcua) {
+
+    let getMethodID = async () => {
+        method_id = await getMethod('ordem_atual', "ID"); 
+    }
+
+    let getMethodOrder = async () => {
+        method_order_id = await getMethod('ordem_atual', "ordem"); 
+    }
+
+    async.parallel([getMethodID, getMethodOrder], async () => {
+
+        for (let index = 1; index <= method_order_id.repeticoes; index++) {
+
+            let id_obj = [
+                { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
+            ];
+    
+            let order_obj = [
+                { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+            ];
+
+            let id_res = await session_.read(id_obj);
+            let id = await id_res.map(result => result.value.value)[0];
+            let order_res = await session_.read(order_obj);
+            let order = await order_res.map(result => result.value.value)[0];
+            if(order == data.ordem) { 
+            
+                Order_Planned.update({
+                    data_inicio: data.data_inicio
+                }, {
+                    where: {
+                        id: id
+                    }
+                }).then((res)=> {
+                    return true
+                }).catch((err) => {
+                    return false
+                })
+                break; 
+            } else {
+                continue; 
+            }
+        }
+      
+    }) 
 }
 
 function endOrder(data, session_, identificador_opcua) {
