@@ -9,7 +9,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
-const { calculateEstimatedWeight, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo } = require('./utilities');
+const { calculateEstimatedWeight, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 
@@ -61,7 +61,7 @@ connect();
     let obj_test = {
         id_seccao: 18,
         cod_sap: 'PCON0101',
-        cod_evento: 1,                
+        cod_evento: 13,                
         cod_maquina_fabricante: 101,
         data_inicio: '2022-08-11 12:15:00', 
         cod_estado: 1,
@@ -71,7 +71,7 @@ connect();
     let server_name_test = 'SRVRIOT02'; 
     let session_test = searchServerName(server_name_test, sessions);
 
-    startGame(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
+    endGame(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
 
 }, 5000)*/
 
@@ -876,7 +876,110 @@ function startGame(data, session_, identificador_opcua) {
     }) 
 }
 
-function endGame(data) {
+function endGame(data, session_, identificador_opcua) {
+
+    let num_jogo = null; 
+
+    let getMethodID = async () => {
+        method_id = await getMethod('ordem_atual', "ID"); 
+    }
+
+    let getMethodOrder = async () => {
+        method_order_id = await getMethod('ordem_atual', "ordem"); 
+    }
+
+    async.parallel([getMethodID, getMethodOrder], async () => {
+
+        let getActualGameNumber_ = (callback) => {
+            getActualGameNumber(data.ordem, data.cod_sap, (res)=>{
+                num_jogo = res; 
+                return callback();
+            })
+        }
+
+        async.waterfall([getActualGameNumber_], async () => {
+
+            for (let index = 1; index <= method_order_id.repeticoes; index++) {
+
+                let machine_info = null; 
+
+                let id_obj = [
+                    { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
+                ];
+        
+                let order_obj = [
+                    { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+                ];
+
+                let id_res = await session_.read(id_obj);
+                let id = await id_res.map(result => result.value.value)[0];
+                let order_res = await session_.read(order_obj);
+                let order = await order_res.map(result => result.value.value)[0];
+                if(order == data.ordem) {
+
+                    let getActualProduction = async (callback) => {
+                        method_production = await getMethod('ordem_atual', "var10"); 
+                    }
+                
+                    let getActualProductionOrder = async (callback) => {
+                        method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+                    }
+
+                    let getMachineInfoByOPCUAID_ = (callback) => {
+                        getMachineInfoByOPCUAID(identificador_opcua, (res)=>{
+                            machine_info = res; 
+                            return callback();
+                        })
+                    }
+
+                    async.parallel([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
+                        
+                        let production_obj = [
+                            { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
+                        ];
+                
+                        let production_order_obj = [
+                            { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
+                        ];
+                
+                        let production_res = await session_.read(production_obj);
+                        let production = await production_res.map(result => result.value.value)[0];
+                        let production_order_res = await session_.read(production_order_obj);
+                        let production_order = await production_order_res.map(result => result.value.value)[0];
+
+                        Production.update({
+                            quantidade_produzida: parseFloat(production).toFixed(3),
+                            data_fim: data.data_inicio
+                        }, {
+                            where: {
+                                id_seccao: machine_info.id_seccao, 
+                                cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                ordem: order, 
+                                num_jogo: num_jogo
+                            }
+                        }).then((res) => {
+                            Order_Planned.update({
+                                quantidade_produzida: parseFloat(production_order).toFixed(3)
+                            }, {
+                                where: {
+                                    id: id
+                                }
+                            }).then((res)=> {
+                                return true
+                            }).catch((err) => {
+                                return false
+                            })
+                        }).catch((err)=> {
+                            return false
+                        })
+                    })  
+                    break; 
+                } else {
+                    continue; 
+                }
+            }
+        })
+    }) 
 }
 
 exports.getMethod = getMethod; 
