@@ -601,15 +601,23 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
     }
 
     let getActualProduction = async (callback) => {
-        method_order_production = await getMethod('ordem_atual', "var10"); 
+        method_production = await getMethod('ordem_atual', "var10"); 
     }
 
-    async.parallel([getMethodID, getActualProduction], async () => {
+    let getActualProductionOrder = async (callback) => {
+        method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+    }
+
+    async.parallel([getMethodID, getActualProduction, getActualProductionOrder], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
 
         let production_obj = [
+            { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
+        ];
+
+        let production_order_obj = [
             { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
         ];
 
@@ -617,6 +625,8 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         let id = await id_res.map(result => result.value.value)[0];
         let production_res = await session_.read(production_obj);
         let production = await production_res.map(result => result.value.value)[0];
+        let production_order_res = await session_.read(production_order_obj);
+        let production_order = await production_order_res.map(result => result.value.value)[0];
 
         if(id > 0) {
 
@@ -689,7 +699,17 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     num_jogo: num_jogo
                                 }
                             }).then((res) => {
-                                return true
+                                Order_Planned.update({
+                                    quantidade_produzida: parseFloat(production_order).toFixed(3)
+                                }, {
+                                    where: {
+                                        id: id
+                                    }
+                                }).then((res)=> {
+                                    return true
+                                }).catch((err) => {
+                                    return false
+                                })
                             }).catch((err)=> {
                                 return false
                             })
