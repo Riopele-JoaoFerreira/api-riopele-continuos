@@ -638,7 +638,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             }
     
             async.waterfall([getMachineInfo_, getActualGameNumber_], async () => {
-                sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_movimentos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"'").then((res) => {
+                sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_movimentos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"' AND num_jogo = '"+ num_jogo +"'").then((res) => {
                     let old_production = null; 
                     if(res.length > 0) {
                         if(res[0][0].quantidade_produzida > 0) {
@@ -663,6 +663,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                         }
                     }).then((res) => {
                         let new_production = parseFloat(production).toFixed(3) - old_production; 
+
+                        if(new_production < 0) {
+                            new_production = 0
+                        }
+
                         Movements.create({
                             id_seccao: machine_info.id_seccao,
                             cod_maquina_fabricante: machine_info.cod_maquina_fabricante,
