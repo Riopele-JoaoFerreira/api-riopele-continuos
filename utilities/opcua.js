@@ -12,6 +12,7 @@ const Controller = require('../controllers/riopele40_ordens');
 const { calculateEstimatedWeight, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
+const Stops = require('../models/riopele40_motivos_paragem');
 
 let clients = []; 
 let sessions = []; 
@@ -458,6 +459,56 @@ exports.readNode = async function(nodeID, server_name) {
     let session_ = searchServerName(server_name, sessions); 
     return await session_.read(nodeID);
 }
+
+exports.getMachineStatus = function (nodes_to_read, callback) {
+    let error = null; 
+    let stack = [];
+    let list = {}; 
+    nodes_to_read.forEach(node => {
+        stack.push((callback) => {
+            let session_ = searchServerName(node[0].server_name, sessions); 
+            session_.read(node[1]).then((res)=> {
+
+                let estado = res.value.value; 
+
+                Stops.findAll({
+                    where: {
+                        id_seccao: node[3].section, 
+                        cod_paragem: estado, 
+                        tipo: 'ES' 
+                    }
+                }).then((stop) => {
+                    let obj = {
+                        id: node[2].machine.id,
+                        cod_sap: node[2].machine.cod_sap,
+                        cod_maquina_fabricante: node[2].machine.cod_maquina_fabricante,
+                        num_fusos: node[2].machine.num_fusos,
+                        cod_estado: estado,
+                        info_estado: stop
+                    }
+                    
+                    if(list.hasOwnProperty(node[2].machine.riopele40_grupos_maquina.nome)) {
+                        list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
+                    } else {
+                        list[node[2].machine.riopele40_grupos_maquina.nome] = []; 
+                        list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
+                    }
+                    return callback()
+                }).catch((err) => {
+                    error = err;
+                    return callback(); 
+                })
+            }).catch((err)=> {
+                error = err;
+                return callback()
+            });    
+        })
+    })
+    async.waterfall(stack, () => {
+        return callback(list, error);
+    })
+}
+
 
 async function getMethod(group, key) {
     let method = await Method.findAll({
