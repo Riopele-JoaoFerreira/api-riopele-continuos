@@ -48,8 +48,7 @@ exports.getAllStatus = (req, res) => {
             }
         }).then(res => {
             let array = []; 
-            res.forEach(method => {
-
+            res.forEach(method => {  
                 machine_info.forEach(machine => {
                     let obj = [{server_name: machine.riopele40_servidores_opcua.url},{ nodeId: method.prefixo + machine.identificador_opcua + method.identificador}, {machine: machine}, {section: req.params.section}];
                     array.push(obj)
