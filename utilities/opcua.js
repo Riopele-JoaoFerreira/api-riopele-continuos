@@ -151,92 +151,89 @@ exports.exportEvents = function () {
                 // REMOVE LATER
                 let server_name = machine.riopele40_servidores_opcua.url; 
                 let session_ = searchServerName(server_name, sessions);
-                if(machine.id == 233 || machine.id == 220) {
-                    let event_info = null; 
 
-                    event_obj = [
-                        { nodeId: method_event_code.prefixo + machine.identificador_opcua + method_event_code.identificador},
-                    ];
+                let event_info = null; 
 
-                    state_obj = [
-                        { nodeId: method_event_state.prefixo + machine.identificador_opcua + method_event_state.identificador},
-                    ];
+                event_obj = [
+                    { nodeId: method_event_code.prefixo + machine.identificador_opcua + method_event_code.identificador},
+                ];
 
-                    order_obj = [
-                        { nodeId: method_event_order.prefixo + machine.identificador_opcua + method_event_order.identificador},
-                    ];
+                state_obj = [
+                    { nodeId: method_event_state.prefixo + machine.identificador_opcua + method_event_state.identificador},
+                ];
 
-                    date_obj = [
-                        { nodeId: method_event_date.prefixo + machine.identificador_opcua + method_event_date.identificador},
-                    ];
+                order_obj = [
+                    { nodeId: method_event_order.prefixo + machine.identificador_opcua + method_event_order.identificador},
+                ];
 
-                    hour_obj = [
-                        { nodeId: method_event_hour.prefixo + machine.identificador_opcua + method_event_hour.identificador},
-                    ];
+                date_obj = [
+                    { nodeId: method_event_date.prefixo + machine.identificador_opcua + method_event_date.identificador},
+                ];
 
-                    (async ()=>{
-                        while (await (event_info = await getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, session_)).event_code > 0){
-                            let node_to_write = [
-                                {
-                                    nodeId: method_new.prefixo + machine.identificador_opcua + method_new.identificador ,
-                                    attributeId: OPCUA_Client.AttributeIds.Value,
-                                    value: {    
-                                        value: { 
-                                            dataType: OPCUA_Client.DataType.Int16,
-                                            value: 0
+                hour_obj = [
+                    { nodeId: method_event_hour.prefixo + machine.identificador_opcua + method_event_hour.identificador},
+                ];
+
+                (async ()=>{
+                    while (await (event_info = await getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, session_)).event_code > 0){
+                        let node_to_write = [
+                            {
+                                nodeId: method_new.prefixo + machine.identificador_opcua + method_new.identificador ,
+                                attributeId: OPCUA_Client.AttributeIds.Value,
+                                value: {    
+                                    value: { 
+                                        dataType: OPCUA_Client.DataType.Int16,
+                                        value: 0
+                                    }
+                                }
+                            }        
+                        ];
+
+                        let obj = {
+                            id_seccao: machine.id_seccao,
+                            cod_sap: machine.cod_sap,
+                            cod_evento: event_info.event_code,                
+                            cod_maquina_fabricante: machine.cod_maquina_fabricante,
+                            data_inicio: event_info.timestamp, 
+                            cod_estado: event_info.state_code,
+                            ordem: event_info.order,
+                        }
+
+                        session_.write(node_to_write, function(err,status_code,diagnostic_info) {
+                            if (!err) {
+                                Events.update({
+                                    data_fim: event_info.timestamp,
+                                }, {
+                                    where: {
+                                        [Op.and]: {
+                                            cod_maquina_fabricante: machine.cod_maquina_fabricante,
+                                            data_fim: {
+                                                [Op.eq]: null
+                                            } 
                                         }
                                     }
-                                }        
-                            ];
-
-                            let obj = {
-                                id_seccao: machine.id_seccao,
-                                cod_sap: machine.cod_sap,
-                                cod_evento: event_info.event_code,                
-                                cod_maquina_fabricante: machine.cod_maquina_fabricante,
-                                data_inicio: event_info.timestamp, 
-                                cod_estado: event_info.state_code,
-                                ordem: event_info.order,
-                            }
-
-                            session_.write(node_to_write, function(err,status_code,diagnostic_info) {
-                                if (!err) {
-                                    Events.update({
-                                        data_fim: event_info.timestamp,
-                                    }, {
-                                        where: {
-                                            [Op.and]: {
-                                                cod_maquina_fabricante: machine.cod_maquina_fabricante,
-                                                data_fim: {
-                                                    [Op.eq]: null
-                                                } 
-                                            }
+                                }).then((res) => {
+                                    Events.create(obj).then((res) => {
+                                        if(startOrderEvents.includes(obj.cod_evento)) {
+                                            startOrder(obj, session_, machine.identificador_opcua)
+                                        } else if(startGameEvents.includes(obj.cod_evento)) {
+                                            startGame(obj, session_, machine.identificador_opcua)
+                                        } else if(endOrderEvents.includes(obj.cod_evento)) {
+                                            endOrder(obj, session_, machine.identificador_opcua)
+                                        } else if(endGameEvents.includes(obj.cod_evento)) {
+                                            endGame(obj, session_, machine.identificador_opcua)
                                         }
-                                    }).then((res) => {
-                                        Events.create(obj).then((res) => {
-                                            if(startOrderEvents.includes(obj.cod_evento)) {
-                                                startOrder(obj, session_, machine.identificador_opcua)
-                                            } else if(startGameEvents.includes(obj.cod_evento)) {
-                                                startGame(obj, session_, machine.identificador_opcua)
-                                            } else if(endOrderEvents.includes(obj.cod_evento)) {
-                                                endOrder(obj, session_, machine.identificador_opcua)
-                                            } else if(endGameEvents.includes(obj.cod_evento)) {
-                                                endGame(obj, session_, machine.identificador_opcua)
-                                            }
-                                        }).catch((err) => {
-                                            console.log(err);
-                                        })
                                     }).catch((err) => {
                                         console.log(err);
-                                    }) 
-                                }
-                            }); 
-                        }
-                    })()
-                    return callback(); 
-                } else {
-                    return callback(); 
-                }
+                                    })
+                                }).catch((err) => {
+                                    console.log(err);
+                                }) 
+                            }
+                        }); 
+                    }
+                })()
+                return callback(); 
             })    
         });
         async.parallel(stack, () => {})  

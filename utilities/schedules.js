@@ -11,7 +11,6 @@ exports.eventsSchedule = () => {
       console.log('Record Productions');
       utilities_opcua.recordProductions((callback)=> {})
     });
-   
     cron.schedule('*/30 * * * * *', () => {
       console.log('Update Running Orders');
       utilities_opcua.updateOrders((callback)=> {})
