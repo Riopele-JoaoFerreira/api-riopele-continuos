@@ -934,7 +934,7 @@ function startGame(data, session_, identificador_opcua) {
                     // ORDER DETAIL
                     Order_Planned.findAll({
                         where: {
-                            id: id
+                            id_ordem_maquina: id
                         }
                     }).then((res) => {
 
