@@ -935,11 +935,12 @@ function startGame(data, session_, identificador_opcua) {
                     // ORDER DETAIL
                     Order_Planned.findAll({
                         where: {
-                            id_ordem_maquina: id
+                            id: id
                         }
                     }).then((res) => {
                         console.log("entra3")
                         console.log(res);
+                        console.log(id);
                         let getMethodComprimento = async (callback) => {
                             //method_id = await getMethod('ordem_atual', "ID"); 
                         }
@@ -1015,6 +1016,8 @@ function startGame(data, session_, identificador_opcua) {
                                 }
                             })
                         })
+                    }).catch((err) => {
+                        console.log(err);
                     })
                     break; 
                 } else {
