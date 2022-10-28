@@ -271,71 +271,67 @@ exports.updateOrders = function () {
             stack.push((callback) => {  
                 server_name = machine.riopele40_servidores_opcua.url;
                 session_ = searchServerName(server_name, sessions);
-                if(machine.id == 220 || machine.id == 233) {
-                    Method.findAll({
-                        where: {
-                            grupo: 'ordem_atual',
-                            chave: 'ordem'
-                        }
-                    }).then(res => {
-                        let loops = res[0].repeticoes
-                        let array = []; 
-                        let machines_array = []; 
-                        let ids = []; 
-                        let orders_to_update = []; 
-                        let nodes_to_read = []; 
-                        let opcua_identifiers = []; 
-                        let machines_id = []; 
-                        let stack1 = []; 
-                        for (let i = 1; i <= loops; i++) {
-                            res.forEach(method => {
-                                let obj =  {
-                                    nodeId: method.prefixo + machine.identificador_opcua + method.identificador + i + "_" + method.chave,
+                Method.findAll({
+                    where: {
+                        grupo: 'ordem_atual',
+                        chave: 'ordem'
+                    }
+                }).then(res => {
+                    let loops = res[0].repeticoes
+                    let array = []; 
+                    let machines_array = []; 
+                    let ids = []; 
+                    let orders_to_update = []; 
+                    let nodes_to_read = []; 
+                    let opcua_identifiers = []; 
+                    let machines_id = []; 
+                    let stack1 = []; 
+                    for (let i = 1; i <= loops; i++) {
+                        res.forEach(method => {
+                            let obj =  {
+                                nodeId: method.prefixo + machine.identificador_opcua + method.identificador + i + "_" + method.chave,
+                            }
+                            array.push(obj)
+                            machines_array.push(machine.identificador_opcua)
+                            ids.push(machine.id)
+                        })
+                    }
+                    nodes_to_read = array
+                    opcua_identifiers = machines_array
+                    machines_id = ids; 
+                    nodes_to_read.forEach(async node => {
+                        stack1.push(async(callback) => {  
+                            res = await session_.read(node);
+                            try {
+                                let order = res.value.value[0]
+                            
+                                if(order != '') {
+                                    orders_to_update.push(order)
                                 }
-                                array.push(obj)
-                                machines_array.push(machine.identificador_opcua)
-                                ids.push(machine.id)
-                            })
-                        }
-                        nodes_to_read = array
-                        opcua_identifiers = machines_array
-                        machines_id = ids; 
-                        nodes_to_read.forEach(async node => {
-                            stack1.push(async(callback) => {  
-                                res = await session_.read(node);
-                                try {
-                                    let order = res.value.value[0]
-                                
-                                    if(order != '') {
-                                        orders_to_update.push(order)
-                                    }
 
-                                    return callback(); 
-                                } catch (error) {
-                                    return callback()
-                                } 
+                                return callback(); 
+                            } catch (error) {
+                                return callback()
+                            } 
+                        })
+                    });
+                    async.waterfall(stack1, () => {
+                        let i = 0; 
+                        let stack2 = []; 
+                        nodes_to_read.forEach(async node => {
+                            stack2.push(async(callback) => {  
+                                res = await session_.read(node);
+                                await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
+                                i++; 
                             })
                         });
-                        async.waterfall(stack1, () => {
-                            let i = 0; 
-                            let stack2 = []; 
-                            nodes_to_read.forEach(async node => {
-                                stack2.push(async(callback) => {  
-                                    res = await session_.read(node);
-                                    await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
-                                    i++; 
-                                })
-                            });
-                            async.waterfall(stack2, () => {
-                                return callback(); 
-                            })  
+                        async.waterfall(stack2, () => {
+                            return callback(); 
                         })  
-                    }).catch((err) => {
-                        return callback();
-                    })
-                } else {
-                    return callback(); 
-                }
+                    })  
+                }).catch((err) => {
+                    return callback();
+                })
             })
         });
         async.waterfall(stack, () => {
@@ -377,71 +373,67 @@ exports.recordProductions = function () {
             stack.push((callback) => {  
                 server_name = machine.riopele40_servidores_opcua.url;
                 session_ = searchServerName(server_name, sessions);
-                if(machine.id == 220 || machine.id == 233) {
-                    Method.findAll({
-                        where: {
-                            grupo: 'ordem_atual',
-                            chave: 'ordem'
-                        }
-                    }).then(res => {
-                        let loops = res[0].repeticoes
-                        let array = []; 
-                        let machines_array = []; 
-                        let ids = []; 
-                        let orders_to_update = []; 
-                        let nodes_to_read = []; 
-                        let opcua_identifiers = []; 
-                        let machines_id = []; 
-                        let stack1 = []; 
-                        for (let i = 1; i <= loops; i++) {
-                            res.forEach(method => {
-                                let obj =  {
-                                    nodeId: method.prefixo + machine.identificador_opcua + method.identificador + i + "_" + method.chave,
+                Method.findAll({
+                    where: {
+                        grupo: 'ordem_atual',
+                        chave: 'ordem'
+                    }
+                }).then(res => {
+                    let loops = res[0].repeticoes
+                    let array = []; 
+                    let machines_array = []; 
+                    let ids = []; 
+                    let orders_to_update = []; 
+                    let nodes_to_read = []; 
+                    let opcua_identifiers = []; 
+                    let machines_id = []; 
+                    let stack1 = []; 
+                    for (let i = 1; i <= loops; i++) {
+                        res.forEach(method => {
+                            let obj =  {
+                                nodeId: method.prefixo + machine.identificador_opcua + method.identificador + i + "_" + method.chave,
+                            }
+                            array.push(obj)
+                            machines_array.push(machine.identificador_opcua)
+                            ids.push(machine.id)
+                        })
+                    }
+                    nodes_to_read = array
+                    opcua_identifiers = machines_array
+                    machines_id = ids; 
+                    nodes_to_read.forEach(async node => {
+                        stack1.push(async(callback) => {  
+                            res = await session_.read(node);
+                            try {
+                                let order = res.value.value[0]
+                            
+                                if(order != '') {
+                                    orders_to_update.push(order)
                                 }
-                                array.push(obj)
-                                machines_array.push(machine.identificador_opcua)
-                                ids.push(machine.id)
-                            })
-                        }
-                        nodes_to_read = array
-                        opcua_identifiers = machines_array
-                        machines_id = ids; 
-                        nodes_to_read.forEach(async node => {
-                            stack1.push(async(callback) => {  
-                                res = await session_.read(node);
-                                try {
-                                    let order = res.value.value[0]
-                                
-                                    if(order != '') {
-                                        orders_to_update.push(order)
-                                    }
 
-                                    return callback(); 
-                                } catch (error) {
-                                    return callback()
-                                } 
+                                return callback(); 
+                            } catch (error) {
+                                return callback()
+                            } 
+                        })
+                    });
+                    async.waterfall(stack1, () => {
+                        let i = 0; 
+                        let stack2 = []; 
+                        nodes_to_read.forEach(async node => {
+                            stack2.push(async(callback) => {  
+                                res = await session_.read(node);
+                                await recordProduction(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update[i], session_)
+                                i++; 
                             })
                         });
-                        async.waterfall(stack1, () => {
-                            let i = 0; 
-                            let stack2 = []; 
-                            nodes_to_read.forEach(async node => {
-                                stack2.push(async(callback) => {  
-                                    res = await session_.read(node);
-                                    await recordProduction(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update[i], session_)
-                                    i++; 
-                                })
-                            });
-                            async.waterfall(stack2, () => {
-                                return callback(); 
-                            })  
+                        async.waterfall(stack2, () => {
+                            return callback(); 
                         })  
-                    }).catch((err) => {
-                        return callback();
-                    })
-                } else {
-                    return callback(); 
-                }
+                    })  
+                }).catch((err) => {
+                    return callback();
+                })
             })
         });
         async.waterfall(stack, () => {
