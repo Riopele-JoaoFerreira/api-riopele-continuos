@@ -921,12 +921,17 @@ function startGame(data, session_, identificador_opcua) {
                 let id_obj = [
                     { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
                 ];
+
+                console.log(id_obj);
         
                 let order_obj = [
                     { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
                 ];
 
+                console.log(order_obj);
+
                 let id_res = await session_.read(id_obj);
+                console.log(id_res);
                 let id = await id_res.map(result => result.value.value)[0];
                 let order_res = await session_.read(order_obj);
                 let order = await order_res.map(result => result.value.value)[0];
