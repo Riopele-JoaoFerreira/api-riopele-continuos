@@ -916,7 +916,7 @@ function startGame(data, session_, identificador_opcua) {
         }
 
         async.waterfall([closeIfOpen_, getGameNumber_], async () => {
-
+            console.log("entra1")
             for (let index = 1; index <= method_order_id.repeticoes; index++) {
                 let id_obj = [
                     { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
@@ -930,6 +930,7 @@ function startGame(data, session_, identificador_opcua) {
                 let id = await id_res.map(result => result.value.value)[0];
                 let order_res = await session_.read(order_obj);
                 let order = await order_res.map(result => result.value.value)[0];
+                console.log("entra2")
                 if(order == data.ordem) {
                     // ORDER DETAIL
                     Order_Planned.findAll({
@@ -937,7 +938,8 @@ function startGame(data, session_, identificador_opcua) {
                             id_ordem_maquina: id
                         }
                     }).then((res) => {
-
+                        console.log("entra3")
+                        console.log(res);
                         let getMethodComprimento = async (callback) => {
                             //method_id = await getMethod('ordem_atual', "ID"); 
                         }
@@ -1002,6 +1004,8 @@ function startGame(data, session_, identificador_opcua) {
                                 velocidade_setpoint : velocity_sp,
                                 num_jogo: num_jogo 
                             } 
+                            console.log("entra4")
+                            console.log(obj)
 
                             Production.create(obj).then((res)=> {
                                 console.log("Record Created");
