@@ -500,14 +500,20 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
 
 
 async function getMethod(group, key) {
-    let method = await Method.findAll({
+    let method = await Method.findOne({
         where: {
-            grupo: group, 
-            chave: key
+            [OP.and]: [
+                {
+                    grupo: group, 
+                },
+                {
+                    chave: key
+                }
+
+            ]
         }
     })
-
-    return method[0]; 
+    return method; 
 } 
 
 async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, session_) {
