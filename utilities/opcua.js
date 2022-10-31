@@ -900,7 +900,7 @@ function startGame(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    async.parallel([getMethodID, getMethodOrder], async () => {
+    async.waterfall([getMethodID, getMethodOrder], async () => {
 
         let getGameNumber_ = (callback) => {
             getGameNumber(data.ordem, data.cod_sap, (res)=>{
