@@ -922,19 +922,18 @@ function startGame(data, session_, identificador_opcua) {
                     { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
                 ];
 
-                console.log(id_obj);
-        
                 let order_obj = [
                     { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
                 ];
 
+                console.log(id_obj);
                 console.log(order_obj);
 
                 let id_res = await session_.read(id_obj);
-                console.log(id_res);
                 let id = await id_res.map(result => result.value.value)[0];
                 let order_res = await session_.read(order_obj);
                 let order = await order_res.map(result => result.value.value)[0];
+                console.log(id, order, data.ordem)
                 console.log("entra2")
                 if(order == data.ordem) {
                     // ORDER DETAIL
@@ -944,8 +943,6 @@ function startGame(data, session_, identificador_opcua) {
                         }
                     }).then((res) => {
                         console.log("entra3")
-                        console.log(res);
-                        console.log(id);
                         let getMethodComprimento = async (callback) => {
                             //method_id = await getMethod('ordem_atual', "ID"); 
                         }
