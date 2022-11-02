@@ -996,7 +996,7 @@ function startGame(data, session_, identificador_opcua) {
                                 id_seccao: data.id_seccao,    
                                 cod_maquina_fabricante: data.cod_maquina_fabricante,
                                 cod_sap: data.cod_sap,
-                                ordem: order,
+                                ordem: order[0],
                                 quantidade_prevista: calculateEstimatedWeight(velocity, twist, ne), 
                                 quantidade_produzida: 0, 
                                 data_inicio: data.data_inicio, 
