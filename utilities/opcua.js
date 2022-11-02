@@ -921,7 +921,6 @@ function startGame(data, session_, identificador_opcua) {
         }
 
         async.waterfall([closeIfOpen_, getGameNumber_], async () => {
-            console.log("entra1")
             for (let index = 1; index <= method_order_id.repeticoes; index++) {
                 let id_obj = [
                     { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
@@ -931,16 +930,11 @@ function startGame(data, session_, identificador_opcua) {
                     { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
                 ];
 
-                console.log(id_obj);
-                console.log(order_obj);
-
                 let id_res = await session_.read(id_obj);
                 let id = await id_res.map(result => result.value.value)[0];
                 let order_res = await session_.read(order_obj);
                 let order = await order_res.map(result => result.value.value)[0];
-                console.log(id, order, data.ordem)
-                console.log("entra2")
-                if(order == data.ordem) {
+                if(id != 0 && order != 0) {
                     // ORDER DETAIL
                     Order_Planned.findAll({
                         where: {
@@ -1002,7 +996,7 @@ function startGame(data, session_, identificador_opcua) {
                                 id_seccao: data.id_seccao,    
                                 cod_maquina_fabricante: data.cod_maquina_fabricante,
                                 cod_sap: data.cod_sap,
-                                ordem: data.ordem,
+                                ordem: order,
                                 quantidade_prevista: calculateEstimatedWeight(velocity, twist, ne), 
                                 quantidade_produzida: 0, 
                                 data_inicio: data.data_inicio, 
