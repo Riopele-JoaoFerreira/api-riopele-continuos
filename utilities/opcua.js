@@ -941,7 +941,6 @@ function startGame(data, session_, identificador_opcua) {
                             id: id
                         }
                     }).then((res) => {
-                        console.log("entra3")
                         let getMethodComprimento = async (callback) => {
                             //method_id = await getMethod('ordem_atual', "ID"); 
                         }
@@ -1006,8 +1005,6 @@ function startGame(data, session_, identificador_opcua) {
                                 velocidade_setpoint : velocity_sp,
                                 num_jogo: num_jogo 
                             } 
-                            console.log("entra4")
-                            console.log(obj)
 
                             Production.create(obj).then((res)=> {
                                 console.log("Record Created");
@@ -1041,7 +1038,7 @@ function endGame(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    async.parallel([getMethodID, getMethodOrder], async () => {
+    async.waterfall([getMethodID, getMethodOrder], async () => {
 
         let getActualGameNumber_ = (callback) => {
             getActualGameNumber(data.ordem, data.cod_sap, (res)=>{
@@ -1051,6 +1048,9 @@ function endGame(data, session_, identificador_opcua) {
         }
 
         async.waterfall([getActualGameNumber_], async () => {
+
+            console.log(method_id, method_order_id, num_jogo);
+            console.log('entra1'); 
 
             for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
@@ -1068,7 +1068,10 @@ function endGame(data, session_, identificador_opcua) {
                 let id = await id_res.map(result => result.value.value)[0];
                 let order_res = await session_.read(order_obj);
                 let order = await order_res.map(result => result.value.value)[0];
-                if(order == data.ordem) {
+                if(id != 0 && order != 0) {
+
+                    console.log(id, order);
+                    console.log('entra2'); 
 
                     let getActualProduction = async (callback) => {
                         method_production = await getMethod('ordem_atual', "var10"); 
@@ -1100,15 +1103,28 @@ function endGame(data, session_, identificador_opcua) {
                         let production_order_res = await session_.read(production_order_obj);
                         let production_order = await production_order_res.map(result => result.value.value)[0];
 
+                        console.log(production, production_order);
+                        console.log('entra3'); 
+
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
                             data_fim: data.data_inicio
                         }, {
                             where: {
-                                id_seccao: machine_info.id_seccao, 
-                                cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
-                                ordem: order, 
-                                num_jogo: num_jogo
+                                [Op.and]: [
+                                    {
+                                        id_seccao: machine_info.id_seccao,  
+                                    },
+                                    {
+                                        cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                    },
+                                    {
+                                        ordem: order, 
+                                    },
+                                    {
+                                        num_jogo: num_jogo
+                                    }
+                                ]
                             }
                         }).then((res) => {
                             Order_Planned.update({
