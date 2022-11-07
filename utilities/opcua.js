@@ -1039,6 +1039,9 @@ function endGame(data, session_, identificador_opcua) {
     }
 
     async.waterfall([getMethodID, getMethodOrder], async () => {
+       
+        console.log('entra1'); 
+        console.log(data)
 
         let getActualGameNumber_ = (callback) => {
             getActualGameNumber(data.ordem, data.cod_sap, (res)=>{
@@ -1048,9 +1051,6 @@ function endGame(data, session_, identificador_opcua) {
         }
 
         async.waterfall([getActualGameNumber_], async () => {
-
-            console.log(method_id, method_order_id, num_jogo);
-            console.log('entra1'); 
 
             for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
@@ -1066,11 +1066,10 @@ function endGame(data, session_, identificador_opcua) {
 
                 let id_res = await session_.read(id_obj);
                 let id = await id_res.map(result => result.value.value)[0];
-                let order_res = await session_.read(order_obj);
-                let order = await order_res.map(result => result.value.value)[0];
+                
                 if(id != 0 && order != 0) {
 
-                    console.log(id, order);
+                    console.log(id, order[0]);
                     console.log('entra2'); 
 
                     let getActualProduction = async (callback) => {
