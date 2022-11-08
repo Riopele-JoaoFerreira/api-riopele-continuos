@@ -1042,7 +1042,7 @@ function endGame(data, session_, identificador_opcua) {
 
         let order_res = await session_.read(order_obj);
         let order = await order_res.map(result => result.value.value)[0];
-
+        console.log(order);
         let getActualGameNumber_ = (callback) => {
             getActualGameNumber(order[0], data.cod_sap, (res)=>{
                 num_jogo = res; 
