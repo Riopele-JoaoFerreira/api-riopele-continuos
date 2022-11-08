@@ -1040,8 +1040,14 @@ function endGame(data, session_, identificador_opcua) {
 
     async.waterfall([getMethodID, getMethodOrder], async () => {
 
+        
+        let order_obj = [
+            { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+        ];
+
         let order_res = await session_.read(order_obj);
         let order = await order_res.map(result => result.value.value)[0];
+        
         console.log(order);
         let getActualGameNumber_ = (callback) => {
             getActualGameNumber(order[0], data.cod_sap, (res)=>{
@@ -1061,10 +1067,6 @@ function endGame(data, session_, identificador_opcua) {
 
                 let id_obj = [
                     { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
-                ];
-        
-                let order_obj = [
-                    { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
                 ];
 
                 let id_res = await session_.read(id_obj);
