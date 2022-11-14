@@ -1121,7 +1121,7 @@ function endGame(data, session_, identificador_opcua) {
                                         cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
                                     },
                                     {
-                                        ordem: order, 
+                                        ordem: order[0], 
                                     },
                                     {
                                         num_jogo: num_jogo
