@@ -1040,39 +1040,37 @@ function endGame(data, session_, identificador_opcua) {
 
     async.waterfall([getMethodID, getMethodOrder], async () => {
 
-        
-        let order_obj = [
-            { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
-        ];
+        for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
-        let order_res = await session_.read(order_obj);
-        let order = await order_res.map(result => result.value.value)[0];
-        
-        console.log(order);
-        let getActualGameNumber_ = (callback) => {
-            getActualGameNumber(order[0], data.cod_sap, (res)=>{
-                num_jogo = res; 
-                return callback();
-            })
-        }
+            let machine_info = null; 
 
-        async.waterfall([getActualGameNumber_], async () => {
+            let id_obj = [
+                { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
+            ];
 
-            console.log(num_jogo);
-            console.log('entra1'); 
+            let order_obj = [
+                { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+            ];
+    
+            let id_res = await session_.read(id_obj);
+            let id = await id_res.map(result => result.value.value)[0];
+            let order_res = await session_.read(order_obj);
+            let order = await order_res.map(result => result.value.value)[0];
 
-            for (let index = 1; index <= method_order_id.repeticoes; index++) {
+            let getActualGameNumber_ = (callback) => {
+                getActualGameNumber(order[0], data.cod_sap, (res)=>{
+                    num_jogo = res; 
+                    return callback();
+                })
+            }
 
-                let machine_info = null; 
-
-                let id_obj = [
-                    { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
-                ];
-
-                let id_res = await session_.read(id_obj);
-                let id = await id_res.map(result => result.value.value)[0];
-                
+            async.waterfall([getActualGameNumber_], async () => {
+            
                 if(id != 0 && order != 0) {
+
+                    
+                    console.log(num_jogo);
+                    console.log('entra1'); 
 
                     console.log(id, order[0]);
                     console.log('entra2'); 
@@ -1146,12 +1144,9 @@ function endGame(data, session_, identificador_opcua) {
                             return false
                         })
                     })  
-                    break; 
-                } else {
-                    continue; 
                 }
-            }
-        })
+            })
+        }
     }) 
 }
 
