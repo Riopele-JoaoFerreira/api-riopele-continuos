@@ -1108,9 +1108,11 @@ function endGame(data, session_, identificador_opcua) {
                         console.log(production, production_order);
                         console.log('entra3'); 
 
+                        let data_fim = new Date(data.data_inicio); 
+
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
-                            data_fim: data.data_inicio
+                            data_fim:  moment(data_fim).format('YYYY-MM-DD HH:mm:ss')
                         }, {
                             where: {
                                 [Op.and]: [
