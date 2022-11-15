@@ -1136,11 +1136,14 @@ function endGame(data, session_, identificador_opcua) {
                                     id: id
                                 }
                             }).then((res)=> {
+                                console.log(res);
                                 return true
                             }).catch((err) => {
+                                console.log(err);
                                 return false
                             })
                         }).catch((err)=> {
+                            console.log(err);
                             return false
                         })
                     })  
