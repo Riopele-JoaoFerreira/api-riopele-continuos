@@ -1006,9 +1006,14 @@ function startGame(data, session_, identificador_opcua) {
                                 num_jogo: num_jogo 
                             } 
 
+                            console.log("Inicio Jogo");
+                            console.log(data.data_inicio);
+
                             Production.create(obj).then((res)=> {
+                                console.log(res);
                                 console.log("Record Created");
                             }).then((err) => {
+                                console.log(err);
                                 if(err) {
                                     console.log("Error");
                                 }
@@ -1068,13 +1073,6 @@ function endGame(data, session_, identificador_opcua) {
             
                 if(id != 0 && order != 0) {
 
-                    
-                    console.log(num_jogo);
-                    console.log('entra1'); 
-
-                    console.log(id, order[0]);
-                    console.log('entra2'); 
-
                     let getActualProduction = async (callback) => {
                         method_production = await getMethod('ordem_atual', "var10"); 
                     }
@@ -1105,14 +1103,13 @@ function endGame(data, session_, identificador_opcua) {
                         let production_order_res = await session_.read(production_order_obj);
                         let production_order = await production_order_res.map(result => result.value.value)[0];
 
-                        console.log(production, production_order);
-                        console.log('entra3'); 
-
+                        console.log("End Game");
                         let data_fim = new Date(data.data_inicio); 
+                        console.log(data.data_inicio, data_fim, moment(data_fim).format('YYYY-MM-DD HH:mm:ss'));
 
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
-                            data_fim:  moment(data_fim).format('YYYY-MM-DD HH:mm:ss')
+                            data_fim: moment(data_fim).format('YYYY-MM-DD HH:mm:ss')
                         }, {
                             where: {
                                 [Op.and]: [
