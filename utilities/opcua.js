@@ -550,6 +550,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
 
     let actual_hour = "" + hours + ":" + minutes + ":" + seconds;
     var timestamp = sql_date + ' ' + actual_hour;
+    console.log("timestamp", timestamp);
 
     res = await session_.read(event_obj);
     let event_code = await res.map(result => result.value.value)[0];
@@ -1104,12 +1105,11 @@ function endGame(data, session_, identificador_opcua) {
                         let production_order = await production_order_res.map(result => result.value.value)[0];
 
                         console.log("End Game");
-                        let data_fim = new Date(data.data_inicio); 
-                        console.log(data.data_inicio, data_fim, moment(data_fim).format('YYYY-MM-DD HH:mm:ss'));
+                        console.log(data.data_inicio);
 
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
-                            data_fim: moment(data_fim).format('YYYY-MM-DD HH:mm:ss')
+                            data_fim: data.data_inicio
                         }, {
                             where: {
                                 [Op.and]: [
@@ -1135,14 +1135,11 @@ function endGame(data, session_, identificador_opcua) {
                                     id: id
                                 }
                             }).then((res)=> {
-                                console.log(res);
                                 return true
                             }).catch((err) => {
-                                console.log(err);
                                 return false
                             })
                         }).catch((err)=> {
-                            console.log(err);
                             return false
                         })
                     })  
