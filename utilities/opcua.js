@@ -550,7 +550,6 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
 
     let actual_hour = "" + hours + ":" + minutes + ":" + seconds;
     var timestamp = sql_date + ' ' + actual_hour;
-    console.log("timestamp", timestamp);
 
     res = await session_.read(event_obj);
     let event_code = await res.map(result => result.value.value)[0];
