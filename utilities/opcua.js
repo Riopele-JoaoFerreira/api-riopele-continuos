@@ -548,6 +548,10 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
         seconds = "0" + seconds;
     }
 
+    if(seconds == 60) {
+        seconds = 59;
+    }
+
     let actual_hour = "" + hours + ":" + minutes + ":" + seconds;
     var timestamp = sql_date + ' ' + actual_hour;
 
