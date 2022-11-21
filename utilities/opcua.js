@@ -147,6 +147,7 @@ exports.exportEvents = function () {
     async.parallel([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
         let stack = []; 
         machines_list.forEach(machine => {
+            console.log(machine.identificador_opcua);
             stack.push((callback) => {
                 // REMOVE LATER
                 let server_name = machine.riopele40_servidores_opcua.url; 
