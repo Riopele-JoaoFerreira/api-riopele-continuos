@@ -199,6 +199,8 @@ exports.exportEvents = function () {
                             ordem: event_info.order,
                         }
 
+                        console.log(obj);
+
                         session_.write(node_to_write, function(err,status_code,diagnostic_info) {
                             if (!err) {
                                 Events.update({
@@ -213,7 +215,9 @@ exports.exportEvents = function () {
                                         }
                                     }
                                 }).then((res) => {
+                                    console.log(res);
                                     Events.create(obj).then((res) => {
+                                        console.log(res);
                                         if(startOrderEvents.includes(obj.cod_evento)) {
                                             startOrder(obj, session_, machine.identificador_opcua)
                                         } else if(startGameEvents.includes(obj.cod_evento)) {
