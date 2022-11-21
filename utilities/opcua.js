@@ -526,7 +526,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
     let event_date = await res.map(result => result.value.value)[0];
     let date = new Date('1990-01-01');
     let actual_date = date.addDays(event_date);
-    let sql_date = actual_date.format("YYYY-MM-DD");
+    let sql_date = actual_date;
 
     // HOUR
     res = await session_.read(hour_obj);
@@ -580,6 +580,8 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
         state_code: state_code, 
         order: order
     };
+
+    console.log(obj);
 
     return obj
 }
