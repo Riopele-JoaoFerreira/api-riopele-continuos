@@ -660,7 +660,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         method_setpoint = await getMethod('ordem_atual', "sp_velocidade"); 
     }
 
-    async.parallel([getMethodID, getActualProduction, getActualProductionOrder], async () => {
+    async.parallel([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
@@ -778,7 +778,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     ]      
                                 }
                             }).then((res) => {
-                                console.log(production, num_jogo, id);
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
