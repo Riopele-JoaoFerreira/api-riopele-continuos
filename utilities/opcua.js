@@ -696,7 +696,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             }
     
             async.waterfall([getMachineInfo_, getActualGameNumber_], async () => {
-                sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_movimentos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"' AND num_jogo = '"+ num_jogo +"'").then((res) => {
+                sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"' AND num_jogo = '"+ num_jogo +"'").then((res) => {
                     let old_production = null; 
                     if(res.length > 0) {
                         if(res[0][0].quantidade_produzida > 0) {
@@ -712,12 +712,22 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                         data_fim: date
                     }, {
                         where: {
-                            id_seccao: machine_info.id_seccao, 
-                            cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
-                            ordem: order,
-                            data_fim: {
-                                [Op.eq]: null
-                            }
+                            [Op.and]: [
+                                {
+                                    id_seccao: machine_info.id_seccao,  
+                                },
+                                {
+                                    cod_maquina_fabricante: machine_info.cod_maquina_fabricante
+                                },
+                                {
+                                    ordem: order,
+                                }, 
+                                {
+                                    data_fim: {
+                                        [Op.eq]: null
+                                    }
+                                }
+                            ] 
                         }
                     }).then((res) => {
                         let new_production = parseFloat(production).toFixed(3) - old_production; 
@@ -736,15 +746,24 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
-
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3)
                             }, {
                                 where: {
-                                    id_seccao: machine_info.id_seccao, 
-                                    cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
-                                    ordem: order, 
-                                    num_jogo: num_jogo
+                                    [Op.and]: [
+                                        {
+                                            id_seccao: machine_info.id_seccao,  
+                                        },
+                                        {
+                                            cod_maquina_fabricante: machine_info.cod_maquina_fabricante
+                                        },
+                                        {
+                                            ordem: order,
+                                        }, 
+                                        {
+                                            num_jogo: num_jogo
+                                        }
+                                    ]
                                 }
                             }).then((res) => {
                                 Order_Planned.update({
