@@ -699,7 +699,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                 sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"' AND num_jogo = '"+ num_jogo +"'").then((res) => {
                     let old_production = null; 
                     if(res.length > 0) {
-                        console.log(res);
                         if(res[0][0].quantidade_produzida > 0) {
                             old_production = res[0][0].quantidade_produzida; 
                         } else {
@@ -708,7 +707,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                     } else {
                         old_production = 0; 
                     }
-                    console.log(old_production, production);
                     let date = moment().format('YYYY-MM-DD HH:mm:ss'); 
                     Movements.update({
                         data_fim: date
@@ -729,7 +727,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                         [Op.eq]: null
                                     }
                                 }
-                            ] 
+                            ]       
                         }
                     }).then((res) => {
                         let new_production = parseFloat(production).toFixed(3) - old_production; 
@@ -748,6 +746,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
+
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3)
                             }, {
@@ -765,9 +764,10 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                         {
                                             num_jogo: num_jogo
                                         }
-                                    ]
+                                    ]      
                                 }
                             }).then((res) => {
+                                console.log(production, num_jogo, id);
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
