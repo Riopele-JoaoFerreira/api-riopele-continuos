@@ -777,7 +777,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
-                            console.log(arseFloat(setpoint).toFixed(3), order, num_jogo);
+                            console.log(parseFloat(setpoint).toFixed(3), order, num_jogo);
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3), 
                                 velocidade_setpoint: parseFloat(setpoint).toFixed(3),
