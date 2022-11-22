@@ -686,9 +686,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         let setpoint_res = await session_.read(setpoint_obj);
         let setpoint = await setpoint_res.map(result => result.value.value)[0];
 
-        
         if(id > 0) {
-            console.log(setpoint_obj, setpoint);
             let num_jogo = null; 
             let machine_info = null; 
 
@@ -779,6 +777,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     ]      
                                 }
                             }).then((res) => {
+                                console.log(res);
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
@@ -791,6 +790,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     return false
                                 })
                             }).catch((err)=> {
+                                console.log(err);
                                 return false
                             })
                         }).catch((err) => {
