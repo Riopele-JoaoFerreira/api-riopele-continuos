@@ -9,7 +9,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
-const { closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
+const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
@@ -946,8 +946,12 @@ function startGame(data, session_, identificador_opcua) {
                                 method_length = await getMethod('variaveis', "Variaveis_Comprim_Jogo" + index); 
                             }
 
-                            let getMethodTempoPrevisto = async (callback) => {
-                                //method_id = await getMethod('ordem_atual', "ID"); 
+                            let getMethodEndHour = async (callback) => {
+                                method_end_hour = await getMethod('ordem_atual', "hora_fim_jogo"); 
+                            }
+
+                            let getMethodEndDate = async (callback) => {
+                                method_end_date = await getMethod('ordem_atual', "data_fim_jogo"); 
                             }
 
                             let getMethodVelocidade = async (callback) => {
@@ -966,7 +970,7 @@ function startGame(data, session_, identificador_opcua) {
                                 method_ne = await getMethod('ordem_atual', "ne_final"); 
                             }
 
-                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodlenghth], async () => {
+                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodlenghth, getMethodEndHour, getMethodEndDate], async () => {
                                 let method_velocity_obj = [
                                     { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
                                 ];
@@ -983,6 +987,14 @@ function startGame(data, session_, identificador_opcua) {
                                     { nodeId: method_velocity_sp.prefixo + identificador_opcua + method_velocity_sp.identificador + index + '_' + method_velocity_sp.chave},
                                 ];
 
+                                let method_end_hour_obj = [
+                                    { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador + index + '_' + method_end_hour.chave},
+                                ];
+
+                                let method_end_date_obj = [
+                                    { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + index + '_' + method_end_date.chave},
+                                ];
+
                                 let method_length_obj = [
                                     { nodeId: method_length.prefixo + identificador_opcua + method_length.identificador},
                                 ];
@@ -997,6 +1009,12 @@ function startGame(data, session_, identificador_opcua) {
                                 let velocity_sp = await velocity_sp_res.map(result => result.value.value)[0];
                                 let length_res = await session_.read(method_length_obj);
                                 let length = await length_res.map(result => result.value.value)[0];
+                                let end_hour_res = await session_.read(method_end_hour_obj);
+                                let end_hour = await end_hour_res.map(result => result.value.value)[0];
+                                let end_date_res = await session_.read(method_end_date_obj);
+                                let end_date= await end_date_res.map(result => result.value.value)[0];
+
+                                let final_date = timestamptToDate(end_date, end_hour); 
 
                                 let obj = {
                                     id_seccao: data.id_seccao,    
@@ -1008,7 +1026,7 @@ function startGame(data, session_, identificador_opcua) {
                                     data_inicio: data.data_inicio, 
                                     fusos: res[0].fusos, 
                                     comprimento: length, 
-                                    tempo_previsto: 0, 
+                                    data_fim_prevista: final_date, 
                                     velocidade_setpoint : velocity_sp,
                                     num_jogo: num_jogo 
                                 } 

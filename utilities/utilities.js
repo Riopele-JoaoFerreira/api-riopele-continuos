@@ -162,3 +162,41 @@ exports.getMachineInfoByOPCUAID = (id, callback) => {
     })
 }
 
+exports.timestamptToDate = (date_, hour_) => {
+     // DATE
+     let date = new Date('1990-01-01');
+     let actual_date = date.addDays(date_);
+     let sql_date = actual_date.toISOString().slice(0, 10);
+ 
+     // HOUR
+     let hours = hour_/3600000
+     let decimal_Time_String = hours;
+     let decimal_Time = parseFloat(decimal_Time_String);
+     decimal_Time = decimal_Time * 60 * 60;
+     hours = Math.floor((decimal_Time / (60 * 60)));
+     decimal_Time = decimal_Time - (hours * 60 * 60);
+     let minutes = Math.floor((decimal_Time / 60));
+     decimal_Time = decimal_Time - (minutes * 60);
+     let seconds = Math.round(decimal_Time);
+ 
+     if(hours < 10) {
+         hours = "0" + hours;
+     }
+ 
+     if(minutes < 10) {
+         minutes = "0" + minutes;
+     }
+    
+     if(seconds < 10) {
+         seconds = "0" + seconds;
+     }
+ 
+     if(seconds == 60) {
+         seconds = 59;
+     }
+ 
+     let actual_hour = "" + hours + ":" + minutes + ":" + seconds;
+     var final_date = sql_date + ' ' + actual_hour;
+
+     return final_date; 
+}

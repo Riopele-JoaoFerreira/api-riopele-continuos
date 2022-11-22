@@ -32,6 +32,7 @@ Event.init({
    },
    data_inicio: DataTypes.STRING, 
    data_fim: DataTypes.STRING, 
+   data_fim_prevista: DataTypes.STRING, 
    enviou_para_sap: DataTypes.CHAR, 
    ordem: DataTypes.STRING
 }, { sequelize, modelName: 'riopele40_eventos_TESTES', tableName: 'riopele40_eventos_TESTES' });
