@@ -1108,6 +1108,7 @@ function endGame(data, session_, identificador_opcua) {
 
                         console.log("End Game");
                         console.log(data.data_inicio);
+                        console.log(machine_info.id_seccao, machine_info.cod_maquina_fabricante, order[0], num_jogo);
 
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
@@ -1130,6 +1131,7 @@ function endGame(data, session_, identificador_opcua) {
                                 ]
                             }
                         }).then((res) => {
+                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
@@ -1137,11 +1139,14 @@ function endGame(data, session_, identificador_opcua) {
                                     id: id
                                 }
                             }).then((res)=> {
+                                console.log(res);
                                 return true
                             }).catch((err) => {
+                                console.log(err);
                                 return false
                             })
                         }).catch((err)=> {
+                            console.log(err);
                             return false
                         })
                     })  
