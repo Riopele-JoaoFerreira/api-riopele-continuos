@@ -656,6 +656,10 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
     }
 
+    let getSetPoint = async (callback) => {
+        method_setpoint = await getMethod('ordem_atual', "sp_velocidade"); 
+    }
+
     async.parallel([getMethodID, getActualProduction, getActualProductionOrder], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
@@ -669,12 +673,18 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
         ];
 
+        let setpoint_obj = [
+            { nodeId: method_setpoint.prefixo + identificador_opcua + method_setpoint.identificador + index + '_' + method_setpoint.chave},
+        ];
+
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let production_res = await session_.read(production_obj);
         let production = await production_res.map(result => result.value.value)[0];
         let production_order_res = await session_.read(production_order_obj);
         let production_order = await production_order_res.map(result => result.value.value)[0];
+        let setpoint_res = await session_.read(setpoint_obj);
+        let setpoint = await setpoint_res.map(result => result.value.value)[0];
 
         if(id > 0) {
 
@@ -748,7 +758,8 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                         }).then((res)=> {
 
                             Production.update({
-                                quantidade_produzida: parseFloat(production).toFixed(3)
+                                quantidade_produzida: parseFloat(production).toFixed(3), 
+                                velocidade_setpoint: setpoint
                             }, {
                                 where: {
                                     [Op.and]: [
