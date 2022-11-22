@@ -777,10 +777,9 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
-                            console.log(setpoint, final_date);
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3), 
-                                velocidade_setpoint: setpoint,
+                                velocidade_setpoint: parseFloat(setpoint).toFixed(3),
                                 data_fim_prevista: final_date
                             }, {
                                 where: {
@@ -800,7 +799,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     ]      
                                 }
                             }).then((res) => {
-                                console.log(res);
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
@@ -813,7 +811,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     return false
                                 })
                             }).catch((err)=> {
-                                console.log(err);
                                 return false
                             })
                         }).catch((err) => {
@@ -823,7 +820,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                         return false; 
                     })
                 }).catch((err) => {
-
                     return false
                 }) 
             })
