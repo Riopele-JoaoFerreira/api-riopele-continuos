@@ -686,9 +686,9 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         let setpoint_res = await session_.read(setpoint_obj);
         let setpoint = await setpoint_res.map(result => result.value.value)[0];
 
-        console.log(setpoint_obj, setpoint);
+        
         if(id > 0) {
-
+            console.log(setpoint_obj, setpoint);
             let num_jogo = null; 
             let machine_info = null; 
 
