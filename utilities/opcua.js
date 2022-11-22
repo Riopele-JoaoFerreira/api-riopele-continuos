@@ -660,7 +660,16 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         method_setpoint = await getMethod('ordem_atual', "sp_velocidade"); 
     }
 
-    async.parallel([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint], async () => {
+    let getMethodEndHour = async (callback) => {
+        method_end_hour = await getMethod('ordem_atual', "hora_fim_jogo"); 
+    }
+
+    let getMethodEndDate = async (callback) => {
+        method_end_date = await getMethod('ordem_atual', "data_fim_jogo"); 
+    }
+
+
+    async.parallel([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint, getMethodEndHour, getMethodEndDate], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
@@ -677,6 +686,14 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             { nodeId: method_setpoint.prefixo + identificador_opcua + method_setpoint.identificador + index + '_' + method_setpoint.chave},
         ];
 
+        let method_end_hour_obj = [
+            { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador + index + '_' + method_end_hour.chave},
+        ];
+
+        let method_end_date_obj = [
+            { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + index + '_' + method_end_date.chave},
+        ];
+
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let production_res = await session_.read(production_obj);
@@ -685,6 +702,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         let production_order = await production_order_res.map(result => result.value.value)[0];
         let setpoint_res = await session_.read(setpoint_obj);
         let setpoint = await setpoint_res.map(result => result.value.value)[0];
+        let end_hour_res = await session_.read(method_end_hour_obj);
+        let end_hour = await end_hour_res.map(result => result.value.value)[0];
+        let end_date_res = await session_.read(method_end_date_obj);
+        let end_date= await end_date_res.map(result => result.value.value)[0];
+        let final_date = timestamptToDate(end_date, end_hour); 
 
         if(id > 0) {
             let num_jogo = null; 
@@ -755,10 +777,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
-
+                            console.log(setpoint, final_date);
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3), 
-                                velocidade_setpoint: setpoint
+                                velocidade_setpoint: setpoint,
+                                data_fim_prevista: final_date
                             }, {
                                 where: {
                                     [Op.and]: [
