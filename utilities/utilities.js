@@ -85,8 +85,14 @@ exports.getGameNumber = (ordem, cod_sap, callback) => {
 exports.getActualGameNumber = (ordem, cod_sap, callback) => {
     Production.findAll({
         where: {
-            ordem: ordem,
-            cod_sap: cod_sap
+            [Op.and]: [
+                {
+                    ordem: ordem,  
+                },
+                {
+                    cod_sap: cod_sap
+                }
+            ]
         }, 
         order: [['num_jogo', 'DESC']],
         limit: 1,
