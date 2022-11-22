@@ -53,14 +53,6 @@ exports.convert = (type, value) => {
     }
 }
 
-exports.calculateEstimatedWeight = (velocity, twist, ne) => {
-    let estimated_quantity = 0; 
-    if(velocity > 0 && twist > 0 && ne > 0) {
-        estimated_quantity = (velocity / twist) * (25.4/1000) * (0.59 / ne); 
-    }
-    return estimated_quantity; 
-}
-
 exports.getGameNumber = (ordem, cod_sap, callback) => {
     Production.findAll({
         where: {

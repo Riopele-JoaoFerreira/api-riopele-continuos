@@ -9,7 +9,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
-const { calculateEstimatedWeight, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
+const { closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
@@ -148,7 +148,6 @@ exports.exportEvents = function () {
         let stack = []; 
         machines_list.forEach(machine => {
             stack.push((callback) => {
-                // REMOVE LATER
                 let server_name = machine.riopele40_servidores_opcua.url; 
                 let session_ = searchServerName(server_name, sessions);
 
@@ -899,8 +898,6 @@ function endOrder(data, session_, identificador_opcua) {
 
 function startGame(data, session_, identificador_opcua) {
 
-    let num_jogo = null; 
-
     let getMethodID = async () => {
         method_id = await getMethod('ordem_atual', "ID"); 
     }
@@ -909,127 +906,132 @@ function startGame(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    async.waterfall([getMethodID, getMethodOrder], async () => {
+    let getMethoGameProduction = async () => {
+        method_game_production = await getMethod('ordem_atual', "quantidade_jogo"); 
+    }
 
-        let getGameNumber_ = (callback) => {
+    async.waterfall([getMethodID, getMethodOrder, getMethoGameProduction], async () => {
+        for (let index = 1; index <= method_order_id.repeticoes; index++) {
+            let id_obj = [
+                { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
+            ];
+
+            let order_obj = [
+                { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
+            ];
+
+            let game_production_obj = [
+                { nodeId: method_game_production.prefixo + identificador_opcua + method_game_production.identificador + index + '_' + method_game_production.chave},
+            ];
             
-        }
-    
-        let closeIfOpen_ = (callback) => {
-           
-        }
+            let id_res = await session_.read(id_obj);
+            let id = await id_res.map(result => result.value.value)[0];
+            let order_res = await session_.read(order_obj);
+            let order = await order_res.map(result => result.value.value)[0];
+            let game_production_res = await session_.read(game_production_obj);
+            let game_production = await game_production_res.map(result => result.value.value)[0];
+            let num_jogo = null; 
 
-        async.waterfall([closeIfOpen_, getGameNumber_], async () => {
-            for (let index = 1; index <= method_order_id.repeticoes; index++) {
-                let id_obj = [
-                    { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
-                ];
+            if(id != 0 && order != 0) {
+                getGameNumber(order[0], data.cod_sap, (res)=>{
+                    num_jogo = res; 
+                    closeIfOpen(order[0], data.cod_sap, data.data_inicio, (res) => {
+                        // ORDER DETAIL
+                        Order_Planned.findAll({
+                            where: {
+                                id: id
+                            }
+                        }).then((res) => {
+                            let getMethodlenghth = async (callback) => {
+                                method_length = await getMethod('variaveis', "Variaveis_Comprim_Jogo" + index); 
+                            }
 
-                let order_obj = [
-                    { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
-                ];
-                
-                let id_res = await session_.read(id_obj);
-                let id = await id_res.map(result => result.value.value)[0];
-                let order_res = await session_.read(order_obj);
-                let order = await order_res.map(result => result.value.value)[0];
-                let num_jogo = null; 
+                            let getMethodTempoPrevisto = async (callback) => {
+                                //method_id = await getMethod('ordem_atual', "ID"); 
+                            }
 
-                if(id != 0 && order != 0) {
-                    getGameNumber(order[0], data.cod_sap, (res)=>{
-                        num_jogo = res; 
-                        closeIfOpen(order[0], data.cod_sap, data.data_inicio, (res) => {
-                            // ORDER DETAIL
-                            Order_Planned.findAll({
-                                where: {
-                                    id: id
-                                }
-                            }).then((res) => {
-                                let getMethodComprimento = async (callback) => {
-                                    //method_id = await getMethod('ordem_atual', "ID"); 
-                                }
+                            let getMethodVelocidade = async (callback) => {
+                                method_velocity = await getMethod('ordem_atual', "velocidade_sap"); 
+                            }
 
-                                let getMethodTempoPrevisto = async (callback) => {
-                                    //method_id = await getMethod('ordem_atual', "ID"); 
-                                }
+                            let getMethodVelocidade_SP = async (callback) => {
+                                method_velocity_sp = await getMethod('ordem_atual', "sp_velocidade"); 
+                            }
 
-                                let getMethodVelocidade = async (callback) => {
-                                    method_velocity = await getMethod('ordem_atual', "velocidade_sap"); 
-                                }
+                            let getMethodTorcao = async (callback) => {
+                                method_twist = await getMethod('ordem_atual', "torcao"); 
+                            }
 
-                                let getMethodVelocidade_SP = async (callback) => {
-                                    method_velocity_sp = await getMethod('ordem_atual', "sp_velocidade"); 
-                                }
+                            let getMethodNE = async (callback) => {
+                                method_ne = await getMethod('ordem_atual', "ne_final"); 
+                            }
 
-                                let getMethodTorcao = async (callback) => {
-                                    method_twist = await getMethod('ordem_atual', "torcao"); 
-                                }
+                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodlenghth], async () => {
+                                let method_velocity_obj = [
+                                    { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
+                                ];
+                        
+                                let method_twist_obj = [
+                                    { nodeId: method_twist.prefixo + identificador_opcua + method_twist.identificador + index + '_' + method_twist.chave},
+                                ];
 
-                                let getMethodNE = async (callback) => {
-                                    method_ne = await getMethod('ordem_atual', "ne_final"); 
-                                }
+                                let method_ne_obj = [
+                                    { nodeId: method_ne.prefixo + identificador_opcua + method_ne.identificador + index + '_' + method_ne.chave},
+                                ];
 
-                                async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP], async () => {
-                                    let method_velocity_obj = [
-                                        { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
-                                    ];
-                            
-                                    let method_twist_obj = [
-                                        { nodeId: method_twist.prefixo + identificador_opcua + method_twist.identificador + index + '_' + method_twist.chave},
-                                    ];
+                                let method_velocity_sp_obj = [
+                                    { nodeId: method_velocity_sp.prefixo + identificador_opcua + method_velocity_sp.identificador + index + '_' + method_velocity_sp.chave},
+                                ];
 
-                                    let method_ne_obj = [
-                                        { nodeId: method_ne.prefixo + identificador_opcua + method_ne.identificador + index + '_' + method_ne.chave},
-                                    ];
+                                let method_length_obj = [
+                                    { nodeId: method_length.prefixo + identificador_opcua + method_length.identificador},
+                                ];
 
-                                    let method_velocity_sp_obj = [
-                                        { nodeId: method_velocity_sp.prefixo + identificador_opcua + method_velocity_sp.identificador + index + '_' + method_velocity_sp.chave},
-                                    ];
+                                let velocity_res = await session_.read(method_velocity_obj);
+                                let velocity = await velocity_res.map(result => result.value.value)[0];
+                                let twist_res = await session_.read(method_twist_obj);
+                                let twist = await twist_res.map(result => result.value.value)[0];
+                                let ne_res = await session_.read(method_ne_obj);
+                                let ne = await ne_res.map(result => result.value.value)[0];
+                                let velocity_sp_res = await session_.read(method_velocity_sp_obj);
+                                let velocity_sp = await velocity_sp_res.map(result => result.value.value)[0];
+                                let length_res = await session_.read(method_length_obj);
+                                let length = await length_res.map(result => result.value.value)[0];
 
-                                    let velocity_res = await session_.read(method_velocity_obj);
-                                    let velocity = await velocity_res.map(result => result.value.value)[0];
-                                    let twist_res = await session_.read(method_twist_obj);
-                                    let twist = await twist_res.map(result => result.value.value)[0];
-                                    let ne_res = await session_.read(method_ne_obj);
-                                    let ne = await ne_res.map(result => result.value.value)[0];
-                                    let velocity_sp_res = await session_.read(method_velocity_sp_obj);
-                                    let velocity_sp = await velocity_sp_res.map(result => result.value.value)[0];
+                                let obj = {
+                                    id_seccao: data.id_seccao,    
+                                    cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                    cod_sap: data.cod_sap,
+                                    ordem: order[0],
+                                    quantidade_prevista: game_production, 
+                                    quantidade_produzida: 0, 
+                                    data_inicio: data.data_inicio, 
+                                    fusos: res[0].fusos, 
+                                    comprimento: length, 
+                                    tempo_previsto: 0, 
+                                    velocidade_setpoint : velocity_sp,
+                                    num_jogo: num_jogo 
+                                } 
 
-                                    let obj = {
-                                        id_seccao: data.id_seccao,    
-                                        cod_maquina_fabricante: data.cod_maquina_fabricante,
-                                        cod_sap: data.cod_sap,
-                                        ordem: order[0],
-                                        quantidade_prevista: calculateEstimatedWeight(velocity, twist, ne), 
-                                        quantidade_produzida: 0, 
-                                        data_inicio: data.data_inicio, 
-                                        fusos: res[0].fusos, 
-                                        comprimento: 0, 
-                                        tempo_previsto: 0, 
-                                        velocidade_setpoint : velocity_sp,
-                                        num_jogo: num_jogo 
-                                    } 
+                                console.log("Inicio Jogo");
+                                console.log(data.data_inicio);
+                                console.log(obj);
 
-                                    console.log("Inicio Jogo");
-                                    console.log(data.data_inicio);
-                                    console.log(obj);
-
-                                    Production.create(obj).then((res)=> {
-                                        console.log("Record Created");
-                                    }).then((err) => {
-                                        if(err) {
-                                            console.log("Error");
-                                        }
-                                    })
+                                Production.create(obj).then((res)=> {
+                                    console.log("Record Created");
+                                }).then((err) => {
+                                    if(err) {
+                                        console.log("Error");
+                                    }
                                 })
-                            }).catch((err) => {})
-                        })
+                            })
+                        }).catch((err) => {})
                     })
-                } else {
-                    continue; 
-                }
+                })
+            } else {
+                continue; 
             }
-        })
+        }
     }) 
 }
 
