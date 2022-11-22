@@ -77,6 +77,7 @@ exports.getGameNumber = (ordem, cod_sap, callback) => {
         limit: 1,
         attributes: ['num_jogo']
     }).then(res => {
+        console.log(ordem, cod_sap);
         if(res[0].num_jogo > 0) {
             return callback(res[0].num_jogo + 1); 
         } else {
