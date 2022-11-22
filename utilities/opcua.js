@@ -696,9 +696,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             }
     
             async.waterfall([getMachineInfo_, getActualGameNumber_], async () => {
+                console.log(num_jogo, machine_info);
                 sequelize.query("SELECT SUM(quantidade_produzida) as quantidade_produzida FROM riopele40_producoes_jogos_TESTES WHERE id_seccao = '"+ machine_info.id_seccao +"' AND cod_maquina_fabricante = '"+ machine_info.cod_maquina_fabricante +"' AND ordem = '"+ order +"' AND num_jogo = '"+ num_jogo +"'").then((res) => {
                     let old_production = null; 
                     if(res.length > 0) {
+                        console.log(res);
                         if(res[0][0].quantidade_produzida > 0) {
                             old_production = res[0][0].quantidade_produzida; 
                         } else {
