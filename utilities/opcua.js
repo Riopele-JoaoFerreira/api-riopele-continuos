@@ -779,7 +779,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                         }).then((res)=> {
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3), 
-                                velocidade_setpoint: parseFloat(setpoint).toFixed(3),
+                                velocidade_setpoint: parseFloat(setpoint),
                                 data_fim_prevista: final_date
                             }, {
                                 where: {
