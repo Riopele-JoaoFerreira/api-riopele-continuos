@@ -28,6 +28,7 @@ Production.init({
    quantidade_produzida: DataTypes.FLOAT, 
    data_inicio: DataTypes.STRING,
    data_fim: DataTypes.STRING,
+   data_fim_prevista: DataTypes.STRING, 
    qtd_ordem_inicio: DataTypes.FLOAT, 
    qtd_ordem_fim: DataTypes.FLOAT,
    fusos: DataTypes.INTEGER, 
