@@ -777,6 +777,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
+                            console.log(setpoint);
                             Production.update({
                                 quantidade_produzida: parseFloat(production).toFixed(3), 
                                 velocidade_setpoint: parseFloat(setpoint),
@@ -808,18 +809,23 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                 }).then((res)=> {
                                     return true
                                 }).catch((err) => {
+                                    console.log(err);
                                     return false
                                 })
                             }).catch((err)=> {
+                                console.log(err);
                                 return false
                             })
                         }).catch((err) => {
+                            console.log(err);
                             return false; 
                         })
                     }).catch((err)=> {
+                        console.log(err);
                         return false; 
                     })
                 }).catch((err) => {
+                    console.log(err);
                     return false
                 }) 
             })
