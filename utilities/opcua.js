@@ -1,5 +1,6 @@
 const moment= require('moment');
 const OPCUA_Client = require('node-opcua');
+const Opcua = require('../utilities/opcua')
 const async = require('async');
 const sequelize = require('../utilities/connection').connection;
 const Op = require('sequelize').Op; 
@@ -457,34 +458,116 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
             let session_ = searchServerName(node[0].server_name, sessions); 
             session_.read(node[1]).then((res)=> {
 
-                let estado = res.value.value; 
-
-                Stops.findAll({
-                    where: {
-                        id_seccao: node[3].section, 
-                        cod_paragem: estado, 
-                        tipo: 'ES' 
-                    }
-                }).then((stop) => {
-                    let obj = {
-                        id: node[2].machine.id,
-                        cod_sap: node[2].machine.cod_sap,
-                        cod_maquina_fabricante: node[2].machine.cod_maquina_fabricante,
-                        num_fusos: node[2].machine.num_fusos,
-                        cod_estado: estado,
-                        info_estado: stop
-                    }
+                let estado = res.value.value
+                let server_name = node[0].server_name;
                     
-                    if(list.hasOwnProperty(node[2].machine.riopele40_grupos_maquina.nome)) {
-                        list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
-                    } else {
-                        list[node[2].machine.riopele40_grupos_maquina.nome] = []; 
-                        list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
+                Method.findAll({
+                    where: {
+                        grupo: 'ordem_atual'
                     }
-                    return callback()
+                }).then(async res => {
+                    let loops = res[0].repeticoes
+                    let array = []; 
+                    for (let i = 1; i <= loops; i++) {
+                       
+                        method_order = await Opcua.getMethod('ordem_atual', "ordem");         
+                        let method_order_obj = [
+                            { nodeId: method_order.prefixo + node[4].identificador_opcua + method_order.identificador + i + '_' + method_order.chave},
+                        ];
+        
+                        method_article = await Opcua.getMethod('ordem_atual', "artigo");   
+                        let method_article_obj = [
+                            { nodeId: method_article.prefixo + node[4].identificador_opcua + method_article.identificador + i + '_' + method_article.chave},
+                        ];
+        
+                        method_batch = await Opcua.getMethod('ordem_atual', "lote");   
+                        let method_batch_obj = [
+                            { nodeId: method_batch.prefixo + node[4].identificador_opcua + method_batch.identificador + i + '_' + method_batch.chave},
+                        ];
+        
+                        method_ne = await Opcua.getMethod('ordem_atual', "ne_final");   
+                        let method_ne_obj = [
+                            { nodeId: method_ne.prefixo + node[4].identificador_opcua + method_ne.identificador + i + '_' + method_ne.chave},
+                        ];
+        
+                        method_twist = await Opcua.getMethod('ordem_atual', "torcao");   
+                        let method_twist_obj = [
+                            { nodeId: method_twist.prefixo + node[4].identificador_opcua + method_twist.identificador + i + '_' + method_twist.chave},
+                        ];
+        
+                        method_game_production = await Opcua.getMethod('ordem_atual', "var10");   
+                        let method_game_production_obj = [
+                            { nodeId: method_game_production.prefixo + node[4].identificador_opcua + method_game_production.identificador + i + '_' + method_game_production.chave},
+                        ];
+        
+                        method_game_production_estimated = await Opcua.getMethod('ordem_atual', "quantidade_jogo");   
+                        let method_game_production_estimated_obj = [
+                            { nodeId: method_game_production_estimated.prefixo + node[4].identificador_opcua + method_game_production_estimated.identificador + i + '_' + method_game_production_estimated.chave},
+                        ];
+        
+                        let method_order_res = await Opcua.readNode(method_order_obj, server_name);
+                        let order = await method_order_res.map(result => result.value.value)[0];
+                        let method_article_res = await Opcua.readNode(method_article_obj, server_name);
+                        let article = await method_article_res.map(result => result.value.value)[0];
+                        let method_batch_res = await Opcua.readNode(method_batch_obj, server_name);
+                        let batch = await method_batch_res.map(result => result.value.value)[0];
+                        let method_ne_res = await Opcua.readNode(method_ne_obj, server_name);
+                        let ne = await method_ne_res.map(result => result.value.value)[0];
+                        let method_twist_res = await Opcua.readNode(method_twist_obj, server_name);
+                        let twist = await method_twist_res.map(result => result.value.value)[0];
+                        let method_game_production_res = await Opcua.readNode(method_game_production_obj, server_name);
+                        let game_production = await method_game_production_res.map(result => result.value.value)[0];
+                        let method_game_production_estimated_res = await Opcua.readNode(method_game_production_estimated_obj, server_name);
+                        let game_production_estimated = await method_game_production_estimated_res.map(result => result.value.value)[0];
+                        let progress = Math.ceil((game_production/game_production_estimated)*100)
+        
+                        try {
+                            let obj = {
+                                "ordem": order[0],
+                                "lote": batch[0],
+                                "artigo": article[0],
+                                "ne": ne,
+                                "torcao":twist,
+                                "progresso": progress
+                            }; 
+            
+                            if(order[0] != '') {
+                               array.push(obj) 
+                            }
+                        } catch (error) {}   
+                    }
+
+                    Stops.findAll({
+                        where: {
+                            id_seccao: node[3].section, 
+                            cod_paragem: estado, 
+                            tipo: 'ES' 
+                        }
+                    }).then((stop) => {
+                        let obj = {
+                            id: node[2].machine.id,
+                            cod_sap: node[2].machine.cod_sap,
+                            cod_maquina_fabricante: node[2].machine.cod_maquina_fabricante,
+                            num_fusos: node[2].machine.num_fusos,
+                            cod_estado: estado,
+                            info_estado: stop,
+                            info_ordem: array
+                        }
+                        
+                        if(list.hasOwnProperty(node[2].machine.riopele40_grupos_maquina.nome)) {
+                            list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
+                        } else {
+                            list[node[2].machine.riopele40_grupos_maquina.nome] = []; 
+                            list[node[2].machine.riopele40_grupos_maquina.nome].push(obj)
+                        }
+                        return callback()
+                    }).catch((err) => {
+                        error = err;
+                        return callback(); 
+                    })
                 }).catch((err) => {
                     error = err;
-                    return callback(); 
+                    return callback()
                 })
             }).catch((err)=> {
                 error = err;
@@ -493,6 +576,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
         })
     })
     async.waterfall(stack, () => {
+        console.log(error);
         return callback(list, error);
     })
 }

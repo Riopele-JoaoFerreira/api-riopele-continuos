@@ -4,6 +4,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Machine_Group = require('../models/riopele40_grupos_maquinas')
 const Machine = require('../models/riopele40_maquinas')
 const Methods = require('../models/riopele40_opcua_metodos')
+const Op = require('sequelize').Op; 
 
 exports.getAllStatus = (req, res) => {
 
@@ -17,8 +18,10 @@ exports.getAllStatus = (req, res) => {
 
     if(req.params.id) {
         where = {
-            id_seccao: req.params.section, 
-            id: req.params.id
+            [Op.and]: {
+                id_seccao: req.params.section, 
+                id: req.params.id
+            }
         }
     }
 
@@ -43,14 +46,16 @@ exports.getAllStatus = (req, res) => {
     let getMethods = (callback) => {
         Methods.findAll({
             where: {
-                grupo: 'variaveis', 
-                chave: 'Estado'
+                [Op.and]: {
+                    grupo: 'variaveis', 
+                    chave: 'Estado'
+                }
             }
         }).then(res => {
             let array = []; 
             res.forEach(method => {  
                 machine_info.forEach(machine => {
-                    let obj = [{server_name: machine.riopele40_servidores_opcua.url},{ nodeId: method.prefixo + machine.identificador_opcua + method.identificador}, {machine: machine}, {section: req.params.section}];
+                    let obj = [{server_name: machine.riopele40_servidores_opcua.url},{ nodeId: method.prefixo + machine.identificador_opcua + method.identificador}, {machine: machine}, {section: req.params.section}, {identificador_opcua: machine.identificador_opcua}];
                     array.push(obj)
                 })
             })
