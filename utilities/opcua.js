@@ -1126,7 +1126,9 @@ function endGame(data, session_, identificador_opcua) {
 
             let getActualGameNumber_ = (callback) => {
                 getActualGameNumber(order[0], data.cod_sap, (res)=>{
+                    console.log("getting num_jogo");
                     num_jogo = res; 
+                    console.log(num_jogo, data.cod_sap, order[0]);
                     return callback();
                 })
             }
@@ -1167,8 +1169,7 @@ function endGame(data, session_, identificador_opcua) {
 
                         console.log("End Game");
                         console.log(data.data_inicio);
-                        console.log(machine_info.id_seccao, machine_info.cod_maquina_fabricante, order[0], num_jogo);
-
+                        
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
                             data_fim: data.data_inicio
@@ -1190,6 +1191,7 @@ function endGame(data, session_, identificador_opcua) {
                                 ]
                             }
                         }).then((res) => {
+                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
