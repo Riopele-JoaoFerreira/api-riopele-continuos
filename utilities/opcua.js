@@ -799,8 +799,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     ]      
                                 }
                             }).then((res) => {
-                                console.log("cenas");
-                                console.log(res);
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
@@ -995,10 +993,6 @@ function startGame(data, session_, identificador_opcua) {
                                 id: id
                             }
                         }).then((res) => {
-                            let getMethodlenghth = async (callback) => {
-                                method_length = await getMethod('variaveis', "Variaveis_Comprim_Jogo" + index); 
-                            }
-
                             let getMethodEndHour = async (callback) => {
                                 method_end_hour = await getMethod('ordem_atual', "hora_fim_jogo"); 
                             }
@@ -1023,7 +1017,7 @@ function startGame(data, session_, identificador_opcua) {
                                 method_ne = await getMethod('ordem_atual', "ne_final"); 
                             }
 
-                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodlenghth, getMethodEndHour, getMethodEndDate], async () => {
+                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodEndHour, getMethodEndDate], async () => {
                                 let method_velocity_obj = [
                                     { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
                                 ];
@@ -1048,10 +1042,6 @@ function startGame(data, session_, identificador_opcua) {
                                     { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + index + '_' + method_end_date.chave},
                                 ];
 
-                                let method_length_obj = [
-                                    { nodeId: method_length.prefixo + identificador_opcua + method_length.identificador},
-                                ];
-
                                 let velocity_res = await session_.read(method_velocity_obj);
                                 let velocity = await velocity_res.map(result => result.value.value)[0];
                                 let twist_res = await session_.read(method_twist_obj);
@@ -1060,8 +1050,6 @@ function startGame(data, session_, identificador_opcua) {
                                 let ne = await ne_res.map(result => result.value.value)[0];
                                 let velocity_sp_res = await session_.read(method_velocity_sp_obj);
                                 let velocity_sp = await velocity_sp_res.map(result => result.value.value)[0];
-                                let length_res = await session_.read(method_length_obj);
-                                let length = await length_res.map(result => result.value.value)[0];
                                 let end_hour_res = await session_.read(method_end_hour_obj);
                                 let end_hour = await end_hour_res.map(result => result.value.value)[0];
                                 let end_date_res = await session_.read(method_end_date_obj);
@@ -1078,7 +1066,6 @@ function startGame(data, session_, identificador_opcua) {
                                     quantidade_produzida: 0, 
                                     data_inicio: data.data_inicio, 
                                     fusos: res[0].fusos, 
-                                    comprimento: length, 
                                     data_fim_prevista: final_date, 
                                     velocidade_setpoint : velocity_sp,
                                     num_jogo: num_jogo 
@@ -1203,7 +1190,6 @@ function endGame(data, session_, identificador_opcua) {
                                 ]
                             }
                         }).then((res) => {
-                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
@@ -1211,14 +1197,11 @@ function endGame(data, session_, identificador_opcua) {
                                     id: id
                                 }
                             }).then((res)=> {
-                                console.log(res);
                                 return true
                             }).catch((err) => {
-                                console.log(err);
                                 return false
                             })
                         }).catch((err)=> {
-                            console.log(err);
                             return false
                         })
                     })  

@@ -1,5 +1,5 @@
 const sequelize = require('../utilities/connection').connection;
-const { Model, DataTypes } = require('sequelize');
+const { Model, DataTypes, FLOAT } = require('sequelize');
 
 const Machine = require('./riopele40_maquinas')
 const Order = require('./riopele40_ordens_sap')
@@ -32,7 +32,8 @@ Production.init({
    qtd_ordem_inicio: DataTypes.FLOAT, 
    qtd_ordem_fim: DataTypes.FLOAT,
    fusos: DataTypes.INTEGER, 
-   comprimento: DataTypes.INTEGER
+   comprimento: DataTypes.INTEGER,
+   velocidade_setpoint: FLOAT
 }, { sequelize, modelName: 'riopele40_producoes_jogos_TESTES', tableName: 'riopele40_producoes_jogos_TESTES' });
 
 Machine.hasMany(Production, {foreignKey: 'cod_sap'})
