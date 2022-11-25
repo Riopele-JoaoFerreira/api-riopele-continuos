@@ -575,8 +575,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
             });    
         })
     })
-    async.waterfall(stack, () => {
-        console.log(error);
+    async.parallel(stack, () => {
         return callback(list, error);
     })
 }
