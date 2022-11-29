@@ -236,7 +236,7 @@ exports.exportEvents = function () {
                 return callback(); 
             })    
         });
-        async.parallel(stack, () => {})  
+        async.waterfall(stack, () => {})  
     }).catch((err) => {})
 }
 
