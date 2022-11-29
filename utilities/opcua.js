@@ -145,7 +145,7 @@ exports.exportEvents = function () {
         method_event_hour = await getMethod('eventos', "Hora");   
     }
 
-    async.parallel([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
+    async.waterfall([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
         let stack = []; 
         machines_list.forEach(machine => {
             stack.push((callback) => {
@@ -575,7 +575,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
             });    
         })
     })
-    async.parallel(stack, () => {
+    async.waterfall(stack, () => {
         return callback(list, error);
     })
 }
@@ -675,7 +675,7 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_state = await getMethod('ordem_atual', "Estado"); 
     }
 
-    async.parallel([getMethodID, getMethodSpindle, getMethodState], async () => {
+    async.waterfall([getMethodID, getMethodSpindle, getMethodState], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
@@ -752,7 +752,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
     }
 
 
-    async.parallel([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint, getMethodEndHour, getMethodEndDate], async () => {
+    async.waterfall([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint, getMethodEndHour, getMethodEndDate], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
@@ -929,7 +929,7 @@ function startOrder(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    async.parallel([getMethodID, getMethodOrder], async () => {
+    async.waterfall([getMethodID, getMethodOrder], async () => {
 
         for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
@@ -977,7 +977,7 @@ function endOrder(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    async.parallel([getMethodID, getMethodOrder], async () => {
+    async.waterfall([getMethodID, getMethodOrder], async () => {
 
         for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
@@ -999,7 +999,7 @@ function endOrder(data, session_, identificador_opcua) {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
                 }
 
-                async.parallel([getActualProductionOrder], async () => {
+                async.waterfall([getActualProductionOrder], async () => {
             
                     let production_order_obj = [
                         { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
@@ -1100,7 +1100,7 @@ function startGame(data, session_, identificador_opcua) {
                                 method_ne = await getMethod('ordem_atual', "ne_final"); 
                             }
 
-                            async.parallel([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodEndHour, getMethodEndDate], async () => {
+                            async.waterfall([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodEndHour, getMethodEndDate], async () => {
                                 let method_velocity_obj = [
                                     { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
                                 ];
@@ -1237,7 +1237,7 @@ function endGame(data, session_, identificador_opcua) {
                         })
                     }
 
-                    async.parallel([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
+                    async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
                         
                         let production_obj = [
                             { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
