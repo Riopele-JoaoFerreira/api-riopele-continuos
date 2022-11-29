@@ -1201,6 +1201,8 @@ function endGame(data, session_, identificador_opcua) {
             let order_obj = [
                 { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
             ];
+
+            console.log(order_obj);
     
             let id_res = await session_.read(id_obj);
             let id = await id_res.map(result => result.value.value)[0];
@@ -1211,7 +1213,7 @@ function endGame(data, session_, identificador_opcua) {
                 getActualGameNumber(order[0], data.cod_sap, (res)=>{
                     console.log("getting num_jogo");
                     num_jogo = res; 
-                    console.log(num_jogo, data.cod_sap, order[0]);
+                    console.log(num_jogo, data.cod_sap, order[0], order);
                     return callback();
                 })
             }
