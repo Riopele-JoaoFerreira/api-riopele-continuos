@@ -1161,8 +1161,6 @@ function startGame(data, session_, identificador_opcua) {
 
 function endGame(data, session_, identificador_opcua) {
 
-    let num_jogo = null; 
-
     let getMethodID = async () => {
         method_id = await getMethod('ordem_atual', "ID"); 
     }
@@ -1207,13 +1205,14 @@ function endGame(data, session_, identificador_opcua) {
                         }, 
                     }).then(res => {
                         if(res[0]) {
-                            return callback(res[0]); 
+                            machine_info = res[0];
+                            return callback(); 
                         } else {
-                            return callback(null); 
+                            return callback(); 
                         }
                     }).catch((err)=> {
                         if(err) {
-                            return callback(null); 
+                            return callback(); 
                         }
                     })
                 }
@@ -1232,6 +1231,9 @@ function endGame(data, session_, identificador_opcua) {
                     let production = await production_res.map(result => result.value.value)[0];
                     let production_order_res = await session_.read(production_order_obj);
                     let production_order = await production_order_res.map(result => result.value.value)[0];
+
+                    console.log("EndGame");
+                    console.log(order[0], machine_info.cod_maquina_fabricante);
 
                     Production.update({
                         quantidade_produzida: parseFloat(production).toFixed(3),
