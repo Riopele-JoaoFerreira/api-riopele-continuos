@@ -1201,99 +1201,85 @@ function endGame(data, session_, identificador_opcua) {
             let order_obj = [
                 { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
             ];
-
-            console.log(order_obj);
     
             let id_res = await session_.read(id_obj);
             let id = await id_res.map(result => result.value.value)[0];
             let order_res = await session_.read(order_obj);
             let order = await order_res.map(result => result.value.value)[0];
 
-            let getActualGameNumber_ = (callback) => {
-                getActualGameNumber(order[0], data.cod_sap, (res)=>{
-                    console.log("getting num_jogo");
-                    num_jogo = res; 
-                    console.log(num_jogo, data.cod_sap, order[0], order);
-                    return callback();
-                })
-            }
+            if(id != 0 && order != 0) {
 
-            async.waterfall([getActualGameNumber_], async () => {
+                let getActualProduction = async () => {
+                    method_production = await getMethod('ordem_atual', "var10"); 
+                }
             
-                if(id != 0 && order != 0) {
+                let getActualProductionOrder = async () => {
+                    method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+                }
 
-                    let getActualProduction = async (callback) => {
-                        method_production = await getMethod('ordem_atual', "var10"); 
-                    }
-                
-                    let getActualProductionOrder = async (callback) => {
-                        method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
-                    }
+                let getMachineInfoByOPCUAID_ = (callback) => {
+                    getMachineInfoByOPCUAID(identificador_opcua, (res)=>{
+                        machine_info = res; 
+                        return callback();
+                    })
+                }
 
-                    let getMachineInfoByOPCUAID_ = (callback) => {
-                        getMachineInfoByOPCUAID(identificador_opcua, (res)=>{
-                            machine_info = res; 
-                            return callback();
-                        })
-                    }
+                console.log('end game 1');
+                console.log(id, order[0]);
 
-                    async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
-                        
-                        let production_obj = [
-                            { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
-                        ];
-                
-                        let production_order_obj = [
-                            { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
-                        ];
-                
-                        let production_res = await session_.read(production_obj);
-                        let production = await production_res.map(result => result.value.value)[0];
-                        let production_order_res = await session_.read(production_order_obj);
-                        let production_order = await production_order_res.map(result => result.value.value)[0];
+                async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
+                    
+                    let production_obj = [
+                        { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
+                    ];
+            
+                    let production_order_obj = [
+                        { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
+                    ];
+            
+                    let production_res = await session_.read(production_obj);
+                    let production = await production_res.map(result => result.value.value)[0];
+                    let production_order_res = await session_.read(production_order_obj);
+                    let production_order = await production_order_res.map(result => result.value.value)[0];
 
-                        console.log("End Game");
-                        console.log(data.data_inicio);
-                        
-                        Production.update({
-                            quantidade_produzida: parseFloat(production).toFixed(3),
-                            data_fim: data.data_inicio
+                    console.log("End Game2");
+                    console.log(data.data_inicio);
+                    
+                    Production.update({
+                        quantidade_produzida: parseFloat(production).toFixed(3),
+                        data_fim: data.data_inicio
+                    }, {
+                        where: {
+                            [Op.and]: [
+                                {
+                                    id_seccao: machine_info.id_seccao,  
+                                },
+                                {
+                                    cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                },
+                                {
+                                    ordem: order[0], 
+                                }
+                            ]
+                        }
+                    }).then((res) => {
+                        console.log(res);
+                        Order_Planned.update({
+                            quantidade_produzida: parseFloat(production_order).toFixed(3)
                         }, {
                             where: {
-                                [Op.and]: [
-                                    {
-                                        id_seccao: machine_info.id_seccao,  
-                                    },
-                                    {
-                                        cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
-                                    },
-                                    {
-                                        ordem: order[0], 
-                                    },
-                                    {
-                                        num_jogo: num_jogo
-                                    }
-                                ]
+                                id: id
                             }
-                        }).then((res) => {
-                            console.log(res);
-                            Order_Planned.update({
-                                quantidade_produzida: parseFloat(production_order).toFixed(3)
-                            }, {
-                                where: {
-                                    id: id
-                                }
-                            }).then((res)=> {
-                                return true
-                            }).catch((err) => {
-                                return false
-                            })
-                        }).catch((err)=> {
+                        }).then((res)=> {
+                            return true
+                        }).catch((err) => {
                             return false
                         })
-                    })  
-                }
-            })
+                    }).catch((err)=> {
+                        return false
+                    })
+                })  
+            }
         }
     }) 
 }
