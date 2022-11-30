@@ -149,25 +149,6 @@ exports.closeIfOpen = (ordem, cod_sap, data, callback) => {
     })
 }
 
-exports.getMachineInfoByOPCUAID = (id, callback) => {
-    Machine.findAll({
-        where: {
-            identificador_opcua: id
-        }, 
-    }).then(res => {
-        if(res[0]) {
-            return callback(res[0]); 
-        } else {
-            return callback(null); 
-        }
-    }).catch((err)=> {
-        console.log(err);
-        if(err) {
-            return callback(null); 
-        }
-    })
-}
-
 exports.timestamptToDate = (date_, hour_) => {
      // DATE
      let date = new Date('1990-01-01');

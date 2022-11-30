@@ -10,7 +10,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
-const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getMachineInfoByOPCUAID } = require('./utilities');
+const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
@@ -1217,17 +1217,29 @@ function endGame(data, session_, identificador_opcua) {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
                 }
 
-                let getMachineInfoByOPCUAID_ = (callback) => {
-                    getMachineInfoByOPCUAID(identificador_opcua, (res)=>{
-                        machine_info = res; 
-                        return callback();
+                let getMachineInfoByOPCUAID = (callback) => {
+                    Machine.findAll({
+                        where: {
+                            identificador_opcua: id
+                        }, 
+                    }).then(res => {
+                        if(res[0]) {
+                            return callback(res[0]); 
+                        } else {
+                            return callback(null); 
+                        }
+                    }).catch((err)=> {
+                        console.log(err);
+                        if(err) {
+                            return callback(null); 
+                        }
                     })
                 }
 
                 console.log('end game 1');
                 console.log(id, order[0]);
 
-                async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID_], async () => {
+                async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID], async () => {
                     
                     let production_obj = [
                         { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
