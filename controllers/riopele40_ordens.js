@@ -121,7 +121,6 @@ exports.updateTable = (req, res) => {
             nodes_to_write = array
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             error = err; 
             return callback();
         })
@@ -285,7 +284,6 @@ exports.updateRunningTable = (req, res) => {
     async.waterfall([getMachineInfo, getOrdersInMachine, getOrdersInfo, getMethods], () => {
         
         if(error) {
-            console.log(error);
             res.status(400).send('Error'); 
         } else {
             Opcua.setTableOrders(nodes_to_write, server_name, (error) => {
@@ -325,7 +323,6 @@ exports.getOrderInfo = (req, res) => {
             server_name = machine_info[0].riopele40_servidores_opcua.url; 
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             error = err; 
             return callback(); 
         })
@@ -407,7 +404,6 @@ exports.getOrderInfo = (req, res) => {
             }
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             error = err; 
             return callback();
         })

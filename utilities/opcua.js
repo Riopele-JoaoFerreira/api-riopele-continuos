@@ -85,7 +85,6 @@ exports.setTableOrders = function (table, server_name, callback) {
             let session_ = searchServerName(server_name, sessions); 
             session_.write(node, function(err,status_code,diagnostic_info) {
                 if (err) {
-                    console.log(err);
                     error = err;  
                 }
                 return callback();
@@ -116,7 +115,6 @@ exports.exportEvents = function () {
             machines_list = res; 
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             return callback(); 
         })
     }
@@ -224,11 +222,8 @@ exports.exportEvents = function () {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
                                     }).catch((err) => {
-                                        console.log(err);
                                     })
-                                }).catch((err) => {
-                                    console.log(err);
-                                }) 
+                                }).catch((err) => {}) 
                             }
                         }); 
                     }
@@ -258,7 +253,6 @@ exports.updateOrders = function () {
             machines_list = res; 
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             return callback(); 
         })
     }
@@ -360,7 +354,6 @@ exports.recordProductions = function () {
             machines_list = res; 
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             return callback(); 
         })
     }
@@ -1154,17 +1147,7 @@ function startGame(data, session_, identificador_opcua) {
                                     num_jogo: num_jogo 
                                 } 
 
-                                console.log("Inicio Jogo");
-                                console.log(data.data_inicio);
-                                console.log(obj);
-
-                                Production.create(obj).then((res)=> {
-                                    console.log("Record Created");
-                                }).then((err) => {
-                                    if(err) {
-                                        console.log("Error");
-                                    }
-                                })
+                                Production.create(obj).then((res)=> {}).then((err) => {})
                             })
                         }).catch((err) => {})
                     })
@@ -1229,15 +1212,11 @@ function endGame(data, session_, identificador_opcua) {
                             return callback(null); 
                         }
                     }).catch((err)=> {
-                        console.log(err);
                         if(err) {
                             return callback(null); 
                         }
                     })
                 }
-
-                console.log('end game 1');
-                console.log(id, order[0]);
 
                 async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID], async () => {
                     
@@ -1254,9 +1233,6 @@ function endGame(data, session_, identificador_opcua) {
                     let production_order_res = await session_.read(production_order_obj);
                     let production_order = await production_order_res.map(result => result.value.value)[0];
 
-                    console.log("End Game2");
-                    console.log(data.data_inicio);
-                    
                     Production.update({
                         quantidade_produzida: parseFloat(production).toFixed(3),
                         data_fim: data.data_inicio
@@ -1275,7 +1251,6 @@ function endGame(data, session_, identificador_opcua) {
                             ]
                         }
                     }).then((res) => {
-                        console.log(res);
                         Order_Planned.update({
                             quantidade_produzida: parseFloat(production_order).toFixed(3)
                         }, {

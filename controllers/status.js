@@ -62,7 +62,6 @@ exports.getAllStatus = (req, res) => {
             nodes_to_read = array
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             error = err; 
             return callback();
         })
