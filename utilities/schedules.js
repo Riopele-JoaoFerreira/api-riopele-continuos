@@ -2,7 +2,7 @@ var cron = require('node-cron');
 const utilities_opcua = require('../utilities/opcua')
 
 exports.eventsSchedule = () => {
-    cron.schedule('*/30 * * * * *', () => {
+    cron.schedule('* * * * *', () => {
       console.log('Exporting Events');
       utilities_opcua.exportEvents((callback)=> {})
     });
@@ -11,7 +11,7 @@ exports.eventsSchedule = () => {
       console.log('Record Productions');
       utilities_opcua.recordProductions((callback)=> {})
     });
-    cron.schedule('*/15 * * * * *', () => {
+    cron.schedule('*/30 * * * * *', () => {
       console.log('Update Running Orders');
       utilities_opcua.updateOrders((callback)=> {})
   });
