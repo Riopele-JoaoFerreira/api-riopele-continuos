@@ -26,7 +26,7 @@ exports.eventsSchedule = () => {
         console.log('Locked');
       }
     });
-    cron.schedule(' * * * * *', () => {
+    cron.schedule('*/40 * * * * *', () => {
       console.log('Update Running Orders');
       if(!lock) {
         lock = true; 
