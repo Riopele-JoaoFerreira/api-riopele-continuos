@@ -3,7 +3,7 @@ const utilities_opcua = require('../utilities/opcua')
 let lock = false; 
 
 exports.eventsSchedule = () => {
-    cron.schedule(' ', () => {
+    cron.schedule('*/2 * * * *', () => {
       console.log('Exporting Events');
       if(!lock) {
         lock = true; 
