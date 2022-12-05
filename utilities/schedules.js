@@ -1,19 +1,41 @@
 var cron = require('node-cron');
 const utilities_opcua = require('../utilities/opcua')
+let lock = false; 
 
 exports.eventsSchedule = () => {
-    cron.schedule('*/2 * * * *', () => {
+    cron.schedule(' ', () => {
       console.log('Exporting Events');
-      utilities_opcua.exportEvents((callback)=> {})
+      if(!lock) {
+        lock = true; 
+        utilities_opcua.exportEvents((callback)=> {
+          lock = false; 
+        })
+      } else {
+        console.log('Locked');
+      }
     });
 
     cron.schedule(' */5 * * * *', () => {
       console.log('Record Productions');
-      utilities_opcua.recordProductions((callback)=> {})
+      if(!lock) {
+        lock = true; 
+        utilities_opcua.recordProductions((callback)=> {
+          lock = false; 
+        })
+      } else {
+        console.log('Locked');
+      }
     });
     cron.schedule(' * * * * *', () => {
       console.log('Update Running Orders');
-      utilities_opcua.updateOrders((callback)=> {})
+      if(!lock) {
+        lock = true; 
+        utilities_opcua.updateOrders((callback)=> {
+          lock = false; 
+        })
+      } else {
+        console.log('Locked');
+      }
   });
 
 }
