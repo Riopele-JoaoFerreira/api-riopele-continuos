@@ -1161,13 +1161,19 @@ function startGame(data, session_, identificador_opcua) {
 
 function endGame(data, session_, identificador_opcua) {
 
+    console.log("end game");
+
     let getMethodID = async () => {
         method_id = await getMethod('ordem_atual', "ID"); 
     }
 
+    console.log(method_id);
+
     let getMethodOrder = async () => {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
+
+    console.log(method_order_id);
 
     async.waterfall([getMethodID, getMethodOrder], async () => {
 
@@ -1187,6 +1193,10 @@ function endGame(data, session_, identificador_opcua) {
             let id = await id_res.map(result => result.value.value)[0];
             let order_res = await session_.read(order_obj);
             let order = await order_res.map(result => result.value.value)[0];
+
+            console.log(id_obj);
+
+            console.log(order_obj);
 
             if(id != 0 && order != 0) {
 
