@@ -1216,6 +1216,8 @@ function endGame(data, session_, identificador_opcua) {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
                 }
 
+                console.log(identificador_opcua);
+
                 let getMachineInfoByOPCUAID = (callback) => {
                     Machine.findAll({
                         where: {
@@ -1223,6 +1225,7 @@ function endGame(data, session_, identificador_opcua) {
                         }, 
                     }).then(res => {
                         if(res[0]) {
+                            console.log(res[0]);
                             machine_info = res[0];
                             return callback(); 
                         } else {
