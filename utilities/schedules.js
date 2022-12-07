@@ -1,14 +1,14 @@
 var cron = require('node-cron');
 const utilities_opcua = require('../utilities/opcua')
-let lock = false; 
+global.lock = false; 
 
 exports.eventsSchedule = () => {
     cron.schedule('*/2 * * * *', () => {
-      if(!lock) {
+      if(!global.lock) {
         console.log('Exporting Events');
-        lock = true; 
+        global.lock = true; 
         utilities_opcua.exportEvents((callback)=> {
-          lock = false; 
+          global.lock = false; 
           return callback(); 
         })
       } else {
@@ -17,11 +17,11 @@ exports.eventsSchedule = () => {
     });
 
     cron.schedule(' */5 * * * *', () => {
-      if(!lock) {
+      if(!global.lock) {
         console.log('Record Productions');
-        lock = true; 
+        global.lock = true; 
         utilities_opcua.recordProductions((callback)=> {
-          lock = false; 
+          global.lock = false; 
           return callback(); 
         })
       } else {
@@ -29,11 +29,11 @@ exports.eventsSchedule = () => {
       }
     });
     cron.schedule('*/40 * * * * *', () => {
-      if(!lock) {
+      if(!global.lock) {
         console.log('Update Running Orders');
-        lock = true; 
+        global.lock = true; 
         utilities_opcua.updateOrders((callback)=> {
-          lock = false; 
+          global.lock = false; 
           return callback(); 
         })
       } else {
