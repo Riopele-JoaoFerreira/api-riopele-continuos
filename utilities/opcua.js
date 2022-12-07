@@ -1204,16 +1204,6 @@ function endGame(data, session_, identificador_opcua) {
 
             if(id != 0 && order[0] != 0) {
 
-                let getActualProduction = async (callback) => {
-                    method_production = await getMethod('ordem_atual', "var10"); 
-                    return callback();
-                }
-            
-                let getActualProductionOrder = async (callback) => {
-                    method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
-                    return callback()
-                }
-
                 let getMachineInfoByOPCUAID = (callback) => {
                     Machine.findAll({
                         where: {
@@ -1233,8 +1223,11 @@ function endGame(data, session_, identificador_opcua) {
                     })
                 }
 
-                async.waterfall([getActualProduction, getActualProductionOrder, getMachineInfoByOPCUAID], async () => {
-                    
+                async.waterfall(getMachineInfoByOPCUAID, async () => {
+
+                    method_production = await getMethod('ordem_atual', "var10"); 
+                    method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+
                     let production_obj = [
                         { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
                     ];
