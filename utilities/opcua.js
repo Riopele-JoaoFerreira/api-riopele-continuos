@@ -231,9 +231,7 @@ exports.exportEvents = function () {
                 return callback(); 
             })    
         });
-        async.waterfall(stack, () => {
-            global.lock = false; 
-        })  
+        async.waterfall(stack, () => {})  
     }).catch((err) => {})
 }
 
@@ -331,7 +329,6 @@ exports.updateOrders = function () {
             })
         });
         async.waterfall(stack, () => {
-            global.lock = false;
             return callback(); 
         })  
     }
@@ -433,7 +430,6 @@ exports.recordProductions = function () {
             })
         });
         async.waterfall(stack, () => {
-            global.lock = false; 
             return callback(); 
         })  
     }
