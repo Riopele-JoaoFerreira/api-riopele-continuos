@@ -3,18 +3,15 @@ const utilities_opcua = require('../utilities/opcua')
 
 exports.eventsSchedule = () => {
     cron.schedule('*/140 * * * * *', () => {
-      utilities_opcua.exportEvents(()=> {
-        console.log("Exporting Events");
-      })
+      console.log("Exporting Events");
+      utilities_opcua.exportEvents(()=> {})
     });
     cron.schedule('*/230 * * * * *', () => {
-      utilities_opcua.recordProductions(()=> {
-        console.log('Record Productions');
-      })
+      console.log('Record Productions');
+      utilities_opcua.recordProductions(()=> {})
     });
     cron.schedule('*/40 * * * * *', () => {
-      utilities_opcua.updateOrders(()=> {
-        console.log("Update Orders");
-      })
+      console.log("Update Orders");
+      utilities_opcua.updateOrders(()=> {})
   });
 }
