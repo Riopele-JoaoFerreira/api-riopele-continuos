@@ -96,7 +96,7 @@ exports.setTableOrders = function (table, server_name, callback) {
     })
 }
 
-exports.exportEvents = function () {
+exports.exportEvents = function (callback) {
 
     let machines_list = null; 
     let method_new = method_event_code = method_event_state = method_event_date = method_event_hour = method_event_order = null; 
@@ -231,11 +231,15 @@ exports.exportEvents = function () {
                 return callback(); 
             })    
         });
-        async.waterfall(stack, () => {})  
-    }).catch((err) => {})
+        async.waterfall(stack, () => {
+            return callback();
+        })  
+    }).catch((err) => {
+        return callback();
+    })
 }
 
-exports.updateOrders = function () {
+exports.updateOrders = function (callback) {
 
     let machines_list = null;
     
@@ -333,10 +337,12 @@ exports.updateOrders = function () {
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {})
+    async.waterfall([getMachineInfo, getMethods], () => {
+        return callback(); 
+    })
 }
 
-exports.recordProductions = function () {
+exports.recordProductions = function (callback) {
 
     let machines_list = null;
     
@@ -434,7 +440,9 @@ exports.recordProductions = function () {
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {})
+    async.waterfall([getMachineInfo, getMethods], () => {
+        return callback()
+    })
 }
 
 exports.readNode = async function(nodeID, server_name) {

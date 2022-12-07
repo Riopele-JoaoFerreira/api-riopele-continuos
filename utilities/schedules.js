@@ -4,7 +4,7 @@ const utilities_opcua = require('../utilities/opcua')
 exports.eventsSchedule = () => {
     cron.schedule('15 * * * * *', () => {
       console.log(new Date().toLocaleString() + " - Exporting Events");
-      utilities_opcua.exportEvents(()=> {})
+      utilities_opcua.exportEvents(() => {})
     });
     cron.schedule('30 * * * * *', () => {
       console.log(new Date().toLocaleString() + " - Record Productions");
