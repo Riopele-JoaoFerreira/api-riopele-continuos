@@ -1244,7 +1244,7 @@ function endGame(data, session_, identificador_opcua) {
                                         id_seccao: res[0].id_seccao,  
                                     },
                                     {
-                                        cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                        cod_maquina_fabricante: res[0].cod_maquina_fabricante, 
                                     },
                                     {
                                         ordem: order[0], 
