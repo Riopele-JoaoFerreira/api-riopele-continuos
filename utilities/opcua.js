@@ -143,7 +143,7 @@ exports.exportEvents = function (callback) {
         method_event_hour = await getMethod('eventos', "Hora");   
     }
 
-    async.parallel([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
+    async.waterfall([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
         let stack = []; 
         machines_list.forEach(machine => {
             stack.push((callback) => {
@@ -231,7 +231,7 @@ exports.exportEvents = function (callback) {
                 return callback(); 
             })    
         });
-        async.parallel(stack, () => {
+        async.waterfall(stack, () => {
             return callback();
         })  
     }).catch((err) => {
@@ -313,7 +313,7 @@ exports.updateOrders = function (callback) {
                             } 
                         })
                     });
-                    async.parallel(stack1, () => {
+                    async.waterfall(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -323,7 +323,7 @@ exports.updateOrders = function (callback) {
                                 i++; 
                             })
                         });
-                        async.parallel(stack2, () => {
+                        async.waterfall(stack2, () => {
                             return callback(); 
                         })  
                     })  
@@ -332,7 +332,7 @@ exports.updateOrders = function (callback) {
                 })
             })
         });
-        async.parallel(stack, () => {
+        async.waterfall(stack, () => {
             return callback(); 
         })  
     }
@@ -416,7 +416,7 @@ exports.recordProductions = function (callback) {
                             } 
                         })
                     });
-                    async.parallel(stack1, () => {
+                    async.waterfall(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -426,7 +426,7 @@ exports.recordProductions = function (callback) {
                                 i++; 
                             })
                         });
-                        async.parallel(stack2, () => {
+                        async.waterfall(stack2, () => {
                             return callback(); 
                         })  
                     })  
@@ -435,7 +435,7 @@ exports.recordProductions = function (callback) {
                 })
             })
         });
-        async.parallel(stack, () => {
+        async.waterfall(stack, () => {
             return callback(); 
         })  
     }
