@@ -5,6 +5,7 @@ const schedules = require('./utilities/schedules')
 const orders = require('./routes/riopele40_ordens')
 const status = require('./routes/status')
 const app = express();
+global.lock = false; 
 app.use(express.json()); 
 app.use('/orders', orders)
 app.use('/status', status)

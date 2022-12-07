@@ -231,7 +231,9 @@ exports.exportEvents = function () {
                 return callback(); 
             })    
         });
-        async.waterfall(stack, () => {})  
+        async.waterfall(stack, () => {
+            global.lock = false; 
+        })  
     }).catch((err) => {})
 }
 
@@ -333,7 +335,9 @@ exports.updateOrders = function () {
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {})
+    async.waterfall([getMachineInfo, getMethods], () => {
+        global.lock = false;
+    })
 }
 
 exports.recordProductions = function () {
@@ -434,7 +438,9 @@ exports.recordProductions = function () {
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {})
+    async.waterfall([getMachineInfo, getMethods], () => {
+        global.lock = false; 
+    })
 }
 
 exports.readNode = async function(nodeID, server_name) {
