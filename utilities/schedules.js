@@ -6,9 +6,7 @@ exports.eventsSchedule = () => {
       if(!global.lock) {
         global.lock = true; 
         console.log('Exporting Events');
-        utilities_opcua.exportEvents((callback)=> {
-          return callback(); 
-        })
+        utilities_opcua.exportEvents(()=> {})
       } else {
         console.log('Locked');
       }
@@ -18,9 +16,7 @@ exports.eventsSchedule = () => {
       if(!global.lock) {
         global.lock = true; 
         console.log('Record Productions');
-        utilities_opcua.recordProductions((callback)=> {
-          return callback(); 
-        })
+        utilities_opcua.recordProductions(()=> {})
       } else {
         console.log('Locked');
       }
@@ -29,9 +25,7 @@ exports.eventsSchedule = () => {
       if(!global.lock) {
         global.lock = true; 
         console.log('Update Running Orders');
-        utilities_opcua.updateOrders((callback)=> {
-          return callback(); 
-        })
+        utilities_opcua.updateOrders(()=> {})
       } else {
         console.log('Locked');
       }

@@ -331,13 +331,12 @@ exports.updateOrders = function () {
             })
         });
         async.waterfall(stack, () => {
+            global.lock = false;
             return callback(); 
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {
-        global.lock = false;
-    })
+    async.waterfall([getMachineInfo, getMethods], () => {})
 }
 
 exports.recordProductions = function () {
@@ -434,13 +433,12 @@ exports.recordProductions = function () {
             })
         });
         async.waterfall(stack, () => {
+            global.lock = false; 
             return callback(); 
         })  
     }
 
-    async.waterfall([getMachineInfo, getMethods], () => {
-        global.lock = false; 
-    })
+    async.waterfall([getMachineInfo, getMethods], () => {})
 }
 
 exports.readNode = async function(nodeID, server_name) {
