@@ -1208,15 +1208,15 @@ function endGame(data, session_, identificador_opcua) {
 
             if(id != 0 && order[0] != 0) {
 
-                let getActualProduction = async () => {
+                let getActualProduction = async (callback) => {
                     method_production = await getMethod('ordem_atual', "var10"); 
+                    return callback();
                 }
             
-                let getActualProductionOrder = async () => {
+                let getActualProductionOrder = async (callback) => {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+                    return callback()
                 }
-
-                console.log(identificador_opcua);
 
                 let getMachineInfoByOPCUAID = (callback) => {
                     Machine.findAll({
