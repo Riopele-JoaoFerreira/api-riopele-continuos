@@ -853,28 +853,44 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                             estado_sap: 'P',
                             num_jogo: num_jogo 
                         }).then((res)=> {
-                            Production.update({
-                                quantidade_produzida: parseFloat(production).toFixed(3), 
-                                velocidade_setpoint: parseFloat(setpoint).toFixed(3),
-                                data_fim_prevista: final_date
-                            }, {
-                                where: {
-                                    [Op.and]: [
-                                        {
-                                            id_seccao: machine_info.id_seccao,  
-                                        },
-                                        {
-                                            cod_maquina_fabricante: machine_info.cod_maquina_fabricante
-                                        },
-                                        {
-                                            ordem: order,
-                                        }, 
-                                        {
-                                            num_jogo: num_jogo
+                            if(production > 0) {
+                                Production.update({
+                                    quantidade_produzida: parseFloat(production).toFixed(3), 
+                                    velocidade_setpoint: parseFloat(setpoint).toFixed(3),
+                                    data_fim_prevista: final_date
+                                }, {
+                                    where: {
+                                        [Op.and]: [
+                                            {
+                                                id_seccao: machine_info.id_seccao,  
+                                            },
+                                            {
+                                                cod_maquina_fabricante: machine_info.cod_maquina_fabricante
+                                            },
+                                            {
+                                                ordem: order,
+                                            }, 
+                                            {
+                                                num_jogo: num_jogo
+                                            }
+                                        ]      
+                                    }
+                                }).then((res) => {
+                                    Order_Planned.update({
+                                        quantidade_produzida: parseFloat(production_order).toFixed(3)
+                                    }, {
+                                        where: {
+                                            id: id
                                         }
-                                    ]      
-                                }
-                            }).then((res) => {
+                                    }).then((res)=> {
+                                        return true
+                                    }).catch((err) => {
+                                        return false
+                                    })
+                                }).catch((err)=> {
+                                    return false
+                                })
+                            } else {
                                 Order_Planned.update({
                                     quantidade_produzida: parseFloat(production_order).toFixed(3)
                                 }, {
@@ -886,9 +902,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                 }).catch((err) => {
                                     return false
                                 })
-                            }).catch((err)=> {
-                                return false
-                            })
+                            }
                         }).catch((err) => {
                             return false; 
                         })
