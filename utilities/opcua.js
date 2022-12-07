@@ -1175,8 +1175,6 @@ function startGame(data, session_, identificador_opcua) {
 
 function endGame(data, session_, identificador_opcua) {
 
-    console.log("end game");
-
     let getMethodID = async () => {
         method_id = await getMethod('ordem_atual', "ID"); 
     }
@@ -1204,8 +1202,6 @@ function endGame(data, session_, identificador_opcua) {
             let order_res = await session_.read(order_obj);
             let order = await order_res.map(result => result.value.value)[0];
 
-            console.log(id, order[0]);
-
             if(id != 0 && order[0] != 0) {
 
                 let getActualProduction = async (callback) => {
@@ -1225,7 +1221,6 @@ function endGame(data, session_, identificador_opcua) {
                         }, 
                     }).then(res => {
                         if(res[0]) {
-                            console.log(res[0]);
                             machine_info = res[0];
                             return callback(); 
                         } else {
@@ -1254,6 +1249,7 @@ function endGame(data, session_, identificador_opcua) {
                     let production_order = await production_order_res.map(result => result.value.value)[0];
 
                     console.log("EndGame");
+                    console.log(machine_info, identificador_opcua);
                     console.log(order[0], machine_info.cod_maquina_fabricante);
 
                     Production.update({
