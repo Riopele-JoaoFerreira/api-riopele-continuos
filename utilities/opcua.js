@@ -1234,9 +1234,6 @@ function endGame(data, session_, identificador_opcua) {
                     let production_order_res = await session_.read(production_order_obj);
                     let production_order = await production_order_res.map(result => result.value.value)[0];
 
-                    console.log("EndGame");
-                    console.log(order[0]);
-
                     Machine.findAll({
                         where: {
                             identificador_opcua: identificador_opcua
@@ -1268,18 +1265,14 @@ function endGame(data, session_, identificador_opcua) {
                                     id: id
                                 }
                             }).then((res)=> {
-                                console.log(res);
                                 return true
                             }).catch((err) => {
-                                console.log(err);
                                 return false
                             })
                         }).catch((err)=> {
-                            console.log(err);
                             return false
                         })
                     }).catch((err)=> {
-                        console.log(err);
                         return false
                     })
                 })  
