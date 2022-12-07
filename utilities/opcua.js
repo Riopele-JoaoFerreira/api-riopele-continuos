@@ -1205,22 +1205,7 @@ function endGame(data, session_, identificador_opcua) {
             if(id != 0 && order[0] != 0) {
 
                 let getMachineInfoByOPCUAID = (callback) => {
-                    Machine.findAll({
-                        where: {
-                            identificador_opcua: identificador_opcua
-                        }, 
-                    }).then(res => {
-                        if(res[0]) {
-                            machine_info = res[0];
-                            return callback(); 
-                        } else {
-                            return callback(); 
-                        }
-                    }).catch((err)=> {
-                        if(err) {
-                            return callback(); 
-                        }
-                    })
+                   
                 }
 
                 async.waterfall(getMachineInfoByOPCUAID, async () => {
@@ -1242,40 +1227,51 @@ function endGame(data, session_, identificador_opcua) {
                     let production_order = await production_order_res.map(result => result.value.value)[0];
 
                     console.log("EndGame");
-                    console.log(machine_info, identificador_opcua);
-                    console.log(order[0], machine_info.cod_maquina_fabricante);
+                    console.log(order[0]);
 
-                    Production.update({
-                        quantidade_produzida: parseFloat(production).toFixed(3),
-                        data_fim: data.data_inicio
-                    }, {
+                    Machine.findAll({
                         where: {
-                            [Op.and]: [
-                                {
-                                    id_seccao: machine_info.id_seccao,  
-                                },
-                                {
-                                    cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
-                                },
-                                {
-                                    ordem: order[0], 
-                                }
-                            ]
-                        }
-                    }).then((res) => {
-                        Order_Planned.update({
-                            quantidade_produzida: parseFloat(production_order).toFixed(3)
+                            identificador_opcua: identificador_opcua
+                        }, 
+                    }).then(res => {
+                        Production.update({
+                            quantidade_produzida: parseFloat(production).toFixed(3),
+                            data_fim: data.data_inicio
                         }, {
                             where: {
-                                id: id
+                                [Op.and]: [
+                                    {
+                                        id_seccao: res[0].id_seccao,  
+                                    },
+                                    {
+                                        cod_maquina_fabricante: machine_info.cod_maquina_fabricante, 
+                                    },
+                                    {
+                                        ordem: order[0], 
+                                    }
+                                ]
                             }
-                        }).then((res)=> {
-                            return true
-                        }).catch((err) => {
+                        }).then((res) => {
+                            console.log(res);
+                            Order_Planned.update({
+                                quantidade_produzida: parseFloat(production_order).toFixed(3)
+                            }, {
+                                where: {
+                                    id: id
+                                }
+                            }).then((res)=> {
+                                console.log(res);
+                                return true
+                            }).catch((err) => {
+                                return false
+                            })
+                        }).catch((err)=> {
                             return false
                         })
                     }).catch((err)=> {
-                        return false
+                        if(err) {
+                            return false;  
+                        }
                     })
                 })  
             }
