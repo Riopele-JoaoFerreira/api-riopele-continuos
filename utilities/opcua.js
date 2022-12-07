@@ -1219,7 +1219,7 @@ function endGame(data, session_, identificador_opcua) {
                 let getMachineInfoByOPCUAID = (callback) => {
                     Machine.findAll({
                         where: {
-                            identificador_opcua: id
+                            identificador_opcua: identificador_opcua
                         }, 
                     }).then(res => {
                         if(res[0]) {
