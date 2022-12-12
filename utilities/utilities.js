@@ -131,42 +131,21 @@ exports.getMachineInfo = (id, callback) => {
 
 exports.closeIfOpen = (ordem, cod_sap, data, callback) => {
 
-    let where = null;
-    if(ordem != '') {
-        where = {
-            [Op.and]: [
-                {
-                    ordem: ordem
-                },
-                {
-                    cod_sap: cod_sap
-                },
-                {
-                    data_fim: {
-                        [Op.eq]: null
-                    }
-                }
-            ]
-        }
-    } else {
-        where = {
-            [Op.and]: [
-                {
-                    cod_sap: cod_sap
-                },
-                {
-                    data_fim: {
-                        [Op.eq]: null
-                    }
-                }
-            ]
-        }
-    }
-
     Production.update({
         data_fim: data
     }, {
-        where: where
+        where: {
+            [Op.and]: [
+                {
+                    cod_sap: cod_sap
+                },
+                {
+                    data_fim: {
+                        [Op.eq]: null
+                    }
+                }
+            ]
+        }
     }).then((res)=> {
         return callback();
     }).catch((err)=> {
