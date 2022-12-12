@@ -59,24 +59,6 @@ async function connect() {
 
 connect(); 
 
-/*setTimeout(function() {
-    let obj_test = {
-        id_seccao: 18,
-        cod_sap: 'PCON0101',
-        cod_evento: 13,                
-        cod_maquina_fabricante: 101,
-        data_inicio: '2022-08-11 12:15:00', 
-        cod_estado: 1,
-        ordem: '200020962',
-    }
-
-    let server_name_test = 'SRVRIOT02'; 
-    let session_test = searchServerName(server_name_test, sessions);
-
-    startOrder(obj_test, session_test, 'ContinuosRiopB.101-B101'); 
-
-}, 5000)*/
-
 exports.setTableOrders = function (table, server_name, callback) {
     let error = null; 
     let stack = [];
