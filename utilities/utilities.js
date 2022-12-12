@@ -1,5 +1,5 @@
 const OPCUA_Client = require('node-opcua');
-const { Op } = require('sequelize');
+const { Op, or } = require('sequelize');
 const Machine = require('../models/riopele40_maquinas');
 const Production = require('../models/riopele40_producoes');
 
@@ -128,16 +128,43 @@ exports.getMachineInfo = (id, callback) => {
 }
 
 exports.closeIfOpen = (ordem, cod_sap, data, callback) => {
+
+    let where = null;
+    if(ordem != '') {
+        where = {
+            [Op.and]: [
+                {
+                    ordem: ordem
+                },
+                {
+                    cod_sap: cod_sap
+                },
+                {
+                    data_fim: {
+                        [Op.eq]: null
+                    }
+                }
+            ]
+        }
+    } else {
+        where = {
+            [Op.and]: [
+                {
+                    cod_sap: cod_sap
+                },
+                {
+                    data_fim: {
+                        [Op.eq]: null
+                    }
+                }
+            ]
+        }
+    }
+
     Production.update({
         data_fim: data
     }, {
-        where: {
-            ordem: ordem, 
-            cod_sap: cod_sap, 
-            data_fim: {
-                [Op.eq]: null
-            }
-        }
+        where: where
     }).then((res)=> {
         return callback();
     }).catch((err)=> {
