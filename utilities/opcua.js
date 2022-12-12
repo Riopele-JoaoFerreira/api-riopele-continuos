@@ -234,8 +234,6 @@ exports.exportEvents = function (callback) {
         async.waterfall(stack, () => {
             return callback();
         })  
-    }).catch((err) => {
-        return callback();
     })
 }
 

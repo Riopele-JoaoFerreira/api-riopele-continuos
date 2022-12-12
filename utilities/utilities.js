@@ -2,6 +2,8 @@ const OPCUA_Client = require('node-opcua');
 const { Op, or } = require('sequelize');
 const Machine = require('../models/riopele40_maquinas');
 const Production = require('../models/riopele40_producoes');
+const Parametro = require('../models/parametros'); 
+const sequelize = require('./connection').connection
 
 exports.getType = (type) => {
     switch (type) {
@@ -211,4 +213,47 @@ exports.timestamptToDate = (date_, hour_) => {
      var final_date = sql_date + ' ' + actual_hour;
 
      return final_date; 
+}
+
+exports.isLocked = (callback) => {
+    Parametro.findOne({
+        where: {
+            parametro: 'api_continuos_lock'
+        }
+    }).then((res) => {
+        if(res.valor == 'S') {
+            return callback(true);
+        } else {
+            return callback(false); 
+        }
+    }).catch((err) => {
+        console.log(err);
+        return callback(false)
+    })
+}
+
+exports.lock = () => {
+    Parametro.update(
+        {
+            valor: 'S'
+        }, 
+        {
+            where: {
+                parametro: 'api_continuos_lock'
+            }
+        }
+    )
+}
+
+exports.unlock = () => {
+    Parametro.update(
+        {
+            valor: 'N'
+        }, 
+        {
+            where: {
+                parametro: 'api_continuos_lock'
+            }
+        }
+    )
 }
