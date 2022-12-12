@@ -1243,6 +1243,8 @@ function endGame(data, session_, identificador_opcua) {
                             identificador_opcua: identificador_opcua
                         }, 
                     }).then(res => {
+                        console.log("end game");
+                        console.log(production, order[0]);
                         Production.update({
                             quantidade_produzida: parseFloat(production).toFixed(3),
                             data_fim: data.data_inicio
