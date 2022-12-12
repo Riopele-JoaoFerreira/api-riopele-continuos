@@ -3,7 +3,7 @@ const utilities_opcua = require('../utilities/opcua')
 const utilities = require('../utilities/utilities');
 
 exports.eventsSchedule = () => {
-    cron.schedule('5 */2 * * * *', () => {
+    cron.schedule('5 * * * * *', () => {
       utilities.isLocked((locked) => {
         if(!locked) {
           utilities.lock(); 
@@ -31,7 +31,7 @@ exports.eventsSchedule = () => {
         }
       })
     });
-    cron.schedule('15 * * * * *', () => {
+    cron.schedule('15 /2* * * * *', () => {
       utilities.isLocked((locked) => {
         if(!locked) {
           utilities.lock(); 
