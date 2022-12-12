@@ -881,7 +881,7 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                             },
                                             {
                                                 data_fim: {
-                                                    [Op.ne]: null
+                                                    [Op.eq]: null
                                                 }
                                             }
                                         ]      
