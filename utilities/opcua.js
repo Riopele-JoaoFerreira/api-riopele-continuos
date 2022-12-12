@@ -1257,7 +1257,6 @@ function endGame(data, session_, identificador_opcua) {
                                 ]
                             }
                         }).then((res) => {
-                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
