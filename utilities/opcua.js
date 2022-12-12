@@ -878,10 +878,16 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                             }, 
                                             {
                                                 num_jogo: num_jogo
+                                            },
+                                            {
+                                                data_fim: {
+                                                    [Op.ne]: null
+                                                }
                                             }
                                         ]      
                                     }
                                 }).then((res) => {
+                                    console.log(res, production);
                                     Order_Planned.update({
                                         quantidade_produzida: parseFloat(production_order).toFixed(3)
                                     }, {
