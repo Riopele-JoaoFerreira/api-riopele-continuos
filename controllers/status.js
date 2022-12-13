@@ -32,7 +32,8 @@ exports.getAllStatus = (req, res) => {
                     OPCUA_Server, 
                     Machine_Group
                 ],
-                where: where
+                where: where, 
+                order: ['cod_sap', 'asc']
             }
         ).then((res)=> {
             machine_info = res; 
