@@ -1203,19 +1203,12 @@ function endGame(data, session_, identificador_opcua) {
 
                 async.waterfall(getMachineInfoByOPCUAID, async () => {
 
-                    method_production = await getMethod('ordem_atual', "var10"); 
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
-
-                    let production_obj = [
-                        { nodeId: method_production.prefixo + identificador_opcua + method_production.identificador + index + '_' + method_production.chave},
-                    ];
             
                     let production_order_obj = [
                         { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
                     ];
             
-                    let production_res = await session_.read(production_obj);
-                    let production = await production_res.map(result => result.value.value)[0];
                     let production_order_res = await session_.read(production_order_obj);
                     let production_order = await production_order_res.map(result => result.value.value)[0];
 
@@ -1224,40 +1217,23 @@ function endGame(data, session_, identificador_opcua) {
                             identificador_opcua: identificador_opcua
                         }, 
                     }).then(res => {
-                        if(production > 0) {
-                            Production.update({
-                                quantidade_produzida: parseFloat(production).toFixed(3),
-                                data_fim: data.data_inicio
-                            }, {
-                                where: {
-                                    [Op.and]: [
-                                        {
-                                            id_seccao: res[0].id_seccao,  
-                                        },
-                                        {
-                                            cod_maquina_fabricante: res[0].cod_maquina_fabricante, 
-                                        },
-                                        {
-                                            ordem: order[0], 
-                                        }
-                                    ]
-                                }
-                            }).then((res) => {
-                                Order_Planned.update({
-                                    quantidade_produzida: parseFloat(production_order).toFixed(3)
-                                }, {
-                                    where: {
-                                        id: id
+                        Production.update({
+                            data_fim: data.data_inicio
+                        }, {
+                            where: {
+                                [Op.and]: [
+                                    {
+                                        id_seccao: res[0].id_seccao,  
+                                    },
+                                    {
+                                        cod_maquina_fabricante: res[0].cod_maquina_fabricante, 
+                                    },
+                                    {
+                                        ordem: order[0], 
                                     }
-                                }).then((res)=> {
-                                    return true
-                                }).catch((err) => {
-                                    return false
-                                })
-                            }).catch((err)=> {
-                                return false
-                            })
-                        } else {
+                                ]
+                            }
+                        }).then((res) => {
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
@@ -1269,7 +1245,9 @@ function endGame(data, session_, identificador_opcua) {
                             }).catch((err) => {
                                 return false
                             })
-                        }
+                        }).catch((err)=> {
+                            return false
+                        })
                     }).catch((err)=> {
                         return false
                     })
