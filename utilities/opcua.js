@@ -725,11 +725,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
     }
 
     let getMethodEndHour = async (callback) => {
-        method_end_hour = await getMethod('ordem_atual', "hora_fim_jogo"); 
+        method_end_hour = await getMethod('variaveis', "Variaveis_Hora_Prev_Fim"); 
     }
 
     let getMethodEndDate = async (callback) => {
-        method_end_date = await getMethod('ordem_atual', "data_fim_jogo"); 
+        method_end_date = await getMethod('variaveis', "Variaveis_Data_Prev_Fim"); 
     }
 
 
@@ -751,12 +751,14 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         ];
 
         let method_end_hour_obj = [
-            { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador + index + '_' + method_end_hour.chave},
+            { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador + method_end_hour.chave},
         ];
 
         let method_end_date_obj = [
-            { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + index + '_' + method_end_date.chave},
+            { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + method_end_date.chave},
         ];
+
+        console.log(method_end_hour_obj, method_end_date_obj);
 
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
