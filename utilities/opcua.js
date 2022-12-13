@@ -751,11 +751,11 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         ];
 
         let method_end_hour_obj = [
-            { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador + method_end_hour.chave},
+            { nodeId: method_end_hour.prefixo + identificador_opcua + method_end_hour.identificador},
         ];
 
         let method_end_date_obj = [
-            { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + method_end_date.chave},
+            { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador},
         ];
 
         console.log(method_end_hour_obj, method_end_date_obj);
