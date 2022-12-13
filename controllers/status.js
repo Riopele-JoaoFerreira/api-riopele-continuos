@@ -33,7 +33,7 @@ exports.getAllStatus = (req, res) => {
                     Machine_Group
                 ],
                 where: where, 
-                order: ['cod_sap', 'asc']
+                order: [['cod_sap', 'asc']]
             }
         ).then((res)=> {
             machine_info = res; 
@@ -75,7 +75,19 @@ exports.getAllStatus = (req, res) => {
             Opcua.getMachineStatus(nodes_to_read, (result, error) => {
                 if(!error) {
                     if(res) {
-                         res.status(200).json(result); 
+
+                        keys = Object.keys(result),
+                        keys.sort();
+
+                        let i = keys.length; 
+                        let len = keys.length; 
+
+                        for (i = 0; i < len; i++) {
+                            let k = keys[i]; 
+                            result[k].sort((a,b) => (a.cod_sap > b.cod_sap) ? 1 : ((b.cod_sap > a.cod_sap) ? -1 : 0))
+                        }
+
+                        res.status(200).json(result); 
                     }
                 } else {
                     if(res) {
