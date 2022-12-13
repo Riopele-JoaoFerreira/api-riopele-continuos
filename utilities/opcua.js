@@ -869,7 +869,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                         ]      
                                     }
                                 }).then((res) => {
-                                    console.log(res, production);
                                     Order_Planned.update({
                                         quantidade_produzida: parseFloat(production_order).toFixed(3)
                                     }, {
@@ -1225,26 +1224,40 @@ function endGame(data, session_, identificador_opcua) {
                             identificador_opcua: identificador_opcua
                         }, 
                     }).then(res => {
-                        console.log("end game");
-                        console.log(production, order[0]);
-                        Production.update({
-                            quantidade_produzida: parseFloat(production).toFixed(3),
-                            data_fim: data.data_inicio
-                        }, {
-                            where: {
-                                [Op.and]: [
-                                    {
-                                        id_seccao: res[0].id_seccao,  
-                                    },
-                                    {
-                                        cod_maquina_fabricante: res[0].cod_maquina_fabricante, 
-                                    },
-                                    {
-                                        ordem: order[0], 
+                        if(production > 0) {
+                            Production.update({
+                                quantidade_produzida: parseFloat(production).toFixed(3),
+                                data_fim: data.data_inicio
+                            }, {
+                                where: {
+                                    [Op.and]: [
+                                        {
+                                            id_seccao: res[0].id_seccao,  
+                                        },
+                                        {
+                                            cod_maquina_fabricante: res[0].cod_maquina_fabricante, 
+                                        },
+                                        {
+                                            ordem: order[0], 
+                                        }
+                                    ]
+                                }
+                            }).then((res) => {
+                                Order_Planned.update({
+                                    quantidade_produzida: parseFloat(production_order).toFixed(3)
+                                }, {
+                                    where: {
+                                        id: id
                                     }
-                                ]
-                            }
-                        }).then((res) => {
+                                }).then((res)=> {
+                                    return true
+                                }).catch((err) => {
+                                    return false
+                                })
+                            }).catch((err)=> {
+                                return false
+                            })
+                        } else {
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
@@ -1256,9 +1269,7 @@ function endGame(data, session_, identificador_opcua) {
                             }).catch((err) => {
                                 return false
                             })
-                        }).catch((err)=> {
-                            return false
-                        })
+                        }
                     }).catch((err)=> {
                         return false
                     })
