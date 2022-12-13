@@ -758,8 +758,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
             { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador},
         ];
 
-        console.log(method_end_hour_obj, method_end_date_obj);
-
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let production_res = await session_.read(production_obj);
