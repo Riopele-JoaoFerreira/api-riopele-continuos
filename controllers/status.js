@@ -76,8 +76,10 @@ exports.getAllStatus = (req, res) => {
                 if(!error) {
                     if(res) {
 
-                        keys = Object.keys(result),
-                        keys.sort();
+                        const sortObject = obj => Object.keys(obj).sort().reduce((res, key) => (res[key] = obj[key], res), {});
+
+                        keys = Object.keys(result);
+                        result = sortObject(result);
 
                         let i = keys.length; 
                         let len = keys.length; 
