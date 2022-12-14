@@ -73,7 +73,7 @@ exports.setTableOrders = function (table, server_name, callback) {
             });
         })
     })
-    async.waterfall(stack, () => {
+    async.parallel(stack, () => {
         return callback(error);
     })
 }
