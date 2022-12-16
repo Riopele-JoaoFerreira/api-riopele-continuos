@@ -293,7 +293,7 @@ exports.updateOrders = function (callback) {
                             } 
                         })
                     });
-                    async.parallel(stack1, () => {
+                    async.waterfall(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -303,7 +303,7 @@ exports.updateOrders = function (callback) {
                                 i++; 
                             })
                         });
-                        async.parallel(stack2, () => {
+                        async.waterfall(stack2, () => {
                             return callback(); 
                         })  
                     })  
@@ -312,7 +312,7 @@ exports.updateOrders = function (callback) {
                 })
             })
         });
-        async.parallel(stack, () => {
+        async.waterfall(stack, () => {
             return callback(); 
         })  
     }
