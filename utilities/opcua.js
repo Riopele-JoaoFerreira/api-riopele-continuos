@@ -656,7 +656,7 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_state = await getMethod('ordem_atual', "Estado"); 
     }
 
-    async.waterfall([getMethodID, getMethodSpindle, getMethodState], async () => {
+    async.parallel([getMethodID, getMethodSpindle, getMethodState], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
