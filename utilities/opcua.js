@@ -1018,10 +1018,12 @@ function endOrder(data) {
                     }
                 }).then((result)=> {
                     console.log(result);
-                    console.log("atualizar tabelas");
-                    Controller.updateTable(null, null, machine_info.id); 
-                    Controller.updateRunningTable(null, null, machine_info.id)
-                    return true
+                    closeIfOpen(data.order, data.cod_sap, data.data_inicio, (res) => {
+                        console.log("atualizar tabelas");
+                        Controller.updateTable(null, null, machine_info.id); 
+                        Controller.updateRunningTable(null, null, machine_info.id)
+                        return true
+                    })
                 }).catch((err) => {
                     return false
                 })
