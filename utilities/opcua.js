@@ -14,6 +14,7 @@ const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMa
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
+const Order_Machine = require('../models/riopele40_ordem_maquinas');
 
 let clients = []; 
 let sessions = []; 
@@ -981,27 +982,8 @@ function endOrder(data, session_, identificador_opcua) {
 
         for (let index = 1; index <= method_order_id.repeticoes; index++) {
 
-            let id_obj = [
-                { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
-            ];
-    
-            let order_obj = [
-                { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
-            ];
-
-            let id_res = await session_.read(id_obj);
-            let id = await id_res.map(result => result.value.value)[0];
-            let order_res = await session_.read(order_obj);
-            let order = await order_res.map(result => result.value.value)[0];
-            console.log("End Order");
-            console.log(order[0], data, id);
-            if(order[0] == data.ordem) {
+            if(data.order != '') {
             
-                let getActualProductionOrder = async (callback) => {
-                    method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
-                    return callback();
-                }
-
                 let machine_info = null; 
 
                 let getMachineInfo = (callback) => {
@@ -1019,32 +1001,51 @@ function endOrder(data, session_, identificador_opcua) {
                     })
                 }
 
-                
-                async.waterfall([getActualProductionOrder, getMachineInfo], async () => {
+                async.waterfall([getMachineInfo], () => {
+                    
                     console.log("Entra end Order");
-                    let production_order_obj = [
-                        { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
-                    ];
-            
-                    let production_order_res = await session_.read(production_order_obj);
-                    let production_order = await production_order_res.map(result => result.value.value)[0];
-
                     console.log(machine_info);
 
-                    Order_Planned.update({
-                        quantidade_produzida: parseFloat(production_order).toFixed(3),
-                        data_fim: data.data_inicio
-                    }, {
+                    Order_Machine.findAll({
                         where: {
-                            id: id
+                            ordem: order
                         }
-                    }).then((res)=> {
-                        console.log("atualizar tabelas");
-                        Controller.updateTable(null, null, machine_info.id); 
-                        Controller.updateRunningTable(null, null, machine_info.id)
-                        return true
-                    }).catch((err) => {
-                        return false
+                    }).then((list) => {
+
+                        array_ids = [];
+
+                        list.forEach(id_ => {
+                            array_ids.push(id_); 
+                        });
+
+                        Order_Planned.update({
+                            data_fim: data.data_inicio
+                        }, {
+                            where: {
+                                [Op.and]: {
+                                    data_inicio:  {
+                                        [Op.ne]: null
+                                    },
+                                    data_fim: {
+                                        [Op.eq]: null
+                                    }, 
+                                    quantidade_produzida: {
+                                        [OP.gt]: 0
+                                    },
+                                    id_ordem_maquina: array_ids
+                                }
+                            }
+                        }).then((result)=> {
+                            console.log(result);
+                            console.log("atualizar tabelas");
+                            Controller.updateTable(null, null, machine_info.id); 
+                            Controller.updateRunningTable(null, null, machine_info.id)
+                            return true
+                        }).catch((err) => {
+                            return false
+                        })
+                    }).catch((error) => {
+                        return false; 
                     })
                 })  
                 break; 
