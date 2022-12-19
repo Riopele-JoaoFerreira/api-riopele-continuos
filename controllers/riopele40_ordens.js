@@ -9,13 +9,20 @@ const Orders_Machine = require('../models/riopele40_ordem_maquinas')
 const Orders_Planned = require('../models/riopele40_ordens_planeadas')
 const Methods = require('../models/riopele40_opcua_metodos')
 
-exports.updateTable = (req, res) => {
+exports.updateTable = (req, res, id_maquina) => {
 
     let machine_info = null;  
     let orders_planned = []; 
     let orders_info = null; 
     let error = null; 
     let nodes_to_write = []; 
+
+    let id = null;
+    if(id_maquina) {
+        id = id_maquina
+    } else {
+        id = req.body.id
+    }
 
     let getMachineInfo = (callback) => {
         Machine.findAll(
@@ -24,7 +31,7 @@ exports.updateTable = (req, res) => {
                     model: OPCUA_Server, 
                 },
                 where: {
-                    id: req.body.id
+                    id: id
                 }
             }
         ).then((res)=> {
@@ -40,7 +47,7 @@ exports.updateTable = (req, res) => {
     let getOrdersInMachine = (callback) => {
         Orders_Machine.findAll({
             where: {
-                id_maquina: req.body.id
+                id_maquina: id
             },
         }).then(res => {
             let array = []; 
@@ -146,7 +153,7 @@ exports.updateTable = (req, res) => {
     })
 } 
 
-exports.updateRunningTable = (req, res) => {
+exports.updateRunningTable = (req, res, id_maquina) => {
 
     let machine_info = null;  
     let orders_planned = []; 
@@ -155,6 +162,13 @@ exports.updateRunningTable = (req, res) => {
     let nodes_to_write = []; 
     let server_name = null; 
 
+    let id = null;
+    if(id_maquina) {
+        id = id_maquina
+    } else {
+        id = req.body.id
+    }
+
     let getMachineInfo = (callback) => {
         Machine.findAll(
             {
@@ -162,7 +176,7 @@ exports.updateRunningTable = (req, res) => {
                     model: OPCUA_Server, 
                 },
                 where: {
-                    id: req.body.id
+                    id: id
                 }
             }
         ).then((res)=> {
@@ -178,7 +192,7 @@ exports.updateRunningTable = (req, res) => {
     let getOrdersInMachine = (callback) => {
         Orders_Machine.findAll({
             where: {
-                id_maquina: req.body.id
+                id_maquina: id
             },
         }).then(res => {
             let array = []; 

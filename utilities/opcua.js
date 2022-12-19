@@ -993,13 +993,29 @@ function endOrder(data, session_, identificador_opcua) {
             let id = await id_res.map(result => result.value.value)[0];
             let order_res = await session_.read(order_obj);
             let order = await order_res.map(result => result.value.value)[0];
-            if(order == data.ordem) {
+            console.log("End Order");
+            console.log(order[0], data, id);
+            if(order[0] == data.ordem) {
             
                 let getActualProductionOrder = async (callback) => {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
                 }
 
-                async.waterfall([getActualProductionOrder], async () => {
+                let machine_info = null; 
+
+                let getMachineInfo = (callback) => {
+                    Machine.findOne({
+                        where : {
+                            cod_maquina_fabricante: data.cod_maquina_fabricante
+                        }
+                    }).then((info) => {
+                        machine_info = info; 
+                        return callback(); 
+                    })
+                }
+
+                console.log("Entra end Order");
+                async.waterfall([getActualProductionOrder, getMachineInfo], async () => {
             
                     let production_order_obj = [
                         { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
@@ -1007,6 +1023,8 @@ function endOrder(data, session_, identificador_opcua) {
             
                     let production_order_res = await session_.read(production_order_obj);
                     let production_order = await production_order_res.map(result => result.value.value)[0];
+
+                    console.log(machine_info);
 
                     Order_Planned.update({
                         quantidade_produzida: parseFloat(production_order).toFixed(3),
@@ -1016,6 +1034,9 @@ function endOrder(data, session_, identificador_opcua) {
                             id: id
                         }
                     }).then((res)=> {
+                        console.log("atualizar tabelas");
+                        Controller.updateTable(null, null, machine_info.id); 
+                        Controller.updateRunningTable(null, null, machine_info.id)
                         return true
                     }).catch((err) => {
                         return false
