@@ -999,6 +999,7 @@ function endOrder(data, session_, identificador_opcua) {
             
                 let getActualProductionOrder = async (callback) => {
                     method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
+                    return callback();
                 }
 
                 let machine_info = null; 
@@ -1009,14 +1010,18 @@ function endOrder(data, session_, identificador_opcua) {
                             cod_maquina_fabricante: data.cod_maquina_fabricante
                         }
                     }).then((info) => {
+                        console.log(info);
                         machine_info = info; 
                         return callback(); 
+                    }).catch((error) => {
+                        console.log(error);
+                        return callback()
                     })
                 }
 
-                console.log("Entra end Order");
+                
                 async.waterfall([getActualProductionOrder, getMachineInfo], async () => {
-            
+                    console.log("Entra end Order");
                     let production_order_obj = [
                         { nodeId: method_order_production.prefixo + identificador_opcua + method_order_production.identificador + index + '_' + method_order_production.chave},
                     ];
