@@ -636,7 +636,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
         timestamp: timestamp, 
         event_code: event_code, 
         state_code: state_code, 
-        order: order
+        order: order 
     };
 
     return obj
