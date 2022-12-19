@@ -969,92 +969,72 @@ function startOrder(data, session_, identificador_opcua) {
 }
 
 function endOrder(data, session_, identificador_opcua) {
-
-    let getMethodID = async () => {
-        method_id = await getMethod('ordem_atual', "ID"); 
-    }
-
-    let getMethodOrder = async () => {
-        method_order_id = await getMethod('ordem_atual', "ordem"); 
-    }
-
-    async.waterfall([getMethodID, getMethodOrder], async () => {
-
-        for (let index = 1; index <= method_order_id.repeticoes; index++) {
-
-            if(data.order != '') {
+    if(data.order != '') {
             
-                let machine_info = null; 
+        let machine_info = null; 
 
-                let getMachineInfo = (callback) => {
-                    Machine.findOne({
-                        where : {
-                            cod_maquina_fabricante: data.cod_maquina_fabricante
-                        }
-                    }).then((info) => {
-                        console.log(info);
-                        machine_info = info; 
-                        return callback(); 
-                    }).catch((error) => {
-                        console.log(error);
-                        return callback()
-                    })
+        let getMachineInfo = (callback) => {
+            Machine.findOne({
+                where : {
+                    cod_maquina_fabricante: data.cod_maquina_fabricante
                 }
-
-                async.waterfall([getMachineInfo], () => {
-                    
-                    console.log("Entra end Order");
-                    console.log(machine_info);
-
-                    Order_Machine.findAll({
-                        where: {
-                            ordem: order
-                        }
-                    }).then((list) => {
-
-                        array_ids = [];
-
-                        list.forEach(id_ => {
-                            array_ids.push(id_); 
-                        });
-
-                        Order_Planned.update({
-                            data_fim: data.data_inicio
-                        }, {
-                            where: {
-                                [Op.and]: {
-                                    data_inicio:  {
-                                        [Op.ne]: null
-                                    },
-                                    data_fim: {
-                                        [Op.eq]: null
-                                    }, 
-                                    quantidade_produzida: {
-                                        [OP.gt]: 0
-                                    },
-                                    id_ordem_maquina: array_ids
-                                }
-                            }
-                        }).then((result)=> {
-                            console.log(result);
-                            console.log("atualizar tabelas");
-                            Controller.updateTable(null, null, machine_info.id); 
-                            Controller.updateRunningTable(null, null, machine_info.id)
-                            return true
-                        }).catch((err) => {
-                            return false
-                        })
-                    }).catch((error) => {
-                        return false; 
-                    })
-                })  
-                break; 
-            } else {
-                continue; 
-            }
+            }).then((info) => {
+                console.log(info);
+                machine_info = info; 
+                return callback(); 
+            }).catch((error) => {
+                console.log(error);
+                return callback()
+            })
         }
-      
-    }) 
+
+        async.waterfall([getMachineInfo], () => {
+            
+            console.log("Entra end Order");
+            console.log(machine_info);
+
+            Order_Machine.findAll({
+                where: {
+                    ordem: order
+                }
+            }).then((list) => {
+
+                array_ids = [];
+
+                list.forEach(id_ => {
+                    array_ids.push(id_); 
+                });
+
+                Order_Planned.update({
+                    data_fim: data.data_inicio
+                }, {
+                    where: {
+                        [Op.and]: {
+                            data_fim: {
+                                [Op.eq]: null
+                            }, 
+                            quantidade_produzida: {
+                                [OP.gt]: 0
+                            },
+                            id_ordem_maquina: array_ids
+                        }
+                    }
+                }).then((result)=> {
+                    console.log(result);
+                    console.log("atualizar tabelas");
+                    Controller.updateTable(null, null, machine_info.id); 
+                    Controller.updateRunningTable(null, null, machine_info.id)
+                    return true
+                }).catch((err) => {
+                    return false
+                })
+            }).catch((error) => {
+                return false; 
+            })
+        })  
+    } else {
+        return false; 
+    }
 }
 
 function startGame(data, session_, identificador_opcua) {
