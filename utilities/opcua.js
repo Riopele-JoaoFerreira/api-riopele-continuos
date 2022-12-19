@@ -200,7 +200,7 @@ exports.exportEvents = function (callback) {
                                         } else if(startGameEvents.includes(obj.cod_evento)) {
                                             startGame(obj, session_, machine.identificador_opcua)
                                         } else if(endOrderEvents.includes(obj.cod_evento)) {
-                                            endOrder(obj, session_, machine.identificador_opcua)
+                                            endOrder(obj)
                                         } else if(endGameEvents.includes(obj.cod_evento)) {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
@@ -636,7 +636,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
         timestamp: timestamp, 
         event_code: event_code, 
         state_code: state_code, 
-        order: order
+        order: order[0]
     };
 
     return obj
@@ -967,7 +967,7 @@ function startOrder(data, session_, identificador_opcua) {
     }) 
 }
 
-function endOrder(data, session_, identificador_opcua) {
+function endOrder(data) {
     if(data.order != '') {
             
         let machine_info = null; 
@@ -978,11 +978,9 @@ function endOrder(data, session_, identificador_opcua) {
                     cod_maquina_fabricante: data.cod_maquina_fabricante
                 }
             }).then((info) => {
-                console.log(info);
                 machine_info = info; 
                 return callback(); 
             }).catch((error) => {
-                console.log(error);
                 return callback()
             })
         }
@@ -990,11 +988,11 @@ function endOrder(data, session_, identificador_opcua) {
         async.waterfall([getMachineInfo], () => {
             
             console.log("Entra end Order");
-            console.log(machine_info);
-
+            console.log(data);
+            console.log(machine_info.id);
             Order_Machine.findAll({
                 where: {
-                    ordem: order
+                    ordem: data.order
                 }
             }).then((list) => {
 
