@@ -562,7 +562,6 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
     })
 }
 
-
 async function getMethod(group, key) {
     let method = await Method.findOne({
         where: {
