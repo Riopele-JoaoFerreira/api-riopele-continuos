@@ -691,7 +691,6 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
         let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
-        console.log(node_ID);
         let obj =  {
             nodeId: node_ID,
             attributeId: OPCUA_Client.AttributeIds.Value,
@@ -702,8 +701,6 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
                 }
             }
         }
- 
-        console.log(obj);
         await session_.write(obj)
 
         if(orders_list.length == 0) {
