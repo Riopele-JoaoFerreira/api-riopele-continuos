@@ -10,7 +10,7 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
 const Controller = require('../controllers/riopele40_ordens');
-const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo } = require('./utilities');
+const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
@@ -664,8 +664,6 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_quantity_save = await getMethod('ordens', "quantidade_produzida"); 
     }
 
-    console.log("entra");
-
     async.parallel([getMethodID, getMethodSpindle, getMethodState, getMethodQuantity, getMethodQuantitySave], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
@@ -683,8 +681,6 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
             { nodeId: method_order_quantity.prefixo + identificador_opcua + method_order_quantity.identificador + index + '_' + method_order_quantity.chave},
         ];
 
-        console.log(quantity_obj);
-
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let splindles_res = await session_.read(splindles_obj);
@@ -694,16 +690,15 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity_res = await session_.read(quantity_obj);
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
-        console.log(quantity);
-
         let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
+        console.log(node_ID);
         let obj =  {
             nodeId: node_ID,
             attributeId: OPCUA_Client.AttributeIds.Value,
             value: {
                 value: {
-                    dataType: utilities.getType(method_order_quantity_save.tipo).dataType,
-                    value: utilities.convert(method_order_quantity_save.tipo, quantity)
+                    dataType: getType(method_order_quantity_save.tipo).dataType,
+                    value: convert(method_order_quantity_save.tipo, quantity)
                 }
             }
         }
