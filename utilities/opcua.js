@@ -701,8 +701,8 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
                 }
             }
         }
-        let resu = await session_.write(obj); 
-        console.log(resu);
+        
+        await session_.write(obj); 
 
         if(orders_list.length == 0) {
             await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
