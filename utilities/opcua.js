@@ -1100,6 +1100,8 @@ function startGame(data, session_, identificador_opcua) {
             let game_production = await game_production_res.map(result => result.value.value)[0];
             let num_jogo = null; 
 
+            console.log("entra");
+
             if(id != 0 && order != 0) {
                 getGameNumber(order[0], data.cod_sap, (res)=>{
                     num_jogo = res; 
@@ -1187,6 +1189,8 @@ function startGame(data, session_, identificador_opcua) {
                                     velocidade_setpoint : velocity_sp,
                                     num_jogo: num_jogo 
                                 } 
+
+                                console.log(obj);
 
                                 Production.create(obj).then((res)=> {}).then((err) => {})
                             })
