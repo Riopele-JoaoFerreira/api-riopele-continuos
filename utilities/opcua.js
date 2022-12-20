@@ -656,7 +656,15 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_state = await getMethod('ordem_atual', "Estado"); 
     }
 
-    async.parallel([getMethodID, getMethodSpindle, getMethodState], async () => {
+    let getMethodQuantity = async (callback) => {
+        method_order_quantity = await getMethod('ordem_atual', "quantidade_produzida"); 
+    }
+
+    let getMethodQuantitySave = async (callback) => {
+        method_order_quantity_save = await getMethod('ordens', "quantidade_produzida"); 
+    }
+
+    async.parallel([getMethodID, getMethodSpindle, getMethodState, getMethodQuantity], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
@@ -669,12 +677,34 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
             { nodeId: method_order_state.prefixo + identificador_opcua + method_order_state.identificador + index + '_' + method_order_state.chave},
         ];
 
+        let quantity_obj = [
+            { nodeId: method_order_quantity.prefixo + identificador_opcua + method_order_quantity.identificador + index + '_' + method_order_quantity.chave},
+        ];
+
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let splindles_res = await session_.read(splindles_obj);
         let splindles = await splindles_res.map(result => result.value.value)[0];
         let state_res = await session_.read(state_obj);
         let state = await state_res.map(result => result.value.value)[0];
+        let quantity_res = await session_.read(quantity_obj);
+        let quantity = await quantity_res.map(result => result.value.value)[0];
+
+
+        let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
+        let obj =  {
+            nodeId: node_ID,
+            attributeId: OPCUA_Client.AttributeIds.Value,
+            value: {
+                value: {
+                    dataType: utilities.getType(method_order_quantity_save.tipo).dataType,
+                    value: utilities.convert(method_order_quantity_save.tipo, quantity)
+                }
+            }
+        }
+ 
+        console.log(obj);
+        await session_.write(obj)
 
         if(orders_list.length == 0) {
             await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
