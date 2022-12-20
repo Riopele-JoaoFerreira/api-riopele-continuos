@@ -664,6 +664,8 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_quantity_save = await getMethod('ordens', "quantidade_produzida"); 
     }
 
+    console.log("entra");
+
     async.parallel([getMethodID, getMethodSpindle, getMethodState, getMethodQuantity, getMethodQuantitySave], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
@@ -681,6 +683,8 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
             { nodeId: method_order_quantity.prefixo + identificador_opcua + method_order_quantity.identificador + index + '_' + method_order_quantity.chave},
         ];
 
+        console.log(quantity_obj);
+
         let id_res = await session_.read(id_obj);
         let id = await id_res.map(result => result.value.value)[0];
         let splindles_res = await session_.read(splindles_obj);
@@ -690,6 +694,7 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity_res = await session_.read(quantity_obj);
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
+        console.log(quantity);
 
         let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
         let obj =  {
