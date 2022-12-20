@@ -664,7 +664,7 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         method_order_quantity_save = await getMethod('ordens', "quantidade_produzida"); 
     }
 
-    async.parallel([getMethodID, getMethodSpindle, getMethodState, getMethodQuantity], async () => {
+    async.parallel([getMethodID, getMethodSpindle, getMethodState, getMethodQuantity, getMethodQuantitySave], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
