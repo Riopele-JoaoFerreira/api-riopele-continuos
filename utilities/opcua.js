@@ -898,6 +898,26 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                         ]      
                                     }
                                 }).then((res) => {
+                                    if(parseFloat(production_order).toFixed(3) > 0) {
+                                        Order_Planned.update({
+                                            quantidade_produzida: parseFloat(production_order).toFixed(3)
+                                        }, {
+                                            where: {
+                                                id: id
+                                            }
+                                        }).then((res)=> {
+                                            return true
+                                        }).catch((err) => {
+                                            return false
+                                        })
+                                    } else {
+                                        return true; 
+                                    }
+                                }).catch((err)=> {
+                                    return false
+                                })
+                            } else {
+                                if(parseFloat(production_order).toFixed(3) > 0) {
                                     Order_Planned.update({
                                         quantidade_produzida: parseFloat(production_order).toFixed(3)
                                     }, {
@@ -909,21 +929,9 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
                                     }).catch((err) => {
                                         return false
                                     })
-                                }).catch((err)=> {
-                                    return false
-                                })
-                            } else {
-                                Order_Planned.update({
-                                    quantidade_produzida: parseFloat(production_order).toFixed(3)
-                                }, {
-                                    where: {
-                                        id: id
-                                    }
-                                }).then((res)=> {
+                                } else {
                                     return true
-                                }).catch((err) => {
-                                    return false
-                                })
+                                } 
                             }
                         }).catch((err) => {
                             return false; 
