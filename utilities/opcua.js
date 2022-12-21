@@ -1191,6 +1191,7 @@ function startGame(data, session_, identificador_opcua) {
                                         }
                                     }).then((info) => {
                                         game_production = config.peso_por_fuso * info[0].num_fusos; 
+                                        console.log("Primeiro Jogo", game_production);
                                         let obj = {
                                             id_seccao: data.id_seccao,    
                                             cod_maquina_fabricante: data.cod_maquina_fabricante,
