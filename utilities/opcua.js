@@ -482,7 +482,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
                         let method_game_production_obj = [
                             { nodeId: method_game_production.prefixo + node[4].identificador_opcua + method_game_production.identificador + i + '_' + method_game_production.chave},
                         ];
-        
+
                         method_game_production_estimated = await Opcua.getMethod('ordem_atual', "quantidade_jogo");   
                         let method_game_production_estimated_obj = [
                             { nodeId: method_game_production_estimated.prefixo + node[4].identificador_opcua + method_game_production_estimated.identificador + i + '_' + method_game_production_estimated.chave},
@@ -502,8 +502,31 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
                         let game_production = await method_game_production_res.map(result => result.value.value)[0];
                         let method_game_production_estimated_res = await Opcua.readNode(method_game_production_estimated_obj, server_name);
                         let game_production_estimated = await method_game_production_estimated_res.map(result => result.value.value)[0];
-                        let progress = Math.ceil((game_production/game_production_estimated)*100)
-        
+
+                        let progress = 0; 
+                        if(game_production_estimated > 0) {
+                            progress = Math.ceil((game_production/game_production_estimated)*100)
+                        } else {
+                            game_production_alternative = await Production.findAll({
+                                where: {
+                                    [Op.and]: [
+                                        {
+                                            ordem: order[0],  
+                                        },
+                                        {
+                                            cod_sap: node[2].machine.cod_sap,
+                                        },
+                                        {
+                                            data_fim: {
+                                                [Op.eq]: null
+                                            }
+                                        }
+                                    ]
+                                }
+                            })
+                            progress = Math.ceil((game_production/game_production_alternative.quantidade_prevista)*100)
+                        }
+
                         try {
                             let obj = {
                                 "ordem": order[0],
@@ -559,6 +582,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
         })
     })
     async.parallel(stack, () => {
+        console.log(error);
         return callback(list, error);
     })
 }
