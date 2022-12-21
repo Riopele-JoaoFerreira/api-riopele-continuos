@@ -15,6 +15,7 @@ const Stops = require('../models/riopele40_motivos_paragem');
 const Order_Machine = require('../models/riopele40_ordem_maquinas');
 const Controller = require('../controllers/riopele40_ordens');
 const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
+const { config } = require('../config/config');
 
 let clients = []; 
 let sessions = []; 
@@ -1183,21 +1184,45 @@ function startGame(data, session_, identificador_opcua) {
 
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
-                                let obj = {
-                                    id_seccao: data.id_seccao,    
-                                    cod_maquina_fabricante: data.cod_maquina_fabricante,
-                                    cod_sap: data.cod_sap,
-                                    ordem: order[0],
-                                    quantidade_prevista: game_production, 
-                                    quantidade_produzida: 0, 
-                                    data_inicio: data.data_inicio, 
-                                    fusos: res[0].fusos, 
-                                    data_fim_prevista: final_date, 
-                                    velocidade_setpoint : velocity_sp,
-                                    num_jogo: num_jogo 
-                                } 
+                                if(num_jogo == 1) {
+                                    Machine.findAll({
+                                        where: {
+                                            cod_sap: data.cod_sap
+                                        }
+                                    }).then((info) => {
+                                        game_production = config.peso_por_fuso * info[0].num_fusos; 
+                                        let obj = {
+                                            id_seccao: data.id_seccao,    
+                                            cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                            cod_sap: data.cod_sap,
+                                            ordem: order[0],
+                                            quantidade_prevista: game_production, 
+                                            quantidade_produzida: 0, 
+                                            data_inicio: data.data_inicio, 
+                                            fusos: res[0].fusos, 
+                                            data_fim_prevista: final_date, 
+                                            velocidade_setpoint : velocity_sp,
+                                            num_jogo: num_jogo 
+                                        } 
+                                        Production.create(obj).then((res)=> {}).then((err) => {})
+                                    }).catch((err) => {})
+                                } else {
+                                    let obj = {
+                                        id_seccao: data.id_seccao,    
+                                        cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                        cod_sap: data.cod_sap,
+                                        ordem: order[0],
+                                        quantidade_prevista: game_production, 
+                                        quantidade_produzida: 0, 
+                                        data_inicio: data.data_inicio, 
+                                        fusos: res[0].fusos, 
+                                        data_fim_prevista: final_date, 
+                                        velocidade_setpoint : velocity_sp,
+                                        num_jogo: num_jogo 
+                                    } 
 
-                                Production.create(obj).then((res)=> {}).then((err) => {})
+                                    Production.create(obj).then((res)=> {}).then((err) => {})
+                                } 
                             })
                         }).catch((err) => {})
                     })
