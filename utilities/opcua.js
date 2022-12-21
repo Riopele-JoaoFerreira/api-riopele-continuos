@@ -1021,7 +1021,7 @@ function endOrder(data) {
             console.log(machine_info.id);
             Order_Machine.findAll({
                 where: {
-                    ordem: data.order
+                    ordem: data.ordem
                 }
             }).then((list) => {
 
@@ -1047,7 +1047,7 @@ function endOrder(data) {
                     }
                 }).then((result)=> {
                     console.log(result);
-                    closeIfOpen(data.order, data.cod_sap, data.data_inicio, (res) => {
+                    closeIfOpen(data.ordem, data.cod_sap, data.data_inicio, (res) => {
                         console.log("atualizar tabelas");
                         Controller.updateTable(null, null, machine_info.id); 
                         Controller.updateRunningTable(null, null, machine_info.id)
