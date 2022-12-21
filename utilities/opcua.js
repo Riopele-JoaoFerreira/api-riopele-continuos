@@ -690,19 +690,20 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity_res = await session_.read(quantity_obj);
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
-        let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
-        let obj =  {
-            nodeId: node_ID,
-            attributeId: OPCUA_Client.AttributeIds.Value,
-            value: {
+        if(quantity > 0) {
+            let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
+            let obj =  {
+                nodeId: node_ID,
+                attributeId: OPCUA_Client.AttributeIds.Value,
                 value: {
-                    dataType: getType(method_order_quantity_save.tipo).dataType,
-                    value: convert(method_order_quantity_save.tipo, quantity)
+                    value: {
+                        dataType: getType(method_order_quantity_save.tipo).dataType,
+                        value: convert(method_order_quantity_save.tipo, quantity)
+                    }
                 }
             }
+            await session_.write(obj); 
         }
-        
-        await session_.write(obj); 
 
         if(orders_list.length == 0) {
             await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
@@ -1100,8 +1101,6 @@ function startGame(data, session_, identificador_opcua) {
             let game_production = await game_production_res.map(result => result.value.value)[0];
             let num_jogo = null; 
 
-            console.log("entra");
-
             if(id != 0 && order != 0) {
                 getGameNumber(order[0], data.cod_sap, (res)=>{
                     num_jogo = res; 
@@ -1189,8 +1188,6 @@ function startGame(data, session_, identificador_opcua) {
                                     velocidade_setpoint : velocity_sp,
                                     num_jogo: num_jogo 
                                 } 
-
-                                console.log(obj);
 
                                 Production.create(obj).then((res)=> {}).then((err) => {})
                             })
