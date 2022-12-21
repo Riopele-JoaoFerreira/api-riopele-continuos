@@ -1265,10 +1265,17 @@ function endGame(data, session_, identificador_opcua) {
                                     },
                                     {
                                         ordem: order[0], 
+                                    },
+                                    {
+                                        data_fim: {
+                                            [Op.eq] : null
+                                        }, 
                                     }
                                 ]
                             }
                         }).then((res) => {
+                            console.log("end game");
+                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
