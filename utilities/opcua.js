@@ -1185,45 +1185,25 @@ function startGame(data, session_, identificador_opcua) {
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
                                 if(num_jogo == 1) {
-                                    Machine.findAll({
-                                        where: {
-                                            cod_sap: data.cod_sap
-                                        }
-                                    }).then((info) => {
-                                        game_production = config.peso_por_fuso * info[0].num_fusos; 
-                                        console.log("Primeiro Jogo", game_production);
-                                        let obj = {
-                                            id_seccao: data.id_seccao,    
-                                            cod_maquina_fabricante: data.cod_maquina_fabricante,
-                                            cod_sap: data.cod_sap,
-                                            ordem: order[0],
-                                            quantidade_prevista: game_production, 
-                                            quantidade_produzida: 0, 
-                                            data_inicio: data.data_inicio, 
-                                            fusos: res[0].fusos, 
-                                            data_fim_prevista: final_date, 
-                                            velocidade_setpoint : velocity_sp,
-                                            num_jogo: num_jogo 
-                                        } 
-                                        Production.create(obj).then((res)=> {}).then((err) => {})
-                                    }).catch((err) => {})
-                                } else {
-                                    let obj = {
-                                        id_seccao: data.id_seccao,    
-                                        cod_maquina_fabricante: data.cod_maquina_fabricante,
-                                        cod_sap: data.cod_sap,
-                                        ordem: order[0],
-                                        quantidade_prevista: game_production, 
-                                        quantidade_produzida: 0, 
-                                        data_inicio: data.data_inicio, 
-                                        fusos: res[0].fusos, 
-                                        data_fim_prevista: final_date, 
-                                        velocidade_setpoint : velocity_sp,
-                                        num_jogo: num_jogo 
-                                    } 
+                                    game_production = config.peso_por_fuso * res[0].fusos;
+                                    console.log("Primeiro Jogo", game_production);
+                                }
 
-                                    Production.create(obj).then((res)=> {}).then((err) => {})
+                                let obj = {
+                                    id_seccao: data.id_seccao,    
+                                    cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                    cod_sap: data.cod_sap,
+                                    ordem: order[0],
+                                    quantidade_prevista: game_production, 
+                                    quantidade_produzida: 0, 
+                                    data_inicio: data.data_inicio, 
+                                    fusos: res[0].fusos, 
+                                    data_fim_prevista: final_date, 
+                                    velocidade_setpoint : velocity_sp,
+                                    num_jogo: num_jogo 
                                 } 
+
+                                Production.create(obj).then((res)=> {}).then((err) => {})
                             })
                         }).catch((err) => {})
                     })
