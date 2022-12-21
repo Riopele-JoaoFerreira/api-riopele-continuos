@@ -524,7 +524,13 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
                                     ]
                                 }
                             })
-                            progress = Math.ceil((game_production/game_production_alternative.quantidade_prevista)*100)
+
+                            try {
+                                 progress = Math.ceil((game_production/game_production_alternative[0].quantidade_prevista)*100)
+                            } catch (error) {
+                                progress = 0; 
+                            }
+
                         }
 
                         try {
@@ -582,7 +588,6 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
         })
     })
     async.parallel(stack, () => {
-        console.log(error);
         return callback(list, error);
     })
 }
