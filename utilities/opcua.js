@@ -2,19 +2,19 @@ const moment= require('moment');
 const OPCUA_Client = require('node-opcua');
 const Opcua = require('../utilities/opcua')
 const async = require('async');
-const sequelize = require('../utilities/connection').connection;
-const Op = require('sequelize').Op; 
+const Op = require('sequelize').Op;
+const sequelize = require('../utilities/connection').connection; 
 const Events = require('../models/riopele40_eventos')
 const Machine = require('../models/riopele40_maquinas')
 const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Method = require('../models/riopele40_opcua_metodos');
 const Order_Planned = require('../models/riopele40_ordens_planeadas');
-const Controller = require('../controllers/riopele40_ordens');
-const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
 const Production = require('../models/riopele40_producoes');
 const Movements = require('../models/riopele40_producoes_jogos_movimentos');
 const Stops = require('../models/riopele40_motivos_paragem');
 const Order_Machine = require('../models/riopele40_ordem_maquinas');
+const Controller = require('../controllers/riopele40_ordens');
+const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
 
 let clients = []; 
 let sessions = []; 
@@ -1274,8 +1274,6 @@ function endGame(data, session_, identificador_opcua) {
                                 ]
                             }
                         }).then((res) => {
-                            console.log("end game");
-                            console.log(res);
                             Order_Planned.update({
                                 quantidade_produzida: parseFloat(production_order).toFixed(3)
                             }, {
