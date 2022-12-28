@@ -507,30 +507,28 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
                         if(game_production_estimated > 0) {
                             progress = Math.ceil((game_production/game_production_estimated)*100)
                         } else {
-                            game_production_alternative = await Production.findAll({
-                                where: {
-                                    [Op.and]: [
-                                        {
-                                            ordem: order[0],  
-                                        },
-                                        {
-                                            cod_sap: node[2].machine.cod_sap,
-                                        },
-                                        {
-                                            data_fim: {
-                                                [Op.eq]: null
-                                            }
-                                        }
-                                    ]
-                                }
-                            })
-
                             try {
-                                 progress = Math.ceil((game_production/game_production_alternative[0].quantidade_prevista)*100)
+                                game_production_alternative = await Production.findAll({
+                                    where: {
+                                        [Op.and]: [
+                                            {
+                                                ordem: order[0],  
+                                            },
+                                            {
+                                                cod_sap: node[2].machine.cod_sap,
+                                            },
+                                            {
+                                                data_fim: {
+                                                    [Op.eq]: null
+                                                }
+                                            }
+                                        ]
+                                    }
+                                })
+                                progress = Math.ceil((game_production/game_production_alternative[0].quantidade_prevista)*100)
                             } catch (error) {
                                 progress = 0; 
                             }
-
                         }
 
                         try {
