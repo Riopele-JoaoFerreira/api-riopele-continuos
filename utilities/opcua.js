@@ -1078,7 +1078,9 @@ function endOrder(data) {
                             quantidade_produzida: {
                                 [Op.gt]: 0
                             },
-                            id_ordem_maquina: array_ids
+                            id_ordem_maquina: {
+                                [Op.in]: array_ids
+                            }
                         }
                     }
                 }).then((result)=> {
