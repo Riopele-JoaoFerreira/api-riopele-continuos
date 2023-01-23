@@ -1076,7 +1076,7 @@ function endOrder(data) {
                                 [Op.eq]: null
                             }, 
                             quantidade_produzida: {
-                                [OP.gt]: 0
+                                [Op.gt]: 0
                             },
                             id_ordem_maquina: array_ids
                         }
