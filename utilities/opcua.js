@@ -1051,10 +1051,6 @@ function endOrder(data) {
         }
 
         async.waterfall([getMachineInfo], () => {
-            
-            console.log("Entra end Order");
-            console.log(data);
-            console.log(machine_info.id);
             Order_Machine.findAll({
                 where: {
                     ordem: data.ordem
@@ -1084,19 +1080,15 @@ function endOrder(data) {
                         }
                     }
                 }).then((result)=> {
-                    console.log(result);
                     closeIfOpen(data.ordem, data.cod_sap, data.data_inicio, (res) => {
-                        console.log("atualizar tabelas");
                         Controller.updateTable(null, null, machine_info.id); 
                         Controller.updateRunningTable(null, null, machine_info.id)
                         return true
                     })
                 }).catch((err) => {
-                    console.log(err);
                     return false
                 })
             }).catch((error) => {
-                console.log(error);
                 return false; 
             })
         })  
