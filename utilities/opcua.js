@@ -1063,8 +1063,8 @@ function endOrder(data) {
 
                 array_ids = [];
 
-                list.forEach(id_ => {
-                    array_ids.push(id_); 
+                list.forEach(orrder_machine => {
+                    array_ids.push(orrder_machine.id); 
                 });
 
                 Order_Planned.update({
