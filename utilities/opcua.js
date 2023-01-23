@@ -1090,9 +1090,11 @@ function endOrder(data) {
                         return true
                     })
                 }).catch((err) => {
+                    console.log(err);
                     return false
                 })
             }).catch((error) => {
+                console.log(error);
                 return false; 
             })
         })  
