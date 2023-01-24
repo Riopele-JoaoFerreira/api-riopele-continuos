@@ -65,8 +65,13 @@ exports.updateTable = (req, res, id_maquina) => {
     let getOrdersInfo = (callback) => {
         Orders_Planned.findAll({
             where: {
-                id_ordem_maquina: {
-                    [Op.in]: orders_planned
+                [Op.and]: {
+                    id_ordem_maquina: {
+                        [Op.in]: orders_planned
+                    },
+                    data_fim: {
+                        [Op.ne]: null
+                    }
                 }
             }, 
             order: [['ordenacao']],
