@@ -201,7 +201,7 @@ exports.exportEvents = function (callback) {
                                         } else if(startGameEvents.includes(obj.cod_evento)) {
                                             startGame(obj, session_, machine.identificador_opcua)
                                         } else if(endOrderEvents.includes(obj.cod_evento)) {
-                                            endOrder(obj)
+                                            endOrder(obj, session_, machine.identificador_opcua)
                                         } else if(endGameEvents.includes(obj.cod_evento)) {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
@@ -1032,7 +1032,7 @@ function startOrder(data, session_, identificador_opcua) {
     }) 
 }
 
-function endOrder(data) {
+function endOrder(data, session_, identificador_opcua) {
     if(data.order != '') {
             
         let machine_info = null; 
@@ -1050,34 +1050,72 @@ function endOrder(data) {
             })
         }
 
-        async.waterfall([getMachineInfo], () => {
-            Order_Machine.findAll({
-                where: {
-                    ordem: data.ordem
-                }
-            }).then((list) => {
+        let getMethodID = async () => {
+            method_id = await getMethod('variaveis', "Variaveis_ID_FimOrdem"); 
+        }
+    
+        let getMethodOrder = async () => {
+            method_order_id = await getMethod('variaveis', "Variaveis_Ordem_FimOrdem"); 
+        }
 
-                array_ids = [];
+        let getMethodDate = async () => {
+            method_date = await getMethod('variaveis', "Variaveis_Data_FimOrdem"); 
+        }
+    
+        let getMethodHour = async () => {
+            method_hour = await getMethod('variaveis', "Variaveis_Hora_FimOrdem"); 
+        }
 
-                list.forEach(orrder_machine => {
-                    array_ids.push(orrder_machine.id); 
-                });
+        async.waterfall([getMachineInfo, getMethodID,getMethodOrder, getMethodDate,getMethodHour], async () => {
 
-                Order_Planned.update({
-                    data_fim: data.data_inicio
-                }, {
-                    where: {
-                        [Op.and]: {
-                            data_fim: {
-                                [Op.eq]: null
-                            }, 
-                            id_ordem_maquina: {
-                                [Op.in]: array_ids
-                            }
+            let id_obj = [
+                { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador},
+            ];
+    
+            let order_obj = [
+                { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador},
+            ];
+
+            let date_obj = [
+                { nodeId: method_date.prefixo + identificador_opcua + method_date.identificador},
+            ];
+
+            let hour_obj = [
+                { nodeId: method_hour.prefixo + identificador_opcua + method_hour.identificador},
+            ];
+
+            let id_res = await session_.read(id_obj);
+            let id = await id_res.map(result => result.value.value)[0];
+            let order_res = await session_.read(order_obj);
+            let order = await order_res.map(result => result.value.value)[0];
+            let date_res = await session_.read(date_obj);
+            let date = await date_res.map(result => result.value.value)[0];
+            let hour_res = await session_.read(hour_obj);
+            let hour = await hour_res.map(result => result.value.value)[0];
+            let final_date = timestamptToDate(date, hour); 
+
+            let node_to_write = [
+                {
+                    nodeId: method_id.prefixo + identificador_opcua + method_id.identificador,
+                    attributeId: OPCUA_Client.AttributeIds.Value,
+                    value: {    
+                        value: { 
+                            dataType: OPCUA_Client.DataType.Int16,
+                            value: 0
                         }
                     }
+                }        
+            ];
+
+            session_.write(node_to_write, function(err,status_code,diagnostic_info) {
+                Order_Planned.update({
+                    data_fim: final_date
+                }, {
+                    where: {
+                        id: id
+                    }
                 }).then((result)=> {
-                    closeIfOpen(data.ordem, data.cod_sap, data.data_inicio, (res) => {
+                    closeIfOpen(order, data.cod_sap, final_date, (res) => {
                         Controller.updateTable(null, null, machine_info.id); 
                         Controller.updateRunningTable(null, null, machine_info.id)
                         return true
@@ -1085,8 +1123,6 @@ function endOrder(data) {
                 }).catch((err) => {
                     return false
                 })
-            }).catch((error) => {
-                return false; 
             })
         })  
     } else {
