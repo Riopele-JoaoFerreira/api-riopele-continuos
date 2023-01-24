@@ -1071,9 +1071,6 @@ function endOrder(data) {
                             data_fim: {
                                 [Op.eq]: null
                             }, 
-                            quantidade_produzida: {
-                                [Op.gt]: 0
-                            },
                             id_ordem_maquina: {
                                 [Op.in]: array_ids
                             }
