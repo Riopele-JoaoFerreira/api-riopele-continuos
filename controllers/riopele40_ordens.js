@@ -70,7 +70,7 @@ exports.updateTable = (req, res, id_maquina) => {
                         [Op.in]: orders_planned
                     },
                     data_fim: {
-                        [Op.ne]: null
+                        [Op.eq]: null
                     }
                 }
             }, 
