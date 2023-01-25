@@ -168,7 +168,17 @@ exports.exportEvents = function (callback) {
                                         value: 0
                                     }
                                 }
-                            }        
+                            },
+                            {
+                                nodeId: method_event_order.prefixo + machine.identificador_opcua + method_event_order.identificador ,
+                                attributeId: OPCUA_Client.AttributeIds.Value,
+                                value: {    
+                                    value: { 
+                                        dataType: OPCUA_Client.DataType.String,
+                                        value: ''
+                                    }
+                                }
+                            }           
                         ];
 
                         let obj = {
@@ -718,8 +728,10 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity_res = await session_.read(quantity_obj);
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
-        if(quantity > 0) {
+        /*if(quantity > 0) {
+            console.log(quantity);
             let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
+            console.log(node_ID);
             let obj =  {
                 nodeId: node_ID,
                 attributeId: OPCUA_Client.AttributeIds.Value,
@@ -731,8 +743,8 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
                 }
             }
             await session_.write(obj); 
-        }
-
+        }*/
+        
         if(orders_list.length == 0) {
             await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
             return true; 
@@ -1104,7 +1116,37 @@ function endOrder(data, session_, identificador_opcua) {
                             value: 0
                         }
                     }
-                }        
+                },
+                {
+                    nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador,
+                    attributeId: OPCUA_Client.AttributeIds.Value,
+                    value: {    
+                        value: { 
+                            dataType: OPCUA_Client.DataType.String,
+                            value: ''
+                        }
+                    }
+                }  ,
+                {
+                    nodeId: method_date.prefixo + identificador_opcua + method_date.identificador,
+                    attributeId: OPCUA_Client.AttributeIds.Value,
+                    value: {    
+                        value: { 
+                            dataType: OPCUA_Client.DataType.Int16,
+                            value: 0
+                        }
+                    }
+                },
+                {
+                    nodeId: method_hour.prefixo + identificador_opcua + method_hour.identificador,
+                    attributeId: OPCUA_Client.AttributeIds.Value,
+                    value: {    
+                        value: { 
+                            dataType: OPCUA_Client.DataType.Int32,
+                            value: 0
+                        }
+                    }
+                }                               
             ];
 
             session_.write(node_to_write, function(err,status_code,diagnostic_info) {

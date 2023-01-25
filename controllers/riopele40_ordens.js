@@ -105,6 +105,15 @@ exports.updateTable = (req, res, id_maquina) => {
                             } else {
                                 value = method.default; 
                             }
+                        } else if(method.map == 'quantidade_produzida') {
+                            if(orders_info[i-1][method.map]) {
+                                value = orders_info[i-1][method.map]
+                                if(!(value >= 0)) {
+                                    value = 0
+                                }
+                            } else {
+                                value = method.default; 
+                            }
                         } else {
                             if(orders_info[i-1][method.map]) {
                                 value = orders_info[i-1][method.map]
@@ -126,7 +135,7 @@ exports.updateTable = (req, res, id_maquina) => {
                                 value: utilities.convert(method.tipo, value)
                             }
                         }
-                    }
+                    } 
                     array.push(obj)
                 })
             }
