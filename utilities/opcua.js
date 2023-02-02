@@ -91,6 +91,12 @@ exports.exportEvents = function (callback) {
                 model: OPCUA_Server, 
             },
             where: {
+                /*[Op.and]: {
+                    identificador_opcua: {
+                        [Op.ne]: null
+                    },
+                    id_seccao: 20
+                } */
                 identificador_opcua: {
                     [Op.ne]: null
                 }
@@ -99,6 +105,7 @@ exports.exportEvents = function (callback) {
             machines_list = res; 
             return callback(); 
         }).catch((err) => {
+            console.log(err);
             return callback(); 
         })
     }
@@ -222,7 +229,10 @@ exports.exportEvents = function (callback) {
                         }); 
                     }
                 })()
-                return callback(); 
+                setTimeout(()=> {
+                    //ESPERAR PARA ESCREVER O BUFFER A 1 NOVAMENTE
+                    return callback(); 
+                },500)
             })    
         });
         async.waterfall(stack, () => {
