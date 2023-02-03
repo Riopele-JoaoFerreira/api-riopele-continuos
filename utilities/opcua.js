@@ -439,6 +439,7 @@ exports.recordProductions = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
+                    console.log(err);
                     return callback();
                 })
             })
