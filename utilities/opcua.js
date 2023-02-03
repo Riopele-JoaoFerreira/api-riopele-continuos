@@ -271,10 +271,10 @@ exports.updateOrders = function (callback) {
 
     let getMethods = (callback) => {
         let stack = []; 
-        let server_name = null; 
-        let session_ = null;
         machines_list.forEach(machine => {
-            stack.push((callback) => {  
+            stack.push((callback) => {   
+                let server_name = null; 
+                let session_ = null;
                 server_name = machine.riopele40_servidores_opcua.url;
                 session_ = searchServerName(server_name, sessions);
                 Method.findAll({
