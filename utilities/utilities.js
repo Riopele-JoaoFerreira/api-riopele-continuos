@@ -206,7 +206,6 @@ exports.isLocked = (callback) => {
             return callback(false); 
         }
     }).catch((err) => {
-        console.log(err);
         return callback(false)
     })
 }

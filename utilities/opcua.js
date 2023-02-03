@@ -105,32 +105,31 @@ exports.exportEvents = function (callback) {
             machines_list = res; 
             return callback(); 
         }).catch((err) => {
-            console.log(err);
             return callback(); 
         })
     }
 
-    let getMethodNew = async (callback) => {
+    let getMethodNew = async () => {
         method_new = await getMethod('eventos', "Novo"); 
     }
 
-    let getMethodEventCode = async (callback) => {
+    let getMethodEventCode = async () => {
         method_event_code = await getMethod('eventos', "Codigo"); 
     }
 
-    let getMethodStateCode = async (callback) => {
+    let getMethodStateCode = async () => {
         method_event_state = await getMethod('eventos', "Estado"); 
     }
 
-    let getMethodOrder = async (callback) => {
+    let getMethodOrder = async () => {
         method_event_order = await getMethod('eventos', "Str1"); 
     }
 
-    let getMethodDate = async (callback) => {
+    let getMethodDate = async () => {
         method_event_date = await getMethod('eventos', "Data"); 
     }
 
-    let getMethodHour = async (callback) => {
+    let getMethodHour = async () => {
         method_event_hour = await getMethod('eventos', "Hora");   
     }
 
@@ -222,8 +221,7 @@ exports.exportEvents = function (callback) {
                                         } else if(endGameEvents.includes(obj.cod_evento)) {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
-                                    }).catch((err) => {
-                                    })
+                                    }).catch((err) => {})
                                 }).catch((err) => {}) 
                             }
                         }); 
@@ -308,7 +306,6 @@ exports.updateOrders = function (callback) {
                     nodes_to_read.forEach(async node => {
                         stack1.push(async(callback) => {  
                             res = await session_.read(node);
-                            console.log(res);
                             try {
                                 let order = res.value.value[0]
                             
@@ -318,7 +315,6 @@ exports.updateOrders = function (callback) {
 
                                 return callback(); 
                             } catch (error) {
-                                console.log(error);
                                 return callback()
                             } 
                         })
@@ -413,7 +409,6 @@ exports.recordProductions = function (callback) {
                     nodes_to_read.forEach(async node => {
                         stack1.push(async(callback) => {  
                             res = await session_.read(node);
-                            console.log(res);
                             try {
                                 let order = res.value.value[0]
                             
@@ -442,7 +437,6 @@ exports.recordProductions = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
-                    console.log(err);
                     return callback();
                 })
             })
@@ -749,9 +743,7 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         let quantity = await quantity_res.map(result => result.value.value)[0];
 
         /*if(quantity > 0) {
-            console.log(quantity);
             let node_ID = method_order_quantity_save.prefixo + identificador_opcua + method_order_quantity_save.identificador + index + "_" + method_order_quantity_save.chave; 
-            console.log(node_ID);
             let obj =  {
                 nodeId: node_ID,
                 attributeId: OPCUA_Client.AttributeIds.Value,
@@ -1304,7 +1296,6 @@ function startGame(data, session_, identificador_opcua) {
 
                                 if(num_jogo == 1) {
                                     game_production = config.peso_por_fuso * res[0].fusos;
-                                    console.log("Primeiro Jogo", game_production);
                                 }
 
                                 let obj = {
