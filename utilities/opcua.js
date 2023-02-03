@@ -308,6 +308,7 @@ exports.updateOrders = function (callback) {
                     nodes_to_read.forEach(async node => {
                         stack1.push(async(callback) => {  
                             res = await session_.read(node);
+                            console.log(res);
                             try {
                                 let order = res.value.value[0]
                             
@@ -317,6 +318,7 @@ exports.updateOrders = function (callback) {
 
                                 return callback(); 
                             } catch (error) {
+                                console.log(error);
                                 return callback()
                             } 
                         })
