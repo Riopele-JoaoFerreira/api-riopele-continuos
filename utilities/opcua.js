@@ -251,6 +251,12 @@ exports.updateOrders = function (callback) {
                 model: OPCUA_Server, 
             },
             where: {
+                /*[Op.and]: {
+                    identificador_opcua: {
+                        [Op.ne]: null
+                    },
+                    id_seccao: 20
+                } */
                 identificador_opcua: {
                     [Op.ne]: null
                 }
@@ -315,7 +321,7 @@ exports.updateOrders = function (callback) {
                             } 
                         })
                     });
-                    async.waterfall(stack1, () => {
+                    async.parallel(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -325,7 +331,7 @@ exports.updateOrders = function (callback) {
                                 i++; 
                             })
                         });
-                        async.waterfall(stack2, () => {
+                        async.parallel(stack2, () => {
                             return callback(); 
                         })  
                     })  

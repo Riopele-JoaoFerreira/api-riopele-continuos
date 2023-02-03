@@ -31,7 +31,7 @@ exports.eventsSchedule = () => {
         }
       })
     });
-    cron.schedule('*/4 * * * *', () => {
+    cron.schedule('*/2 * * * *', () => {
       utilities.isLocked((locked) => {
         if(!locked) {
           utilities.lock(); 
