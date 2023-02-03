@@ -304,7 +304,7 @@ exports.updateOrders = function (callback) {
                     opcua_identifiers = machines_array
                     machines_id = ids; 
                     nodes_to_read.forEach(async node => {
-                        stack1.push(async(callback) => {  
+                        stack1.push(async() => {  
                             res = await session_.read(node);
                             try {
                                 let order = res.value.value[0]
@@ -312,9 +312,8 @@ exports.updateOrders = function (callback) {
                                 if(order != '') {
                                     orders_to_update.push(order)
                                 }
-
-                                return callback(); 
                             } catch (error) {
+                                console.log(error);
                                 return callback()
                             } 
                         })
@@ -334,6 +333,7 @@ exports.updateOrders = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
+                    console.log(err);
                     return callback();
                 })
             })
@@ -407,7 +407,7 @@ exports.recordProductions = function (callback) {
                     opcua_identifiers = machines_array
                     machines_id = ids; 
                     nodes_to_read.forEach(async node => {
-                        stack1.push(async(callback) => {  
+                        stack1.push(async () => {  
                             res = await session_.read(node);
                             try {
                                 let order = res.value.value[0]
@@ -415,10 +415,8 @@ exports.recordProductions = function (callback) {
                                 if(order != '') {
                                     orders_to_update.push(order)
                                 }
-
-                                return callback(); 
                             } catch (error) {
-                                return callback()
+                                console.log(error);
                             } 
                         })
                     });
@@ -426,7 +424,7 @@ exports.recordProductions = function (callback) {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
-                            stack2.push(async(callback) => {  
+                            stack2.push(async () => {  
                                 res = await session_.read(node);
                                 await recordProduction(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update[i], session_)
                                 i++; 
@@ -437,6 +435,7 @@ exports.recordProductions = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
+                    console.log(err);
                     return callback();
                 })
             })
