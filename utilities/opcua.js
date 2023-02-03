@@ -315,7 +315,7 @@ exports.updateOrders = function (callback) {
                             } catch (error) {} 
                         })
                     });
-                    async.parallel(stack1, () => {
+                    async.waterfall(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -325,7 +325,7 @@ exports.updateOrders = function (callback) {
                                 i++; 
                             })
                         });
-                        async.parallel(stack2, () => {
+                        async.waterfall(stack2, () => {
                             return callback(); 
                         })  
                     })  
@@ -334,7 +334,7 @@ exports.updateOrders = function (callback) {
                 })
             })
         });
-        async.parallel(stack, () => {
+        async.waterfall(stack, () => {
             return callback(); 
         })  
     }
@@ -601,7 +601,7 @@ exports.getMachineStatus = function (nodes_to_read, callback) {
             });    
         })
     })
-    async.parallel(stack, () => {
+    async.waterfall(stack, () => {
         return callback(list, error);
     })
 }
@@ -781,32 +781,32 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
 
 async function recordProduction(identificador_opcua, machine_id, index, order, session_) {
 
-    let getMethodID = async (callback) => {
+    let getMethodID = async () => {
         method_order_id = await getMethod('ordem_atual', "ID"); 
     }
 
-    let getActualProduction = async (callback) => {
+    let getActualProduction = async () => {
         method_production = await getMethod('ordem_atual', "var10"); 
     }
 
-    let getActualProductionOrder = async (callback) => {
+    let getActualProductionOrder = async () => {
         method_order_production = await getMethod('ordem_atual', "quantidade_produzida"); 
     }
 
-    let getSetPoint = async (callback) => {
+    let getSetPoint = async () => {
         method_setpoint = await getMethod('ordem_atual', "sp_velocidade"); 
     }
 
-    let getMethodEndHour = async (callback) => {
+    let getMethodEndHour = async () => {
         method_end_hour = await getMethod('variaveis', "Variaveis_Hora_Prev_Fim"); 
     }
 
-    let getMethodEndDate = async (callback) => {
+    let getMethodEndDate = async () => {
         method_end_date = await getMethod('variaveis', "Variaveis_Data_Prev_Fim"); 
     }
 
 
-    async.waterfall([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint, getMethodEndHour, getMethodEndDate], async () => {
+    async.parallel([getMethodID, getActualProduction, getActualProductionOrder, getSetPoint, getMethodEndHour, getMethodEndDate], async () => {
         let id_obj = [
             { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
         ];
