@@ -4,7 +4,7 @@ const utilities = require('../utilities/utilities');
 
 exports.eventsSchedule = () => {
     cron.schedule('10 * * * * *', () => {
-      /*utilities.isLocked((locked) => {
+      utilities.isLocked((locked) => {
         if(!locked) {
           utilities.lock(); 
           console.log(new Date().toLocaleString() + " - Exporting Events");
@@ -15,10 +15,10 @@ exports.eventsSchedule = () => {
         } else {
           console.log("Locked"); 
         }
-      })*/
+      })
     });
     cron.schedule('40 * * * * *', () => {
-      /*utilities.isLocked((locked) => {
+      utilities.isLocked((locked) => {
         if(!locked) {
           utilities.lock(); 
           console.log(new Date().toLocaleString() + " - Record Productions");
@@ -29,20 +29,20 @@ exports.eventsSchedule = () => {
         } else {
           console.log("Locked"); 
         }
-      })*/
+      })
     });
-    cron.schedule('* * * * *', () => {
+    cron.schedule('*/2 * * * *', () => {
       utilities.isLocked((locked) => {
-       // if(!locked) {
-         // utilities.lock(); 
+        if(!locked) {
+          utilities.lock(); 
           console.log(new Date().toLocaleString() + " - Update Orders");
           utilities_opcua.updateOrders(()=> {
-           // utilities.unlock(); 
+            utilities.unlock(); 
             console.log(new Date().toLocaleString() + " - End Update Orders");
           })
-        //} else {
-         // console.log("Locked"); 
-        //}
+        } else {
+          console.log("Locked"); 
+        }
       })
   });
 }
