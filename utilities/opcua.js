@@ -256,7 +256,7 @@ exports.updateOrders = function (callback) {
                         [Op.ne]: null
                     },
                     id_seccao: 20
-                } */
+                }*/
                 identificador_opcua: {
                     [Op.ne]: null
                 }
@@ -340,7 +340,7 @@ exports.updateOrders = function (callback) {
                 })
             })
         });
-        async.waterfall(stack, () => {
+        async.parallel(stack, () => {
             return callback(); 
         })  
     }
