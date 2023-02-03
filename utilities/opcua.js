@@ -134,7 +134,7 @@ exports.exportEvents = function (callback) {
         method_event_hour = await getMethod('eventos', "Hora");   
     }
 
-    async.waterfall([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
+    async.parallel([getMachineInfo, getMethodNew, getMethodEventCode, getMethodStateCode, getMethodOrder, getMethodHour, getMethodDate], () => {
         let stack = []; 
         machines_list.forEach(machine => {
             stack.push((callback) => {
@@ -374,10 +374,10 @@ exports.recordProductions = function (callback) {
 
     let getMethods = (callback) => {
         let stack = []; 
-        let server_name = null; 
-        let session_ = null;
         machines_list.forEach(machine => {
             stack.push((callback) => {  
+                let server_name = null; 
+                let session_ = null;
                 server_name = machine.riopele40_servidores_opcua.url;
                 session_ = searchServerName(server_name, sessions);
                 Method.findAll({
@@ -424,7 +424,7 @@ exports.recordProductions = function (callback) {
                             } 
                         })
                     });
-                    async.waterfall(stack1, () => {
+                    async.parallel(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
@@ -434,7 +434,7 @@ exports.recordProductions = function (callback) {
                                 i++; 
                             })
                         });
-                        async.waterfall(stack2, () => {
+                        async.parallel(stack2, () => {
                             return callback(); 
                         })  
                     })  
@@ -443,7 +443,7 @@ exports.recordProductions = function (callback) {
                 })
             })
         });
-        async.waterfall(stack, () => {
+        async.parallel(stack, () => {
             return callback(); 
         })  
     }
