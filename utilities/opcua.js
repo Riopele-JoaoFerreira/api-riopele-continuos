@@ -420,6 +420,7 @@ exports.recordProductions = function (callback) {
 
                                 return callback(); 
                             } catch (error) {
+                                console.log(error);
                                 return callback()
                             } 
                         })
