@@ -312,17 +312,14 @@ exports.updateOrders = function (callback) {
                                 if(order != '') {
                                     orders_to_update.push(order)
                                 }
-                            } catch (error) {
-                                console.log(error);
-                                return callback()
-                            } 
+                            } catch (error) {} 
                         })
                     });
                     async.parallel(stack1, () => {
                         let i = 0; 
                         let stack2 = []; 
                         nodes_to_read.forEach(async node => {
-                            stack2.push(async(callback) => {  
+                            stack2.push(async() => {  
                                 res = await session_.read(node);
                                 await updateOrder(opcua_identifiers[i], machines_id[i], i + 1, orders_to_update, session_)
                                 i++; 
@@ -333,7 +330,6 @@ exports.updateOrders = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
-                    console.log(err);
                     return callback();
                 })
             })
@@ -415,9 +411,7 @@ exports.recordProductions = function (callback) {
                                 if(order != '') {
                                     orders_to_update.push(order)
                                 }
-                            } catch (error) {
-                                console.log(error);
-                            } 
+                            } catch (error) {} 
                         })
                     });
                     async.waterfall(stack1, () => {
@@ -435,7 +429,6 @@ exports.recordProductions = function (callback) {
                         })  
                     })  
                 }).catch((err) => {
-                    console.log(err);
                     return callback();
                 })
             })
