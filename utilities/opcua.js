@@ -750,10 +750,10 @@ async function updateOrder(identificador_opcua, machine_id, index, orders_list, 
         }*/
         
         if(orders_list.length == 0) {
-            await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
+            await sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"')")
             return true; 
         } else {
-            sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE data_fim IS NULL AND id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"' AND ordem NOT IN ("+orders_list.join(',')+"))").then((res) => {
+            sequelize.query("UPDATE riopele40_ordens_planeadas SET estado = null WHERE id_ordem_maquina IN (SELECT id FROM riopele40_ordem_maquinas WHERE id_maquina = '"+machine_id+"' AND ordem NOT IN ("+orders_list.join(',')+"))").then((res) => {
                 Order_Planned.update({
                     fusos: splindles, 
                     estado: state 
