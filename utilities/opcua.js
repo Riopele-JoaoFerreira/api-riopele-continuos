@@ -1186,11 +1186,7 @@ function startGame(data, session_, identificador_opcua) {
         method_order_id = await getMethod('ordem_atual', "ordem"); 
     }
 
-    let getMethoGameProduction = async () => {
-        method_game_production = await getMethod('ordem_atual', "quantidade_jogo"); 
-    }
-
-    async.waterfall([getMethodID, getMethodOrder, getMethoGameProduction], async () => {
+    async.waterfall([getMethodID, getMethodOrder], async () => {
         for (let index = 1; index <= method_order_id.repeticoes; index++) {
             let id_obj = [
                 { nodeId: method_id.prefixo + identificador_opcua + method_id.identificador + index + '_' + method_id.chave},
@@ -1199,17 +1195,11 @@ function startGame(data, session_, identificador_opcua) {
             let order_obj = [
                 { nodeId: method_order_id.prefixo + identificador_opcua + method_order_id.identificador + index + '_' + method_order_id.chave},
             ];
-
-            let game_production_obj = [
-                { nodeId: method_game_production.prefixo + identificador_opcua + method_game_production.identificador + index + '_' + method_game_production.chave},
-            ];
             
             let id_res = await session_.read(id_obj);
             let id = await id_res.map(result => result.value.value)[0];
             let order_res = await session_.read(order_obj);
             let order = await order_res.map(result => result.value.value)[0];
-            let game_production_res = await session_.read(game_production_obj);
-            let game_production = await game_production_res.map(result => result.value.value)[0];
             let num_jogo = null; 
 
             if(id != 0 && order != 0) {
@@ -1286,27 +1276,51 @@ function startGame(data, session_, identificador_opcua) {
 
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
-                                if(num_jogo == 1) {
-                                    game_production = config.peso_por_fuso * res[0].fusos;
-                                }
+                                console.log("##################### Inicio Jogo");
 
-                                let obj = {
-                                    id_seccao: data.id_seccao,    
-                                    cod_maquina_fabricante: data.cod_maquina_fabricante,
-                                    cod_sap: data.cod_sap,
-                                    ordem: order[0],
-                                    quantidade_prevista: game_production, 
-                                    quantidade_produzida: 0, 
-                                    data_inicio: data.data_inicio, 
-                                    fusos: res[0].fusos, 
-                                    data_fim_prevista: final_date, 
-                                    velocidade_setpoint : velocity_sp,
-                                    num_jogo: num_jogo 
-                                } 
+                                Production.findAll({
+                                    where: {
+                                        [Op.and]: {
+                                            ordem: order[0], 
+                                            cod_sap: data.cod_sap,
+                                            data_fim: {
+                                                [Op.ne]: null
+                                            }
+                                        }
+                                    },
+                                    limit: 1,
+                                    order: [['data_fim', 'DESC']]
+                                }).then((info) => {
+                                    
+                                    if(num_jogo == 1) {
+                                        game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+                                    } else {
+                                        game_production = Math.ceil((info[0].quantidade_produzida / info[0].num_fusos) * res[0].fusos); 
+                                    }
 
-                                Production.create(obj).then((res)=> {}).then((err) => {})
+                                    let obj = {
+                                        id_seccao: data.id_seccao,    
+                                        cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                        cod_sap: data.cod_sap,
+                                        ordem: order[0],
+                                        quantidade_prevista: game_production, 
+                                        quantidade_produzida: 0, 
+                                        data_inicio: data.data_inicio, 
+                                        fusos: res[0].fusos, 
+                                        data_fim_prevista: final_date, 
+                                        velocidade_setpoint : velocity_sp,
+                                        num_jogo: num_jogo 
+                                    } 
+                                    Production.create(obj).then((res)=> {}).then((err) => {
+                                        console.log(err);
+                                    })
+                                }).catch((err) => {
+                                    console.log(err);
+                                })
                             })
-                        }).catch((err) => {})
+                        }).catch((err) => {
+                            console.log(err);
+                        })
                     })
                 })
             } else {
