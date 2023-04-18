@@ -3,6 +3,7 @@ const OPCUA_Client = require('node-opcua');
 const Opcua = require('../utilities/opcua')
 const async = require('async');
 const Op = require('sequelize').Op;
+const Sequelize = require('sequelize');
 const sequelize = require('../utilities/connection').connection; 
 const Events = require('../models/riopele40_eventos')
 const Machine = require('../models/riopele40_maquinas')
@@ -1279,6 +1280,10 @@ function startGame(data, session_, identificador_opcua) {
                                 console.log("##################### Inicio Jogo");
 
                                 Production.findAll({
+                                    attributes: [
+                                        [Sequelize.fn('sum', sequelize.col('quantidade_produzida')), 'quantidade_produzida'],
+                                        [Sequelize.fn('sum', sequelize.col('fusos')), 'fusos'],
+                                    ],
                                     where: {
                                         [Op.and]: {
                                             ordem: order[0], 
@@ -1295,7 +1300,7 @@ function startGame(data, session_, identificador_opcua) {
                                     if(num_jogo == 1) {
                                         game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
                                     } else {
-                                        game_production = Math.ceil((info[0].quantidade_produzida / info[0].num_fusos) * res[0].fusos); 
+                                        game_production = Math.ceil((info[0].quantidade_produzida / info[0].fusos) * res[0].fusos); 
                                     }
 
                                     let obj = {
