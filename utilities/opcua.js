@@ -1287,14 +1287,9 @@ function startGame(data, session_, identificador_opcua) {
                                     where: {
                                         [Op.and]: {
                                             ordem: order[0], 
-                                            cod_sap: data.cod_sap,
-                                            data_fim: {
-                                                [Op.ne]: null
-                                            }
+                                            cod_sap: data.cod_sap
                                         }
-                                    },
-                                    limit: 1,
-                                    order: [['data_fim', 'DESC']]
+                                    }
                                 }).then((info) => {
                                     
                                     if(num_jogo == 1) {
