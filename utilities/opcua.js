@@ -1277,8 +1277,6 @@ function startGame(data, session_, identificador_opcua) {
 
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
-                                console.log("##################### Inicio Jogo");
-
                                 Production.findAll({
                                     attributes: [
                                         [Sequelize.fn('sum', sequelize.col('quantidade_produzida')), 'quantidade_produzida'],
