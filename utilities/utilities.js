@@ -158,7 +158,7 @@ exports.closeIfOpen = (ordem, cod_sap, data, callback) => {
 exports.timestamptToDate = (date_, hour_) => {
      // DATE
      let date = new Date('1990-01-01');
-     let actual_date = date.addDays(date_);
+     let actual_date = date.addDays(date_ + 1);
      let sql_date = actual_date.toISOString().slice(0, 10);
  
      // HOUR

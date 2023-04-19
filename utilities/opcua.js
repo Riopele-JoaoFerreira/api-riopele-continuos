@@ -846,8 +846,6 @@ async function recordProduction(identificador_opcua, machine_id, index, order, s
         let end_date= await end_date_res.map(result => result.value.value)[0];
         let final_date = timestamptToDate(end_date, end_hour); 
 
-        console.log("##############################", final_date); 
-
         if(id > 0) {
             let num_jogo = null; 
             let machine_info = null; 
