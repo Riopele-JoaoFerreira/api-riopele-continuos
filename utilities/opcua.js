@@ -1285,7 +1285,10 @@ function startGame(data, session_, identificador_opcua) {
                                     where: {
                                         [Op.and]: {
                                             ordem: order[0], 
-                                            cod_sap: data.cod_sap
+                                            cod_sap: data.cod_sap,
+                                            quantidade_produzida: {
+                                                [Op.gt]: 0
+                                            }
                                         }
                                     }
                                 }).then((info) => {
