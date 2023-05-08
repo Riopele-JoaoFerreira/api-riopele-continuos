@@ -1296,7 +1296,11 @@ function startGame(data, session_, identificador_opcua) {
                                     if(num_jogo == 1) {
                                         game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
                                     } else {
-                                        game_production = Math.ceil((info[0].quantidade_produzida / info[0].fusos) * res[0].fusos); 
+                                        if(info[0].quantidade_produzida && info[0].quantidade_produzida > 0) {
+                                            game_production = Math.ceil((info[0].quantidade_produzida / info[0].fusos) * res[0].fusos); 
+                                        } else {
+                                            game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+                                        }
                                     }
 
                                     let obj = {
