@@ -1316,12 +1316,8 @@ function startGame(data, session_, identificador_opcua) {
                                         velocidade_setpoint : velocity_sp,
                                         num_jogo: num_jogo 
                                     } 
-                                    Production.create(obj).then((res)=> {}).then((err) => {
-                                        console.log("ERRO START GAME", err, obj);
-                                    })
-                                }).catch((err) => {
-                                    console.log("ERRO START GAME", err, obj);
-                                })
+                                    Production.create(obj).then((res)=> {}).then((err) => {})
+                                }).catch((err) => {})
                             })
                         }).catch((err) => {})
                     })
