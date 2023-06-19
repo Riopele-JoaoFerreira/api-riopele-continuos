@@ -5,6 +5,7 @@ const Parametro = require("../models/parametros");
 const Motivos_Paragem = require('../models/riopele40_motivos_paragem');
 const { Op } = require('sequelize');
 const connection = require('../utilities/connection').connection
+const Eventos = require('../models/riopele40_eventos')
 
 exports.sapSecurity = () => {
     return 'Basic ' + new Buffer.from(soap_config.username + ':' + soap_config.password).toString('base64');
@@ -117,48 +118,62 @@ exports.enviar_evento = (info_evento, callback) => {
                     )
                 );
 
-                if(!info_evento.data_fim) {
-                    data_fim_sap = ''; 
-                    hora_fim_sap = ''; 
-                } else {
-                    data_fim_sap = info_evento.data_fim.substr(0, 10);
-                    hora_fim_sap = info_evento.data_fim.substr(11);
-                }
-
-                data_inicio_sap = info_evento.data_inicio.substr(0, 10);
-                hora_inicio_sap = info_evento.data_inicio.substr(11);
-
-                let lista = [];
-
-                let info_motivo = await Motivos_Paragem.findOne({
+                Eventos.findAll({
                     where: {
-                        [Op.and]: {
-                            id_seccao: info_evento.id_seccao, 
-                            cod_paragem: info_evento.cod_estado
+                        [Op.and] : {
+                            id_seccao: config.seccao_fiacao_b, 
+                            data_fim: {
+                                [Op.ne]: null
+                            },
+                            enviou_para_sap: 'N'
                         }
-                    },
-                    attributes: ['e_paragem']
+                    }
+                }).then((list) => {
+                    let lista_eventos_enviar = []
+                    list.forEach(async (evento) => {
+
+                        let info_motivo = await Motivos_Paragem.findOne({
+                            where: {
+                                [Op.and]: {
+                                    id_seccao: info_evento.id_seccao, 
+                                    cod_paragem: info_evento.cod_estado
+                                }
+                            },
+                            attributes: ['e_paragem']
+                        })
+
+                        data_inicio_sap = evento.data_inicio.substr(0, 10);
+                        hora_inicio_sap = evento.data_inicio.substr(11);
+                        data_fim_sap = evento.data_fim.substr(0, 10);
+                        hora_fim_sap = evento.data_fim.substr(11);
+
+                        let info_ordem = await connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+info_evento.cod_maquina_fabricante+"')")
+
+                        lista_eventos_enviar.push(
+                            {
+                                IdExt: evento.id,
+                                Machine: evento.cod_maquina_fabricante,
+                                Arbpl: evento.cod_sap,
+                                Codigo: evento.cod_evento,
+                                Estado: evento.cod_estado,
+                                Paragem: info_motivo['e_paragem'],
+                                DataIni: data_inicio_sap,
+                                HoraIni: hora_inicio_sap, 
+                                DataFim: data_fim_sap,
+                                HoraFim: hora_fim_sap,
+                                Aufnr: info_ordem[0][0]['ordem']
+                            }
+                        )
+                    });
                 })
 
-                let info_ordem = await connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+info_evento.cod_maquina_fabricante+"')")
+               
+        
 
-                lista.push(
-                    {
-                        IdExt: info_evento.id,
-                        Machine: info_evento.cod_maquina_fabricante,
-                        Arbpl: info_evento.cod_sap,
-                        Codigo: info_evento.cod_evento,
-                        Estado: info_evento.cod_estado,
-                        Paragem: info_motivo['e_paragem'],
-                        DataIni: data_inicio_sap,
-                        HoraIni: hora_inicio_sap, 
-                        DataFim: data_fim_sap,
-                        HoraFim: hora_fim_sap,
-                        Aufnr: info_ordem[0][0]['ordem']
-                    }
-                )
+                
+              
 
-                if(info_evento.id_seccao == config.seccao_fiacao_b) {
+                /*if(info_evento.id_seccao == config.seccao_fiacao_b) {
                     client.ZPpMonitRecebeEventos(
                         {
                             IWerks: 1000, 
@@ -182,7 +197,9 @@ exports.enviar_evento = (info_evento, callback) => {
                             console.log(result);
                         }
                     )
-                }
+                }*/
+
+                console.log(lista_eventos_enviar);
         }).catch((err) => {
             console.log(err);
         })
