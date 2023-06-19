@@ -117,7 +117,7 @@ exports.enviar_evento = (callback) => {
                         soap_config.password
                     )
                 );
-
+                let lista_eventos_enviar = []
                 Eventos.findAll({
                     where: {
                         [Op.and] : {
@@ -129,7 +129,6 @@ exports.enviar_evento = (callback) => {
                         }
                     }
                 }).then((list) => {
-                    let lista_eventos_enviar = []
                     list.forEach(async (evento) => {
 
                         let info_motivo = await Motivos_Paragem.findOne({
