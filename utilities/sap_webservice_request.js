@@ -143,7 +143,7 @@ exports.enviar_evento = (info_evento, callback) => {
                     {
                         IdExt: info_evento.id,
                         Machine: info_evento.cod_maquina_fabricante,
-                        Arbpl: info_evento.cod_sao,
+                        Arbpl: info_evento.cod_sap,
                         Codigo: info_evento.cod_evento,
                         Estado: info_evento.cod_estado,
                         Paragem: info_motivo['e_paragem'],
