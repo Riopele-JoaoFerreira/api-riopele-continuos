@@ -99,9 +99,13 @@ exports.enviar_lista_eventos = (callback) => {
     })
 }
 
-exports.enviar_evento = (info_evento, callback) => {
+exports.enviar_evento = (info_evento, type = 'N', callback) => {
 
-    console.log(info_evento[1][0]);
+    if(type == 'U') {
+        info_evento = info_evento[1][0]
+    }
+
+    console.log(info_evento);
     Parametro.findOne({
         where: {
             parametro: 'webservice_riopele40_fiacao_ordens'
@@ -127,13 +131,8 @@ exports.enviar_evento = (info_evento, callback) => {
                     hora_fim_sap = info_evento.data_fim.substr(11);
                 }
 
-                try {
-                    data_inicio_sap = info_evento.data_inicio.substr(0, 10);
-                    hora_inicio_sap = info_evento.data_inicio.substr(11);
-                } catch (error) {
-                    data_inicio_sap = info_evento[1][0].data_inicio.substr(0, 10);
-                    hora_inicio_sap = info_evento[1][0].data_inicio.substr(11);
-                } 
+                data_inicio_sap = info_evento.data_inicio.substr(0, 10);
+                hora_inicio_sap = info_evento.data_inicio.substr(11);
 
                 let lista = [];
 
