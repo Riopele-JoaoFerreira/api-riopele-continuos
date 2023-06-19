@@ -100,8 +100,6 @@ exports.enviar_lista_eventos = (callback) => {
 }
 
 exports.enviar_evento = (info_evento, callback) => {
-
-    console.log(info_evento);
     Parametro.findOne({
         where: {
             parametro: 'webservice_riopele40_fiacao_ordens'
@@ -160,10 +158,7 @@ exports.enviar_evento = (info_evento, callback) => {
                     }
                 )
 
-                console.log(lista);
-
-
-                /*if(info_evento.id_seccao == config.seccao_fiacao_b) {
+                if(info_evento.id_seccao == config.seccao_fiacao_b) {
                     client.ZPpMonitRecebeEventos(
                         {
                             IWerks: 1000, 
@@ -183,7 +178,7 @@ exports.enviar_evento = (info_evento, callback) => {
                         },
                         (err, result) => {}
                     )
-                }*/
+                }
 
                 console.log(lista);
         }).catch((err) => {
