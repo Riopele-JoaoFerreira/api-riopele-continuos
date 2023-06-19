@@ -212,10 +212,11 @@ exports.exportEvents = function (callback) {
                                             } 
                                         }
                                     },
-                                    returning: true
+                                    returning: true,
+                                    raw: true 
                                 }).then((res) => {
 
-                                    sap_webservice_request.enviar_evento(res, 'U');
+                                    sap_webservice_request.enviar_evento(res);
 
                                     Events.create(obj).then((res) => {
                                         if(startOrderEvents.includes(obj.cod_evento)) {

@@ -99,11 +99,7 @@ exports.enviar_lista_eventos = (callback) => {
     })
 }
 
-exports.enviar_evento = (info_evento, type = 'N', callback) => {
-
-    if(type == 'U') {
-        info_evento = info_evento[1][0]
-    }
+exports.enviar_evento = (info_evento, callback) => {
 
     console.log(info_evento);
     Parametro.findOne({
