@@ -146,7 +146,7 @@ exports.enviar_evento = (callback) => {
                         data_fim_sap = evento.data_fim.substr(0, 10);
                         hora_fim_sap = evento.data_fim.substr(11);
 
-                        let info_ordem = await connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+info_evento.cod_maquina_fabricante+"')")
+                        let info_ordem = await connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+evento.cod_maquina_fabricante+"')")
 
                         lista_eventos_enviar.push(
                             {
