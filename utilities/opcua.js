@@ -229,7 +229,7 @@ exports.exportEvents = function (callback) {
 
                                         sap_webservice_request.enviar_evento(res);
                                     }).catch((err) => {})
-                                }).catch((err) => {}) 
+                                }).catch((err) => {})  
                             }
                         }); 
                     }
