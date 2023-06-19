@@ -215,7 +215,7 @@ exports.exportEvents = function (callback) {
                                     returning: true
                                 }).then((res) => {
 
-                                    sap_webservice_request.enviar_evento(res);
+                                    sap_webservice_request.enviar_evento(res, 'U');
 
                                     Events.create(obj).then((res) => {
                                         if(startOrderEvents.includes(obj.cod_evento)) {
@@ -228,7 +228,7 @@ exports.exportEvents = function (callback) {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
 
-                                        sap_webservice_request.enviar_evento(res);
+                                        sap_webservice_request.enviar_evento(res, "N");
                                     }).catch((err) => {})
                                 }).catch((err) => {})  
                             }
