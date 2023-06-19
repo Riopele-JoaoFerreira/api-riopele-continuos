@@ -139,6 +139,8 @@ exports.enviar_evento = (info_evento, callback) => {
                     attributes: ['e_paragem']
                 })
 
+                console.log(info_evento, info_motivo);
+
                 lista.push(
                     {
                         IdExt: info_evento.id,
