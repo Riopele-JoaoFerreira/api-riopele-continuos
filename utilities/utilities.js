@@ -211,6 +211,7 @@ exports.isLocked = (callback) => {
 }
 
 exports.lock = () => {
+    global.locked_time = Date.now(); 
     Parametro.update(
         {
             valor: 'S'
@@ -224,6 +225,8 @@ exports.lock = () => {
 }
 
 exports.unlock = () => {
+    global.locked_time = 0; 
+    console.log("unlock")
     Parametro.update(
         {
             valor: 'N'
@@ -234,4 +237,13 @@ exports.unlock = () => {
             }
         }
     )
+}
+
+exports.check_locked_time = () => {
+    console.log(global.check_locked_time);
+    if(global.check_locked_time > 0) {
+        if(Date.now() - global.check_locked_time > 60000) {
+            console.log("locked limit exceeded") 
+        }
+    }   
 }
