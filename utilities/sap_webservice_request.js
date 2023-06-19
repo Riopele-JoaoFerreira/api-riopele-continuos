@@ -130,7 +130,7 @@ exports.enviar_evento = (info_evento, callback) => {
 
                 let lista = [];
 
-                let info_motivo = await Motivos_Paragem.findAll({
+                let info_motivo = await Motivos_Paragem.findOne({
                     where: {
                         [Op.and]: {
                             id_seccao: info_evento.id_seccao, 
@@ -156,7 +156,7 @@ exports.enviar_evento = (info_evento, callback) => {
                         HoraIni: hora_inicio_sap, 
                         DataFim: data_fim_sap,
                         HoraFim: hora_fim_sap,
-                        Aufnr: info_ordem['ordem']
+                        Aufnr: info_ordem[0]['ordem']
                     }
                 )
 
