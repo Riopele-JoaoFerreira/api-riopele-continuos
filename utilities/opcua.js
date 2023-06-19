@@ -17,7 +17,6 @@ const Order_Machine = require('../models/riopele40_ordem_maquinas');
 const Controller = require('../controllers/riopele40_ordens');
 const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
 const { config } = require('../config/config');
-const sap_webservice_request = require('../utilities/sap_webservice_request')
 
 let clients = []; 
 let sessions = []; 
@@ -211,14 +210,9 @@ exports.exportEvents = function (callback) {
                                                 [Op.eq]: null
                                             } 
                                         }
-                                    },
-                                    returning: true,
-                                    raw: true 
-                                }).then((res_update) => {
-                                    sap_webservice_request.enviar_evento(res_update[1][0]);
-
-                                    Events.create(obj).then((res_create) => {
-                                        sap_webservice_request.enviar_evento(res_create);
+                                    }
+                                }).then((res) => {
+                                    Events.create(obj).then((res) => {
                                         if(startOrderEvents.includes(obj.cod_evento)) {
                                             startOrder(obj, session_, machine.identificador_opcua)
                                         } else if(startGameEvents.includes(obj.cod_evento)) {
@@ -228,10 +222,8 @@ exports.exportEvents = function (callback) {
                                         } else if(endGameEvents.includes(obj.cod_evento)) {
                                             endGame(obj, session_, machine.identificador_opcua)
                                         }
-
-                                        
                                     }).catch((err) => {})
-                                }).catch((err) => {})  
+                                }).catch((err) => {}) 
                             }
                         }); 
                     }

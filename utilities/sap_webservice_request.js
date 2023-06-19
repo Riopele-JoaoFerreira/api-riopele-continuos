@@ -183,8 +183,6 @@ exports.enviar_evento = (info_evento, callback) => {
                         }
                     )
                 }
-
-                console.log(lista);
         }).catch((err) => {
             console.log(err);
         })
