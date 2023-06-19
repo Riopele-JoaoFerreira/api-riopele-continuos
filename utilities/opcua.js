@@ -216,7 +216,7 @@ exports.exportEvents = function (callback) {
                                     raw: true 
                                 }).then((res_update) => {
 
-                                    sap_webservice_request.enviar_evento(res_update[1]);
+                                    sap_webservice_request.enviar_evento(res_update[1][0]);
 
                                     Events.create(obj).then((res_create) => {
                                         if(startOrderEvents.includes(obj.cod_evento)) {
