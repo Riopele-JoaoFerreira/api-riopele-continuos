@@ -117,8 +117,6 @@ exports.enviar_evento = (info_evento, callback) => {
                     )
                 );
 
-                console.log(info_evento);
-
                 if(!info_evento.data_fim) {
                     data_fim_sap = ''; 
                     hora_fim_sap = ''; 
@@ -127,8 +125,13 @@ exports.enviar_evento = (info_evento, callback) => {
                     hora_fim_sap = info_evento.data_fim.substr(11);
                 }
 
-                data_inicio_sap = info_evento.data_inicio.substr(0, 10);
-                hora_inicio_sap = info_evento.data_inicio.substr(11);
+                try {
+                    data_inicio_sap = info_evento.data_inicio.substr(0, 10);
+                    hora_inicio_sap = info_evento.data_inicio.substr(11);
+                } catch (error) {
+                    data_inicio_sap = info_evento[1].data_inicio.substr(0, 10);
+                    hora_inicio_sap = info_evento[1].data_inicio.substr(11);
+                } 
 
                 let lista = [];
 
@@ -159,6 +162,9 @@ exports.enviar_evento = (info_evento, callback) => {
                         Aufnr: info_ordem[0][0]['ordem']
                     }
                 )
+
+                console.log(lista);
+
 
                 /*if(info_evento.id_seccao == config.seccao_fiacao_b) {
                     client.ZPpMonitRecebeEventos(
