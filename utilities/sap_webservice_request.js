@@ -129,6 +129,7 @@ exports.enviar_evento = (callback) => {
                         }
                     }
                 }).then((list) => {
+                    console.log(list);
                     list.forEach(async (evento) => {
 
                         let info_motivo = await Motivos_Paragem.findOne({
