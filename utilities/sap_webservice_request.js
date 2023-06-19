@@ -101,7 +101,7 @@ exports.enviar_lista_eventos = (callback) => {
 
 exports.enviar_evento = (info_evento, callback) => {
 
-    console.log(info_evento[0]);
+    console.log(info_evento, info_evento[1]);
     Parametro.findOne({
         where: {
             parametro: 'webservice_riopele40_fiacao_ordens'
