@@ -239,10 +239,10 @@ exports.unlock = () => {
 }
 
 exports.check_locked_time = () => {
-    console.log(global.locked_time);
     if(global.locked_time > 0) {
         if(Date.now() - global.locked_time > 60000) {
-            console.log("locked limit exceeded") 
+            console.log("Locked Limit Time Exceeded, Unlocking") 
+            this.unlock()
         }
     }   
 }
