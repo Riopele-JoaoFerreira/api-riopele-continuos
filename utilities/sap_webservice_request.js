@@ -97,3 +97,91 @@ exports.enviar_lista_eventos = (callback) => {
         console.log(err);
     })
 }
+
+exports.enviar_evento = (info_evento, callback) => {
+    Parametro.findOne({
+        where: {
+            parametro: 'webservice_riopele40_fiacao_ordens'
+        }
+    }).then((res) => {
+        let url = res.valor;
+        let sapSecurity = this.sapSecurity()
+        soap
+        .createClientAsync(url, { wsdl_headers: { Authorization: sapSecurity } })
+            .then(async (client) => {
+                client.setSecurity(
+                    new soap.BasicAuthSecurity(
+                        soap_config.username,
+                        soap_config.password
+                    )
+                );
+
+                if(!info_evento.data_fim) {
+                    data_fim_sap = ''; 
+                    hora_fim_sap = ''; 
+                } else {
+                    data_fim_sap = info_evento.data_fim.substr(0, 10);
+                    hora_fim_sap = info_evento.data_fim.substr(11);
+                }
+
+                data_inicio_sap = info_evento.data_inicio.substr(0, 10);
+                hora_inicio_sap = info_evento.data_inicio.substr(11);
+
+                let lista = [];
+
+                let info_motivo = await Motivos_Paragem.findAll({
+                    where: {
+                        [Op.and]: {
+                            id_seccao: info_evento.id_seccao, 
+                            cod_paragem: info_evento.cod_estado
+                        }
+                    },
+                    attributes: ['e_paragem']
+                })
+
+                lista.push(
+                    {
+                        IdExt: info_evento.id,
+                        Machine: info_evento.cod_maquina_fabricante,
+                        Arbpl: info_evento.cod_sao,
+                        Codigo: info_evento.cod_evento,
+                        Estado: info_evento.cod_estado,
+                        Paragem: info_motivo['e_paragem'],
+                        DataIni: data_inicio_sap,
+                        HoraIni: hora_inicio_sap, 
+                        DataFim: data_fim_sap,
+                        HoraFim: hora_fim_sap,
+                        Aufnr: ''
+                    }
+                )
+
+                /*if(info_evento.id_seccao == config.seccao_fiacao_b) {
+                    client.ZPpMonitRecebeEventos(
+                        {
+                            IWerks: 1000, 
+                            Interface: "F",
+                            TabEventos: { item: lista },
+                        },
+                        (err, result) => {}
+                    )
+                }
+
+                if(info_evento.id_seccao == config.seccao_olifil) {
+                    client.ZPpMonitRecebeEventos(
+                        {
+                            IWerks: 1000, 
+                            Interface: "O",
+                            TabEventos: { item: lista },
+                        },
+                        (err, result) => {}
+                    )
+                }*/
+
+                console.log(lista);
+        }).catch((err) => {
+            console.log(err);
+        })
+    }).catch((err) => {
+        console.log(err);
+    })
+}
