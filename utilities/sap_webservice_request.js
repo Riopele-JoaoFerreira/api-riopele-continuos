@@ -101,7 +101,7 @@ exports.enviar_lista_eventos = (callback) => {
 
 exports.enviar_evento = (info_evento, callback) => {
 
-    console.log(info_evento[1]);
+    console.log(info_evento[1][0]);
     Parametro.findOne({
         where: {
             parametro: 'webservice_riopele40_fiacao_ordens'
@@ -131,8 +131,8 @@ exports.enviar_evento = (info_evento, callback) => {
                     data_inicio_sap = info_evento.data_inicio.substr(0, 10);
                     hora_inicio_sap = info_evento.data_inicio.substr(11);
                 } catch (error) {
-                    data_inicio_sap = info_evento[1].data_inicio.substr(0, 10);
-                    hora_inicio_sap = info_evento[1].data_inicio.substr(11);
+                    data_inicio_sap = info_evento[1][0].data_inicio.substr(0, 10);
+                    hora_inicio_sap = info_evento[1][0].data_inicio.substr(11);
                 } 
 
                 let lista = [];
