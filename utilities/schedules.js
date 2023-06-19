@@ -1,6 +1,7 @@
 var cron = require('node-cron');
 const utilities_opcua = require('../utilities/opcua')
 const utilities = require('../utilities/utilities');
+const sap_webservice_request = require('../utilities/sap_webservice_request')
 
 exports.eventsSchedule = () => {
   cron.schedule('10 * * * * *', () => {
@@ -48,5 +49,9 @@ exports.eventsSchedule = () => {
   cron.schedule('* * * * *', () => {
     console.log(new Date().toLocaleString() + " - Locked Check");
     utilities.check_locked_time()
+  });
+  cron.schedule('0 0 1 * *', () => {
+    console.log(new Date().toLocaleString() + " - Enviar Lista Eventos Sap");
+    sap_webservice_request.enviar_lista_eventos()
   });
 }

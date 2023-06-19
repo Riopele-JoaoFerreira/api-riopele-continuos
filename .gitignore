@@ -106,3 +106,4 @@ dist
 # Config 
 config/config.js
 config/opcua.js
+config/soap.js
