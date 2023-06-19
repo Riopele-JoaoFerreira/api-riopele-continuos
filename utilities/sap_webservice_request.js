@@ -4,6 +4,7 @@ const soap = require("soap");
 const Parametro = require("../models/parametros");
 const Motivos_Paragem = require('../models/riopele40_motivos_paragem');
 const { Op } = require('sequelize');
+const connection = require('../utilities/connection').connection
 
 exports.sapSecurity = () => {
     return 'Basic ' + new Buffer.from(soap_config.username + ':' + soap_config.password).toString('base64');
@@ -139,7 +140,9 @@ exports.enviar_evento = (info_evento, callback) => {
                     attributes: ['e_paragem']
                 })
 
-                console.log(info_evento, info_motivo);
+                let info_ordem = await connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+info_evento.cod_maquina_fabricante+"')")
+
+                console.log(info_evento, info_motivo, info_ordem);
 
                 lista.push(
                     {
@@ -153,7 +156,7 @@ exports.enviar_evento = (info_evento, callback) => {
                         HoraIni: hora_inicio_sap, 
                         DataFim: data_fim_sap,
                         HoraFim: hora_fim_sap,
-                        Aufnr: ''
+                        Aufnr: info_ordem['ordem']
                     }
                 )
 
