@@ -226,7 +226,6 @@ exports.lock = () => {
 
 exports.unlock = () => {
     global.locked_time = 0; 
-    console.log("unlock")
     Parametro.update(
         {
             valor: 'N'
