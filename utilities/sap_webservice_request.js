@@ -134,8 +134,8 @@ exports.enviar_evento = (callback) => {
                         let info_motivo = await Motivos_Paragem.findOne({
                             where: {
                                 [Op.and]: {
-                                    id_seccao: info_evento.id_seccao, 
-                                    cod_paragem: info_evento.cod_estado
+                                    id_seccao: evento.id_seccao, 
+                                    cod_paragem: evento.cod_estado
                                 }
                             },
                             attributes: ['e_paragem']
