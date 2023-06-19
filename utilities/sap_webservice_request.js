@@ -165,7 +165,9 @@ exports.enviar_evento = (info_evento, callback) => {
                             Interface: "F",
                             TabEventos: { item: lista },
                         },
-                        (err, result) => {}
+                        (err, result) => {
+                            console.log(result);
+                        }
                     )
                 }
 
@@ -176,7 +178,9 @@ exports.enviar_evento = (info_evento, callback) => {
                             Interface: "O",
                             TabEventos: { item: lista },
                         },
-                        (err, result) => {}
+                        (err, result) => {
+                            console.log(result);
+                        }
                     )
                 }
 
