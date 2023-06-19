@@ -54,4 +54,8 @@ exports.eventsSchedule = () => {
     console.log(new Date().toLocaleString() + " - Enviar Lista Eventos Sap");
     sap_webservice_request.enviar_lista_eventos()
   });
+  cron.schedule('* * * * *', () => {
+    console.log(new Date().toLocaleString() + " - Enviar Eventos Sap");
+    sap_webservice_request.enviar_evento()
+  });
 }
