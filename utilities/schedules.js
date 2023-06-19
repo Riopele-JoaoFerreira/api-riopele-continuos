@@ -1,7 +1,8 @@
 var cron = require('node-cron');
 const utilities_opcua = require('../utilities/opcua')
 const utilities = require('../utilities/utilities');
-const sap_webservice_request = require('../utilities/sap_webservice_request')
+const sap_webservice_request = require('../utilities/sap_webservice_request');
+const { config } = require('../config/config');
 
 exports.eventsSchedule = () => {
   cron.schedule('10 * * * * *', () => {
@@ -56,6 +57,6 @@ exports.eventsSchedule = () => {
   });
   cron.schedule('* * * * *', () => {
     console.log(new Date().toLocaleString() + " - Enviar Eventos Sap");
-    sap_webservice_request.enviar_evento()
+    sap_webservice_request.enviar_evento(config.seccao_fiacao_b, 'F')
   });
 }
