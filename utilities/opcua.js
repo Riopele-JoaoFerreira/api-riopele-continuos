@@ -211,7 +211,8 @@ exports.exportEvents = function (callback) {
                                                 [Op.eq]: null
                                             } 
                                         }
-                                    }
+                                    },
+                                    returning: true
                                 }).then((res) => {
 
                                     sap_webservice_request.enviar_evento(res);
