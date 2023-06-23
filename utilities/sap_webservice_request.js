@@ -133,7 +133,6 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                     let stack = []; 
                     list.forEach(evento => { 
                         stack.push((callback) => {
-                            data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
                             Motivos_Paragem.findOne({
                                 where: {
                                     [Op.and]: {
@@ -216,7 +215,6 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                     let stack = []; 
                     list.forEach(evento => {
                         stack.push((callback) => {
-                            data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
                             Motivos_Paragem.findOne({
                                 where: {
                                     [Op.and]: {
@@ -226,10 +224,10 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                 },
                                 attributes: ['e_paragem']
                             }).then((info_motivo) => {
-                                data_inicio_sap = evento.data_inicio.substr(0, 10);
-                                hora_inicio_sap = evento.data_inicio.substr(11);
-                                data_fim_sap = '';
-                                hora_fim_sap = '';
+                                data_inicio_sap_1 = evento.data_inicio.substr(0, 10);
+                                hora_inicio_sap_1 = evento.data_inicio.substr(11);
+                                data_fim_sap_1 = '';
+                                hora_fim_sap_1 = '';
                                 connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+evento.cod_maquina_fabricante+"')").then((info_ordem) => {
                                     let ordem = ''
                                     try {
@@ -243,10 +241,10 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                             Codigo: evento.cod_evento,
                                             Estado: evento.cod_estado,
                                             Paragem: info_motivo['e_paragem'],
-                                            DataIni: data_inicio_sap,
-                                            HoraIni: hora_inicio_sap, 
-                                            DataFim: data_fim_sap,
-                                            HoraFim: hora_fim_sap,
+                                            DataIni: data_inicio_sap_1,
+                                            HoraIni: hora_inicio_sap_1, 
+                                            DataFim: data_fim_sap_1,
+                                            HoraFim: hora_fim_sap_1,
                                             Aufnr:  ordem 
                                         }
                                     )
