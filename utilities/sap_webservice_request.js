@@ -142,10 +142,10 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                 },
                                 attributes: ['e_paragem']
                             }).then((info_motivo) => {
-                                data_inicio_sap = evento.data_inicio.substr(0, 10);
-                                hora_inicio_sap = evento.data_inicio.substr(11);
-                                data_fim_sap = evento.data_fim.substr(0, 10);
-                                hora_fim_sap = evento.data_fim.substr(11);
+                                let data_inicio_sap = evento.data_inicio.substr(0, 10);
+                                let hora_inicio_sap = evento.data_inicio.substr(11);
+                                let data_fim_sap = evento.data_fim.substr(0, 10);
+                                let hora_fim_sap = evento.data_fim.substr(11);
                                 connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+evento.cod_maquina_fabricante+"')").then((info_ordem) => {
                                     let ordem = ''
                                     try {
@@ -224,10 +224,10 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                 },
                                 attributes: ['e_paragem']
                             }).then((info_motivo) => {
-                                data_inicio_sap_1 = evento.data_inicio.substr(0, 10);
-                                hora_inicio_sap_1 = evento.data_inicio.substr(11);
-                                data_fim_sap_1 = '';
-                                hora_fim_sap_1 = '';
+                                let data_inicio_sap_1 = evento.data_inicio.substr(0, 10);
+                                let hora_inicio_sap_1 = evento.data_inicio.substr(11);
+                                let data_fim_sap_1 = '';
+                                let hora_fim_sap_1 = '';
                                 connection.query("select top 1 ordem from riopele40_ordem_maquinas where id in (select id_ordem_maquina from riopele40_ordens_planeadas where estado > 0 and data_inicio is not null and data_fim is null) and id_maquina in (select id from riopele40_maquinas where cod_maquina_fabricante = '"+evento.cod_maquina_fabricante+"')").then((info_ordem) => {
                                     let ordem = ''
                                     try {
