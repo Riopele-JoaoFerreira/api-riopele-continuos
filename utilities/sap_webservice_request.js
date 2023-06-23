@@ -262,7 +262,9 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                 Interface: interface,
                                 TabEventos: { item: lista_eventos_enviar },
                             },
-                            (err, result) => {}
+                            (err, result) => {
+                                console.log(lista_eventos_enviar);
+                            }
                         )
                     })
                 })
