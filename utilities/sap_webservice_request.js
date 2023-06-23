@@ -131,9 +131,9 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                 }).then((list) => {
                     let lista_eventos_enviar = []; 
                     let stack = []; 
-                    data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
-                    list.forEach(evento => {
+                    list.forEach(evento => { 
                         stack.push((callback) => {
+                            data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
                             Motivos_Paragem.findOne({
                                 where: {
                                     [Op.and]: {
@@ -214,9 +214,9 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                 }).then((list) => {
                     let lista_eventos_enviar = []; 
                     let stack = []; 
-                    data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
                     list.forEach(evento => {
                         stack.push((callback) => {
+                            data_inicio_sap = hora_inicio_sap = data_fim_sap = hora_fim_sap = ''
                             Motivos_Paragem.findOne({
                                 where: {
                                     [Op.and]: {
