@@ -185,6 +185,7 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                             },
                             (err, result) => {
                                 if(result) {
+                                    console.log(lista_eventos_enviar);
                                     Eventos.update({
                                         enviou_para_sap: 'S'
                                     }, {
