@@ -266,9 +266,8 @@ exports.check_locked_time = () => {
         }
     ).then(parametro => {
         if (parametro[0].valor > 0) {
-            if(Date.now() - parametro[0].valor > 60000) {
+            if(Date.now() - parametro[0].valor > 1200000) {
                 console.log("Locked Limit Time Exceeded (20minutes), Unlocking") 
-                this.unlock()
                 process.exit(1);
             }
         }
