@@ -62,6 +62,8 @@ async function connect() {
 
 connect(); 
 
+module.connect = connect; 
+
 exports.setTableOrders = function (table, server_name, callback) {
     let error = null; 
     let stack = [];
