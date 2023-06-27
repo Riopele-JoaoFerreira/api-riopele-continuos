@@ -4,7 +4,7 @@ const Machine = require('../models/riopele40_maquinas');
 const Production = require('../models/riopele40_producoes');
 const Parametro = require('../models/parametros'); 
 const sequelize = require('./connection').connection
-const connect = require('./opcua').connect
+const connect = require('./opcua')
 
 exports.getType = (type) => {
     switch (type) {
@@ -269,7 +269,7 @@ exports.check_locked_time = () => {
             if(Date.now() - parametro[0].valor > 60000) {
                 console.log("Locked Limit Time Exceeded (20minutes), Unlocking") 
                 this.unlock()
-                connect(); 
+                connect.connect();  
             }
         }
     })
