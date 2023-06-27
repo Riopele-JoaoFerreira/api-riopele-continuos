@@ -211,7 +211,6 @@ exports.isLocked = (callback) => {
 }
 
 exports.lock = () => {
-    global.locked_time = Date.now(); 
     Parametro.update(
         {
             valor: 'S'
@@ -222,10 +221,19 @@ exports.lock = () => {
             }
         }
     )
+    Parametro.update(
+        {
+            valor: Date.now()
+        }, 
+        {
+            where: {
+                parametro: 'api_continuos_lock_timestamp'
+            }
+        }
+    )
 }
 
 exports.unlock = () => {
-    global.locked_time = 0; 
     Parametro.update(
         {
             valor: 'N'
@@ -236,13 +244,31 @@ exports.unlock = () => {
             }
         }
     )
+    Parametro.update(
+        {
+            valor: null
+        }, 
+        {
+            where: {
+                parametro: 'api_continuos_lock_timestamp'
+            }
+        }
+    )
 }
 
 exports.check_locked_time = () => {
-    if(global.locked_time > 0) {
-        if(Date.now() - global.locked_time > 1200000) {
-            console.log("Locked Limit Time Exceeded (20minutes), Unlocking") 
-            this.unlock()
+    Parametro.findAll( 
+        {
+            where: {
+                parametro: 'api_continuos_lock_timestamp'
+            }
         }
-    }   
+    ).then(parametro => {
+        if (parametro.valor > 0) {
+            if(Date.now() - parametro.valor > 1200000) {
+                console.log("Locked Limit Time Exceeded (20minutes), Unlocking") 
+                this.unlock()
+            }
+        }
+    })
 }
