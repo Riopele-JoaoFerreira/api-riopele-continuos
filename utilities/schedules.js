@@ -59,7 +59,17 @@ exports.eventsSchedule = () => {
     console.log(new Date().toLocaleString() + " - Enviar Eventos Sap");
     sap_webservice_request.enviar_evento(config.seccao_fiacao_b, 'F')
   });
-  cron.schedule('55 5/8 * * *', () => {
+  cron.schedule('55 5 * * *', () => {
+    utilities_opcua.saveRunningHours(() => {
+      console.log(new Date().toLocaleString() + " - End Recording Running Time");
+    })
+  });
+  cron.schedule('55 13 * * *', () => {
+    utilities_opcua.saveRunningHours(() => {
+      console.log(new Date().toLocaleString() + " - End Recording Running Time");
+    })
+  });
+  cron.schedule('55 21 * * *', () => {
     utilities_opcua.saveRunningHours(() => {
       console.log(new Date().toLocaleString() + " - End Recording Running Time");
     })
