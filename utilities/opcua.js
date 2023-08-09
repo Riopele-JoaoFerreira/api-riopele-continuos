@@ -17,6 +17,7 @@ const Order_Machine = require('../models/riopele40_ordem_maquinas');
 const Controller = require('../controllers/riopele40_ordens');
 const { timestamptToDate, closeIfOpen, getGameNumber, getActualGameNumber, getMachineInfo, getType, convert } = require('./utilities');
 const { config } = require('../config/config');
+const OPCUA_Running_Minutes = require('../models/riopele40_minutos_trabalhados');
 
 let clients = []; 
 let sessions = []; 
@@ -1239,7 +1240,11 @@ function startGame(data, session_, identificador_opcua) {
                                 method_ne = await getMethod('ordem_atual', "ne_final"); 
                             }
 
-                            async.waterfall([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodEndHour, getMethodEndDate], async () => {
+                            let getMethodFusos = async (callback) => {
+                                method_fusos = await getMethod('ordem_atual', "fusos"); 
+                            }
+
+                            async.waterfall([getMethodVelocidade, getMethodTorcao, getMethodNE, getMethodVelocidade_SP, getMethodEndHour, getMethodEndDate, getMethodFusos], async () => {
                                 let method_velocity_obj = [
                                     { nodeId: method_velocity.prefixo + identificador_opcua + method_velocity.identificador + index + '_' + method_velocity.chave},
                                 ];
@@ -1264,6 +1269,10 @@ function startGame(data, session_, identificador_opcua) {
                                     { nodeId: method_end_date.prefixo + identificador_opcua + method_end_date.identificador + index + '_' + method_end_date.chave},
                                 ];
 
+                                let method_fusos_obj = [
+                                    { nodeId: method_fusos.prefixo + identificador_opcua + method_fusos.identificador + index + '_' + method_fusos.chave},
+                                ];
+
                                 let velocity_res = await session_.read(method_velocity_obj);
                                 let velocity = await velocity_res.map(result => result.value.value)[0];
                                 let twist_res = await session_.read(method_twist_obj);
@@ -1276,6 +1285,8 @@ function startGame(data, session_, identificador_opcua) {
                                 let end_hour = await end_hour_res.map(result => result.value.value)[0];
                                 let end_date_res = await session_.read(method_end_date_obj);
                                 let end_date= await end_date_res.map(result => result.value.value)[0];
+                                let fusos_res = await session_.read(method_fusos_obj);
+                                let fusos= await fusos_res.map(result => result.value.value)[0];
 
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
@@ -1295,15 +1306,7 @@ function startGame(data, session_, identificador_opcua) {
                                     }
                                 }).then((info) => {
                                     
-                                    //if(num_jogo == 1) {
-                                        game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
-                                    /*} else {
-                                        if(info[0].quantidade_produzida && info[0].quantidade_produzida > 0) {
-                                            game_production = Math.ceil((info[0].quantidade_produzida / info[0].fusos) * res[0].fusos); 
-                                        } else {
-                                            game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
-                                        }
-                                    }*/
+                                    game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
 
                                     let obj = {
                                         id_seccao: data.id_seccao,    
@@ -1313,7 +1316,7 @@ function startGame(data, session_, identificador_opcua) {
                                         quantidade_prevista: game_production, 
                                         quantidade_produzida: 0, 
                                         data_inicio: data.data_inicio, 
-                                        fusos: res[0].fusos, 
+                                        fusos: fusos, 
                                         data_fim_prevista: final_date, 
                                         velocidade_setpoint : velocity_sp,
                                         num_jogo: num_jogo 
@@ -1425,6 +1428,103 @@ function endGame(data, session_, identificador_opcua) {
             }
         }
     }) 
+}
+
+exports.saveRunningHours = function (callback) {
+    let machines_list = null; 
+    let method_running; 
+
+    let getMachineInfo = (callback) => {
+        Machine.findAll({
+            include: {
+                model: OPCUA_Server, 
+            },
+            where: {
+                identificador_opcua: {
+                    [Op.ne]: null
+                }
+            }
+        }).then((res)=> {
+            machines_list = res; 
+            return callback(); 
+        }).catch((err) => {
+            return callback(); 
+        })
+    }
+
+    let getMethodRunningHours = async () => {
+        method_running = await getMethod('ordem_atual', "horas_motor_principal"); 
+    }
+
+    async.parallel([getMachineInfo, getMethodRunningHours], () => {
+        let stack = []; 
+        machines_list.forEach(machine => {
+            stack.push((callback) => {
+                let server_name = machine.riopele40_servidores_opcua.url; 
+                let session_ = searchServerName(server_name, sessions);
+
+                running_obj = [
+                    { nodeId: method_running.prefixo + machine.identificador_opcua + method_running.identificador + "1" +"_" + method_running.chave},
+                ];
+                (async ()=>{
+                    let running_res = await session_.read(running_obj);
+                    let running_time = await running_res.map(result => result.value.value)[0];
+                   
+                    let last_record = await OPCUA_Running_Minutes.findOne({
+                        where: {
+                            id_maquina: machine.id
+                        },
+                        order: [['id', 'DESC']],
+                        limit: 1
+                    })
+
+                    if(!running_time > 0) {
+                        running_time = 0
+                    } else {
+                        running_time = running_time
+                    }
+
+                    if(!last_record || !last_record.minutos_trabalhados > 0) {
+                        last_record = 0; 
+                    } else {
+                        last_record = last_record.minutos_trabalhados
+                    }
+
+                    var today = new Date();
+                    var time = today.getHours().toString().padStart(2,'0') + ":" + today.getMinutes().toString().padStart(2,'0') + ":00";
+                    var date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
+
+                    let turno = date =  null; 
+                    if (time > '06:00:00' && time < '13:59:59') {
+                        turno = 1
+                        date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
+                    } else if (time > '14:00:00' && time < '21:59:59') {
+                        turno = 2
+                        date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
+                    } else {
+                        turno = 3
+                        date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+(today.getDate()-1).toString().padStart(2,'0');
+                    }
+
+                    let obj = {
+                        id_seccao: machine.id_seccao, 
+                        id_maquina: machine.id, 
+                        turno: turno,
+                        dia: date,
+                        hora: time,
+                        minutos_trabalhados: parseInt(running_time) - parseInt(last_record)
+                    }
+
+                    await OPCUA_Running_Minutes.create(obj)
+
+                    return callback(); 
+                })()
+            })    
+        });
+        async.waterfall(stack, () => {
+            return callback();
+        })  
+    })
 }
 
 exports.getMethod = getMethod; 
