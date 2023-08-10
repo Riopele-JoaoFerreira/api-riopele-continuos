@@ -1470,12 +1470,10 @@ exports.saveRunningHours = function (callback) {
                     let running_res = await session_.read(running_obj);
                     let running_time = await running_res.map(result => result.value.value)[0];
                    
-                    let last_record = await OPCUA_Running_Minutes.findOne({
+                    let last_record = await OPCUA_Running_Minutes.sum('minutos_trabalhados',{
                         where: {
                             id_maquina: machine.id
-                        },
-                        order: [['id', 'DESC']],
-                        limit: 1
+                        }
                     })
 
                     if(!running_time > 0) {
@@ -1484,10 +1482,10 @@ exports.saveRunningHours = function (callback) {
                         running_time = running_time
                     }
 
-                    if(!last_record || !last_record.minutos_trabalhados > 0) {
+                    if(!last_record > 0) {
                         last_record = 0; 
                     } else {
-                        last_record = last_record.minutos_trabalhados
+                        last_record = last_record
                     }
 
                     var today = new Date();
