@@ -22,3 +22,6 @@ app.listen(config.port, () => {
         }
     });
 })
+
+// export OPENSSL_CONF=/dev/null
+// forever start -o out.log -e err.log index.js
