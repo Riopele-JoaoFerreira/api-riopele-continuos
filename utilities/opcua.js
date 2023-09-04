@@ -1306,7 +1306,19 @@ function startGame(data, session_, identificador_opcua) {
                                     }
                                 }).then((info) => {
                                     
-                                    game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+                                    //game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+
+                                    switch (parseInt(ne)) {
+                                        case 24:
+                                            game_production = Math.ceil(0.060 * res[0].fusos);
+                                            break;
+                                        case 44:
+                                            game_production = Math.ceil(0.072 * res[0].fusos);
+                                            break;
+                                        default:
+                                            game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+                                            break;
+                                    }
 
                                     let obj = {
                                         id_seccao: data.id_seccao,    
