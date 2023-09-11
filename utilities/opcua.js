@@ -1209,7 +1209,6 @@ function startGame(data, session_, identificador_opcua) {
             if(id != 0 && order != 0) {
                 getGameNumber(order[0], data.cod_sap, (res)=>{
                     num_jogo = res; 
-                    console.log(num_jogo);
                     closeIfOpen(order[0], data.cod_sap, data.data_inicio, (res) => {
                         // ORDER DETAIL
                         Order_Planned.findAll({
@@ -1331,7 +1330,6 @@ function startGame(data, session_, identificador_opcua) {
                                         limit: 1,
                                         order: [['id', 'desc']]
                                     }).then((info) => {
-                                        console.log(info);
                                         game_production = Math.ceil((parseFloat(info.quantidade_produzida) / parseFloat(info.fusos)) * res[0].fusos);
     
                                         let obj = {
