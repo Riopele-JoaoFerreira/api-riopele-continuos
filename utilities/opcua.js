@@ -1209,6 +1209,7 @@ function startGame(data, session_, identificador_opcua) {
             if(id != 0 && order != 0) {
                 getGameNumber(order[0], data.cod_sap, (res)=>{
                     num_jogo = res; 
+                    console.log(num_jogo);
                     closeIfOpen(order[0], data.cod_sap, data.data_inicio, (res) => {
                         // ORDER DETAIL
                         Order_Planned.findAll({
@@ -1287,27 +1288,9 @@ function startGame(data, session_, identificador_opcua) {
                                 let end_date= await end_date_res.map(result => result.value.value)[0];
                                 let fusos_res = await session_.read(method_fusos_obj);
                                 let fusos= await fusos_res.map(result => result.value.value)[0];
-
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
-                                Production.findAll({
-                                    attributes: [
-                                        [Sequelize.fn('sum', sequelize.col('quantidade_produzida')), 'quantidade_produzida'],
-                                        [Sequelize.fn('sum', sequelize.col('fusos')), 'fusos'],
-                                    ],
-                                    where: {
-                                        [Op.and]: {
-                                            ordem: order[0], 
-                                            cod_sap: data.cod_sap,
-                                            quantidade_produzida: {
-                                                [Op.gt]: 0
-                                            }
-                                        }
-                                    }
-                                }).then((info) => {
-                                    
-                                    //game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
-
+                                if(num_jogo == 1) {
                                     switch (parseInt(ne)) {
                                         case 24:
                                             game_production = Math.ceil(0.060 * res[0].fusos);
@@ -1334,7 +1317,38 @@ function startGame(data, session_, identificador_opcua) {
                                         num_jogo: num_jogo 
                                     } 
                                     Production.create(obj).then((res)=> {}).then((err) => {})
-                                }).catch((err) => {})
+                                } else {
+                                    Production.findOne({
+                                        attributes: ['quantidade_produzida', 'fusos'],
+                                        where: {
+                                            [Op.and]: {
+                                                ordem: order[0], 
+                                                cod_sap: data.cod_sap,
+                                                data_fim: {[Op.ne]: null}
+                                            }
+                                        },
+                                        limit: 1,
+                                        order: [['id', 'desc']]
+                                    }).then((info) => {
+                                        console.log(info);
+                                        game_production = Math.ceil((parseFloat(info.quantidade_produzida) / parseFloat(info.fusos)) * res[0].fusos);
+    
+                                        let obj = {
+                                            id_seccao: data.id_seccao,    
+                                            cod_maquina_fabricante: data.cod_maquina_fabricante,
+                                            cod_sap: data.cod_sap,
+                                            ordem: order[0],
+                                            quantidade_prevista: game_production, 
+                                            quantidade_produzida: 0, 
+                                            data_inicio: data.data_inicio, 
+                                            fusos: fusos, 
+                                            data_fim_prevista: final_date, 
+                                            velocidade_setpoint : velocity_sp,
+                                            num_jogo: num_jogo 
+                                        } 
+                                        Production.create(obj).then((res)=> {}).then((err) => {})
+                                    })
+                                }
                             })
                         }).catch((err) => {})
                     })
