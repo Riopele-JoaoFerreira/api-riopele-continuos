@@ -158,7 +158,7 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                                             Arbpl: evento.cod_sap,
                                             Codigo: evento.cod_evento,
                                             Estado: evento.cod_estado,
-                                            Paragem: info_motivo['e_paragem'],
+                                            Paragem: info_motivo['e_paragem'] == 'S' ? 'X' : '',
                                             DataIni: data_inicio_sap,
                                             HoraIni: hora_inicio_sap, 
                                             DataFim: data_fim_sap,
