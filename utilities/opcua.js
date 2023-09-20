@@ -1330,8 +1330,24 @@ function startGame(data, session_, identificador_opcua) {
                                         limit: 1,
                                         order: [['id', 'desc']]
                                     }).then((info) => {
-                                        game_production = Math.ceil((parseFloat(info.quantidade_produzida) / parseFloat(info.fusos)) * res[0].fusos);
-    
+
+                                        if(info.quantidade_produzida && info.quantidade_produzida > 0) {
+                                            game_production = Math.ceil((parseFloat(info.quantidade_produzida) / parseFloat(info.fusos)) * res[0].fusos);
+                                        } else {
+                                            switch (parseInt(ne)) {
+                                                case 24:
+                                                    game_production = Math.ceil(0.060 * res[0].fusos);
+                                                    break;
+                                                case 44:
+                                                    game_production = Math.ceil(0.072 * res[0].fusos);
+                                                    break;
+                                                default:
+                                                    game_production = Math.ceil(config.peso_por_fuso * res[0].fusos);
+                                                    break;
+                                            }
+        
+                                        }
+
                                         let obj = {
                                             id_seccao: data.id_seccao,    
                                             cod_maquina_fabricante: data.cod_maquina_fabricante,
