@@ -1289,10 +1289,6 @@ function startGame(data, session_, identificador_opcua) {
                                 let fusos= await fusos_res.map(result => result.value.value)[0];
                                 let final_date = timestamptToDate(end_date, end_hour); 
 
-                                if(order[0] == '200022304') {
-                                    console.log(num_jogo);
-                                } 
-
                                 if(num_jogo == 1) {
                                     switch (parseInt(ne)) {
                                         case 24:
@@ -1320,9 +1316,6 @@ function startGame(data, session_, identificador_opcua) {
                                         num_jogo: num_jogo 
                                     } 
 
-                                    if(order[0] == '200022304') {
-                                        console.log(obj);;
-                                    } 
                                     Production.create(obj).then((res)=> {}).then((err) => {
                                         console.log(err);
                                     })
@@ -1340,8 +1333,7 @@ function startGame(data, session_, identificador_opcua) {
                                         limit: 1,
                                         order: [['id', 'desc']]
                                     }).then((info) => {
-
-                                        if(info.quantidade_produzida && info.quantidade_produzida > 0) {
+                                        if(info && info.quantidade_produzida > 0) {
                                             game_production = Math.ceil((parseFloat(info.quantidade_produzida) / parseFloat(info.fusos)) * res[0].fusos);
                                         } else {
                                             switch (parseInt(ne)) {
@@ -1370,10 +1362,6 @@ function startGame(data, session_, identificador_opcua) {
                                             data_fim_prevista: final_date, 
                                             velocidade_setpoint : velocity_sp,
                                             num_jogo: num_jogo 
-                                        } 
-
-                                        if(order[0] == '200022304') {
-                                            console.log(obj);
                                         } 
                                         Production.create(obj).then((res)=> {}).then((err) => {
                                             console.log(err);
