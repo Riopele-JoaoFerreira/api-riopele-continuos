@@ -1318,6 +1318,8 @@ function startGame(data, session_, identificador_opcua) {
                                         num_jogo: num_jogo 
                                     } 
 
+                                    console.log(obj);
+
                                     Production.create(obj).then((res)=> {}).then((err) => {
                                         console.log(err);
                                     })
@@ -1365,6 +1367,8 @@ function startGame(data, session_, identificador_opcua) {
                                             velocidade_setpoint : velocity_sp,
                                             num_jogo: num_jogo 
                                         } 
+
+                                        console.log(obj);
                                         Production.create(obj).then((res)=> {}).then((err) => {
                                             console.log(err);
                                         })
