@@ -1558,17 +1558,17 @@ exports.saveRunningHours = function (callback) {
                     }
 
                     let exist = await OPCUA_Running_Minutes.findOne({
-                        [Op.and] : [
-                            { id_seccao: machine.id_seccao},
-                            { id_maquina: machine.id },
-                            { turno: turno },
-                            { dia: date },
-                        ]
+                        where : {
+                            [Op.and] : [
+                                { id_seccao: machine.id_seccao},
+                                { id_maquina: machine.id },
+                                { turno: turno },
+                                { dia: date },
+                            ]
+                        }
                     })
 
-                    console.log(exist, exist.id);
-
-                    if(exist.id) {
+                    if(exist) {
                         await OPCUA_Running_Minutes.update({
                             minutos_trabalhados: exist.minutos_trabalhados + obj.minutos_trabalhados,
                             hora: time
