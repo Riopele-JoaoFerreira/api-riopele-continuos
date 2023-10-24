@@ -1525,8 +1525,12 @@ exports.saveRunningHours = function (callback) {
                         }
                     })
 
-                    if(!running_time > 0) {
+                    if(!running_time) {
+                        running_time = 0; 
+                    } else if(!running_time > 0) {
                         running_time = 0
+                    } else if(running_time > 8) {
+                        running_time = 8
                     } else {
                         running_time = running_time
                     }
@@ -1542,10 +1546,10 @@ exports.saveRunningHours = function (callback) {
                     var date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
 
                     let turno = date =  null; 
-                    if (time > '06:00:00' && time < '13:59:59') {
+                    if (time >= '06:00:00' && time < '14:00:00') {
                         turno = 1
                         date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
-                    } else if (time > '14:00:00' && time < '21:59:59') {
+                    } else if (time >= '14:00:00' && time < '22:00:00') {
                         turno = 2
                         date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
                     } else {
@@ -1562,8 +1566,27 @@ exports.saveRunningHours = function (callback) {
                         minutos_trabalhados: parseInt(running_time) - parseInt(last_record)
                     }
 
-                    await OPCUA_Running_Minutes.create(obj)
+                    let exist = OPCUA_Running_Minutes.findOne({
+                        [Op.and] : [
+                            { id_seccao: machine.id_seccao},
+                            { id_maquina: machine.id },
+                            { turno: turno },
+                            { dia: date },
+                        ]
+                    })
 
+                    if(exist) {
+                        await OPCUA_Running_Minutes.update({
+                            minutos_trabalhados: parseInt(running_time) - parseInt(last_record),
+                            hora: time
+                        }, {
+                            where:  {
+                                id: exist.id
+                            }
+                        })
+                    } else {
+                        await OPCUA_Running_Minutes.create(obj)
+                    }
                     return callback(); 
                 })()
             })    
