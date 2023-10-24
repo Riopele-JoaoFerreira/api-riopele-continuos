@@ -1518,6 +1518,8 @@ exports.saveRunningHours = function (callback) {
                         }
                     })
 
+                    console.log(running_time);
+
                     if(!running_time) {
                         running_time = 0; 
                     } else if(!running_time > 0) {
