@@ -1532,6 +1532,15 @@ exports.saveRunningHours = function (callback) {
                         last_record = last_record
                     }
 
+                    let minutos_trabalhados = 0; 
+                    if((parseInt(running_time) - parseInt(last_record)) < 0) {
+                        minutos_trabalhados = 0; 
+                    } else if(parseInt(running_time) - parseInt(last_record) <= 8) {
+                        minutos_trabalhados = parseInt(running_time) - parseInt(last_record)
+                    } else {
+                        minutos_trabalhados = 8
+                    }
+
                     var today = new Date();
                     var time = today.getHours().toString().padStart(2,'0') + ":" + today.getMinutes().toString().padStart(2,'0') + ":00";
                     var date = today.getFullYear()+'-'+(today.getMonth()+1).toString().padStart(2,'0')+'-'+today.getDate().toString().padStart(2,'0');
@@ -1554,7 +1563,7 @@ exports.saveRunningHours = function (callback) {
                         turno: turno,
                         dia: date,
                         hora: time,
-                        minutos_trabalhados: (parseInt(running_time) - parseInt(last_record)) <= 8 ? (parseInt(running_time) - parseInt(last_record)) : 8
+                        minutos_trabalhados: minutos_trabalhados
                     }
 
                     let exist = await OPCUA_Running_Minutes.findOne({
