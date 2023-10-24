@@ -1535,10 +1535,10 @@ exports.saveRunningHours = function (callback) {
                     let minutos_trabalhados = 0; 
                     if((parseInt(running_time) - parseInt(last_record)) < 0) {
                         minutos_trabalhados = 0; 
-                    } else if(parseInt(running_time) - parseInt(last_record) <= 8) {
+                    } else if(parseInt(running_time) - parseInt(last_record) <= 1) {
                         minutos_trabalhados = parseInt(running_time) - parseInt(last_record)
                     } else {
-                        minutos_trabalhados = 8
+                        minutos_trabalhados = 1
                     }
 
                     var today = new Date();
@@ -1579,7 +1579,7 @@ exports.saveRunningHours = function (callback) {
 
                     if(exist) {
                         await OPCUA_Running_Minutes.update({
-                            minutos_trabalhados: (exist.minutos_trabalhados + obj.minutos_trabalhados) > 8 ? 8 : exist.minutos_trabalhados + obj.minutos_trabalhados,
+                            minutos_trabalhados: (exist.minutos_trabalhados + obj.minutos_trabalhados) > 1 ? 1 : exist.minutos_trabalhados + obj.minutos_trabalhados,
                             hora: time
                         }, {
                             where:  {
