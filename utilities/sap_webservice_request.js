@@ -93,12 +93,8 @@ exports.enviar_lista_eventos = (callback) => {
                     },
                     (err, result) => {}
                 )
-        }).catch((err) => {
-            console.log(err);
-        })
-    }).catch((err) => {
-        console.log(err);
-    })
+        }).catch(() => {})
+    }).catch(() => {})
 }
 
 exports.enviar_evento = (id_seccao, interface, callback) => {
@@ -263,10 +259,6 @@ exports.enviar_evento = (id_seccao, interface, callback) => {
                         )
                     })
                 })
-        }).catch((err) => {
-            console.log(err);
-        })
-    }).catch((err) => {
-        console.log(err);
-    })
+        }).catch(() => {})
+    }).catch(() => {})
 }

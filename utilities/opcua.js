@@ -1316,11 +1316,7 @@ function startGame(data, session_, identificador_opcua) {
                                         num_jogo: num_jogo 
                                     } 
 
-                                    console.log(obj);
-
-                                    Production.create(obj).then((res)=> {}).then((err) => {
-                                        console.log(err);
-                                    })
+                                    Production.create(obj).then((res)=> {}).then(() => {})
                                 } else {
                                     Production.findOne({
                                         attributes: ['quantidade_produzida', 'fusos'],
@@ -1366,10 +1362,7 @@ function startGame(data, session_, identificador_opcua) {
                                             num_jogo: num_jogo 
                                         } 
 
-                                        console.log(obj);
-                                        Production.create(obj).then((res)=> {}).then((err) => {
-                                            console.log(err);
-                                        })
+                                        Production.create(obj).then((res)=> {}).then((err) => {})
                                     })
                                 }
                             })
