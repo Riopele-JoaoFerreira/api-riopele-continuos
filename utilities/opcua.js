@@ -1569,10 +1569,7 @@ exports.saveRunningHours = function (callback) {
                         ]
                     })
 
-                    console.log( { id_seccao: machine.id_seccao},
-                        { id_maquina: machine.id },
-                        { turno: turno },
-                        { dia: date });
+                    console.log( exist);
 
                     if(exist) {
                         await OPCUA_Running_Minutes.update({
