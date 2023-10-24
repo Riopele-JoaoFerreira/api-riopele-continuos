@@ -1518,14 +1518,10 @@ exports.saveRunningHours = function (callback) {
                         }
                     })
 
-                    console.log(running_time);
-
                     if(!running_time) {
                         running_time = 0; 
                     } else if(!running_time > 0) {
                         running_time = 0
-                    } else if(running_time > 8) {
-                        running_time = 8
                     } else {
                         running_time = running_time
                     }
@@ -1558,7 +1554,7 @@ exports.saveRunningHours = function (callback) {
                         turno: turno,
                         dia: date,
                         hora: time,
-                        minutos_trabalhados: parseInt(running_time) - parseInt(last_record)
+                        minutos_trabalhados: parseInt(running_time) - parseInt(last_record) > 8 ? parseInt(running_time) - parseInt(last_record) : 8
                     }
 
 
@@ -1573,7 +1569,7 @@ exports.saveRunningHours = function (callback) {
 
                     if(exist.length > 0) {
                         await OPCUA_Running_Minutes.update({
-                            minutos_trabalhados: exist.minutos_trabalhados + (parseInt(running_time) - parseInt(last_record)),
+                            minutos_trabalhados: exist.minutos_trabalhados + obj.minutos_trabalhados,
                             hora: time
                         }, {
                             where:  {
