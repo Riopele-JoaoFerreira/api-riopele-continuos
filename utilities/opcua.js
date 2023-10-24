@@ -1569,8 +1569,6 @@ exports.saveRunningHours = function (callback) {
                         ]
                     })
 
-                    console.log( exist);
-
                     if(exist) {
                         await OPCUA_Running_Minutes.update({
                             minutos_trabalhados: exist.minutos_trabalhados + (parseInt(running_time) - parseInt(last_record)),
@@ -1581,6 +1579,7 @@ exports.saveRunningHours = function (callback) {
                             }
                         })
                     } else {
+                        console.log(obj);
                         await OPCUA_Running_Minutes.create(obj)
                     }
                     return callback(); 
