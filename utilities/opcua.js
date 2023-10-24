@@ -1568,6 +1568,8 @@ exports.saveRunningHours = function (callback) {
                         ]
                     })
 
+                    console.log(exist);
+
                     if(exist) {
                         await OPCUA_Running_Minutes.update({
                             minutos_trabalhados: parseInt(running_time) - parseInt(last_record),
