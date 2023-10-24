@@ -1559,6 +1559,8 @@ exports.saveRunningHours = function (callback) {
                         minutos_trabalhados: parseInt(running_time) - parseInt(last_record)
                     }
 
+                    console.log(obj);
+
                     let exist = await OPCUA_Running_Minutes.findOne({
                         [Op.and] : [
                             { id_seccao: machine.id_seccao},
@@ -1567,6 +1569,8 @@ exports.saveRunningHours = function (callback) {
                             { dia: date },
                         ]
                     })
+
+                    console.log(exist);
 
                     if(exist) {
                         await OPCUA_Running_Minutes.update({
