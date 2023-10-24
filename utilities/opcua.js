@@ -1554,9 +1554,8 @@ exports.saveRunningHours = function (callback) {
                         turno: turno,
                         dia: date,
                         hora: time,
-                        minutos_trabalhados: parseInt(running_time) - parseInt(last_record) > 8 ? parseInt(running_time) - parseInt(last_record) : 8
+                        minutos_trabalhados: (parseInt(running_time) - parseInt(last_record)) <= 8 ? (parseInt(running_time) - parseInt(last_record)) : 8
                     }
-
 
                     let exist = await OPCUA_Running_Minutes.findOne({
                         [Op.and] : [
