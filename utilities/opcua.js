@@ -630,6 +630,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
     // DATE
     let res = await session_.read(date_obj);
     let event_date = await res.map(result => result.value.value)[0];
+    console.log("Event Date", event_date);
     let date = new Date('1990-01-01');
     let actual_date = date.addDays(event_date + 1);
     let sql_date = actual_date.toISOString().slice(0, 10);
@@ -637,6 +638,7 @@ async function getEvent(event_obj, state_obj, order_obj, date_obj, hour_obj, ses
     // HOUR
     res = await session_.read(hour_obj);
     let event_hour = await res.map(result => result.value.value)[0];
+    console.log("Event Hour", event_hour);
     let hours = event_hour/3600000
     let decimal_Time_String = hours;
     let decimal_Time = parseFloat(decimal_Time_String);
