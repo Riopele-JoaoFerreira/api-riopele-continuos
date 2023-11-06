@@ -201,6 +201,8 @@ exports.exportEvents = function (callback) {
                             ordem: event_info.order,
                         }
 
+                        console.log(obj);
+
                         session_.write(node_to_write, function(err,status_code,diagnostic_info) {
                             if (!err) {
                                 Events.update({
