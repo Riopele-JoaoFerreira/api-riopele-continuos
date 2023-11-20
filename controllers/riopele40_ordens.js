@@ -122,13 +122,16 @@ exports.updateTable = (req, res, id_maquina) => {
                                         ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
                                     }
                                 }).then((info) => {
+                                    console.log(info);
                                     let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
                                     if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
                                         new_value = parseFloat(machine_info[0].velocidade_minima); 
                                     }
                                     console.log(new_value);
                                     value = parseFloat(orders_info[i-1][method.map])
-                                }).catch((err) => {} )
+                                }).catch((err) => {
+                                    console.log(err);
+                                } )
                             } else {
                                 value = method.default; 
                             }
