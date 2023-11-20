@@ -128,6 +128,7 @@ exports.updateTable = (req, res, id_maquina) => {
                                         new_value = parseFloat(machine_info[0].velocidade_minima); 
                                     }
                                     value = new_value
+                                    console.log(value);
                                 }).catch((err) => {
                                     value = method.default; 
                                 } )
