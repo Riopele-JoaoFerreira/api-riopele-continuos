@@ -173,12 +173,11 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         } 
                         array.push(obj)
-                        console.log(obj);
                     })
                 })
             }
             nodes_to_write = array
-            //return callback(); 
+            return callback(); 
         }).catch((err) => {
             error = err; 
             return callback();
