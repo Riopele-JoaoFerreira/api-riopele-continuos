@@ -120,7 +120,8 @@ exports.updateTable = (req, res, id_maquina) => {
                                 Order.findOne({
                                     where: {
                                         ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
-                                    }
+                                    },
+                                    attributes: ['ordem', 'velocidade_sap']
                                 }).then((info) => {
                                     console.log(info);
                                     let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
