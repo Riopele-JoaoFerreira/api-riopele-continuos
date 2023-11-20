@@ -291,7 +291,7 @@ exports.updateRunningTable = (req, res, id_maquina) => {
                                             value = method.default; 
                                         }
                                     } else if(method.map == 'velocidade') {
-                                        if(orders_info[i-1][method.map]) {
+                                        if(order_planned[method.map]) {
                                             let info = await Order.findOne({
                                                 where: {
                                                     ordem: order_planned.riopele40_ordem_maquina.ordem
