@@ -104,23 +104,23 @@ exports.updateTable = (req, res, id_maquina) => {
                             if(method.map == 'ordem') {
                                 if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
                                     value = orders_info[i-1].riopele40_ordem_maquina.ordem
-                                    return callback();
+                                    return callback(value);
                                 } else {
                                     value = method.default; 
-                                    return callback();
+                                    return callback(value);
                                 }
                             } else if(method.map == 'quantidade_produzida') {
                                 if(orders_info[i-1][method.map]) {
                                     value = orders_info[i-1][method.map]
                                     if(!(value >= 0)) {
                                         value = 0
-                                        return callback();
+                                        return callback(value);
                                     } else {
-                                        return callback();
+                                        return callback(value);
                                     }
                                 } else {
                                     value = method.default; 
-                                    return callback();
+                                    return callback(value);
                                 }
                             } else if(method.map == 'velocidade') {
                                 if(orders_info[i-1][method.map]) {
@@ -173,7 +173,6 @@ exports.updateTable = (req, res, id_maquina) => {
                                 }
                             }
                         } 
-                        console.log(obj);
                         array.push(obj)
                     })
                 })
