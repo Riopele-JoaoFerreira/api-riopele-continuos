@@ -129,7 +129,6 @@ exports.updateTable = (req, res, id_maquina) => {
                                     new_value = parseFloat(machine_info[0].velocidade_minima); 
                                 }
                                 value = new_value
-                                console.log(value);
                             } else {
                                 value = method.default; 
                             }
@@ -155,7 +154,6 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         }
                     } 
-                    console.log(obj);
                     array.push(obj)
                 })
             }
@@ -283,12 +281,30 @@ exports.updateRunningTable = (req, res, id_maquina) => {
                 if(order_running[0] != '') {
                     orders_info.forEach(order_planned => {
                         if(order_running[0] == order_planned.riopele40_ordem_maquina.ordem) {
-                            res.forEach(method => {
+                            res.forEach(async method => {
                                 value = 0;
                                 try {
                                     if(method.map == 'ordem') {
                                         if(order_planned.riopele40_ordem_maquina.ordem) {
                                             value = order_planned.riopele40_ordem_maquina.ordem
+                                        } else {
+                                            value = method.default; 
+                                        }
+                                    } else if(method.map == 'velocidade') {
+                                        if(orders_info[i-1][method.map]) {
+                                            let info = await Order.findOne({
+                                                where: {
+                                                    ordem: order_planned.riopele40_ordem_maquina.ordem
+                                                },
+                                                attributes: ['ordem', 'velocidade_sap']
+                                            })
+            
+                                            let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
+                                            if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
+                                                new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                            }
+                                            value = new_value
+                                            console.log(value);
                                         } else {
                                             value = method.default; 
                                         }
