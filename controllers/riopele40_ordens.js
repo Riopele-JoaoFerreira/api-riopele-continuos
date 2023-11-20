@@ -154,6 +154,7 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         }
                     } 
+                    console.log(obj);
                     array.push(obj)
                 })
             }
