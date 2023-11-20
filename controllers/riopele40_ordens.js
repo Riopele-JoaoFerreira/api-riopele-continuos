@@ -124,7 +124,6 @@ exports.updateTable = (req, res, id_maquina) => {
                                 }
                             } else if(method.map == 'velocidade') {
                                 if(orders_info[i-1][method.map]) {
-                                
                                     Order.findOne({
                                         where: {
                                             ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
@@ -136,6 +135,7 @@ exports.updateTable = (req, res, id_maquina) => {
                                             new_value = parseFloat(machine_info[0].velocidade_minima); 
                                         }
                                         value = new_value
+                                        console.log(value);
                                         return callback();
                                     }).catch((err) => {
                                         value = method.default; 
@@ -177,7 +177,6 @@ exports.updateTable = (req, res, id_maquina) => {
                 })
             }
             nodes_to_write = array
-            console.log(nodes_to_write);
             return callback(); 
         }).catch((err) => {
             error = err; 
