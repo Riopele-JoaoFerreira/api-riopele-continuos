@@ -135,32 +135,31 @@ exports.updateTable = (req, res, id_maquina) => {
                                             new_value = parseFloat(machine_info[0].velocidade_minima); 
                                         }
                                         value = new_value
-                                        console.log(value);
                                         return callback(value);
                                     }).catch((err) => {
                                         value = method.default; 
-                                        return callback();
+                                        return callback(value);
                                     } )
                                 } else {
                                     value = method.default; 
-                                    return callback();
+                                    return callback(value);
                                 }
                             } else {
                                 if(orders_info[i-1][method.map]) {
                                     value = orders_info[i-1][method.map]
-                                    return callback();
+                                    return callback(value);
                                 } else {
                                     value = method.default; 
-                                    return callback();
+                                    return callback(value);
                                 }
                             }
                         } catch (err) {
                             value = method.default;
-                            return callback(); 
+                            return callback(value); 
                         }
                     }
 
-                    async.waterfall([createObj], ()=> {
+                    async.waterfall([createObj], (value_)=> {
                         let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
                         let obj =  {
                             nodeId: node_ID,
@@ -168,16 +167,17 @@ exports.updateTable = (req, res, id_maquina) => {
                             value: {
                                 value: {
                                     dataType: utilities.getType(method.tipo).dataType,
-                                    value: utilities.convert(method.tipo, value)
+                                    value: utilities.convert(method.tipo, value_)
                                 }
                             }
                         } 
+                        console.log(obj);
                         array.push(obj)
                     })
                 })
             }
             nodes_to_write = array
-            return callback(); 
+            //return callback(); 
         }).catch((err) => {
             error = err; 
             return callback();
