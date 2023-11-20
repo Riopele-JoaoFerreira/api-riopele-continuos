@@ -114,8 +114,8 @@ exports.updateTable = (req, res, id_maquina) => {
                             } else {
                                 value = method.default; 
                             }
-                        } else if(method.map == 'velocidade_sap') {
-                            console.log("velocidade_sap");
+                        } else if(method.map == 'velocidade') {
+                            console.log("velocidade");
                             if(orders_info[i-1][method.map]) {
                                 value = orders_info[i-1][method.map]
                             } else {
