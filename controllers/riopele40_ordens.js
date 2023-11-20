@@ -123,15 +123,13 @@ exports.updateTable = (req, res, id_maquina) => {
                                     },
                                     attributes: ['ordem', 'velocidade_sap']
                                 }).then((info) => {
-                                    console.log(info);
                                     let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
                                     if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
                                         new_value = parseFloat(machine_info[0].velocidade_minima); 
                                     }
-                                    console.log(new_value);
-                                    value = parseFloat(orders_info[i-1][method.map])
+                                    value = new_value
                                 }).catch((err) => {
-                                    console.log(err);
+                                    value = method.default; 
                                 } )
                             } else {
                                 value = method.default; 
