@@ -123,7 +123,9 @@ exports.updateTable = (req, res, id_maquina) => {
                                     return callback(value);
                                 }
                             } else if(method.map == 'velocidade') {
+                                    console.log("entra");
                                 if(orders_info[i-1][method.map]) {
+                                
                                     Order.findOne({
                                         where: {
                                             ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
