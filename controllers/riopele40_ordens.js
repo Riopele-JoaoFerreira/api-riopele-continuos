@@ -292,12 +292,15 @@ exports.updateRunningTable = (req, res, id_maquina) => {
                                         }
                                     } else if(method.map == 'velocidade') {
                                         if(order_planned[method.map]) {
+                                            console.log("entra");
                                             let info = await Order.findOne({
                                                 where: {
                                                     ordem: order_planned.riopele40_ordem_maquina.ordem
                                                 },
                                                 attributes: ['ordem', 'velocidade_sap']
                                             })
+
+                                            console.log(info);
             
                                             let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
                                             if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
