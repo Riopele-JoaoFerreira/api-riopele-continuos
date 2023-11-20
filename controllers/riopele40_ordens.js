@@ -117,9 +117,8 @@ exports.updateTable = (req, res, id_maquina) => {
                         } else if(method.map == 'velocidade') {
                             console.log("velocidade");
                             if(orders_info[i-1][method.map]) {
-                                console.log(machine_info[0].fator_velocidade, machine_info[0].velocidade_minima, machine_info[0].velocidade_maxima);
                                 let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(orders_info[i-1][method.map]); 
-                                if(new_value > parseFloat(machine_info[0].velocidade_minima)) {
+                                if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
                                     new_value = parseFloat(machine_info[0].velocidade_minima); 
                                 }
 
