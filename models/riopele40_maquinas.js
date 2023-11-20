@@ -21,6 +21,9 @@ Machine.init({
    ativa: DataTypes.TINYINT,
    identificador_opcua: DataTypes.STRING,
    id_seccao: DataTypes.INTEGER,
+   fator_velocidade: DataTypes.FLOAT,
+   velocidade_maxima: DataTypes.FLOAT, 
+   velocidade_minima: DataTypes.FLOAT,
    id_servidor: {
       type: DataTypes.INTEGER,
       references: {
