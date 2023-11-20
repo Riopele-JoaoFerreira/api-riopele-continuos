@@ -7,7 +7,8 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Machine = require('../models/riopele40_maquinas')
 const Orders_Machine = require('../models/riopele40_ordem_maquinas')
 const Orders_Planned = require('../models/riopele40_ordens_planeadas')
-const Methods = require('../models/riopele40_opcua_metodos')
+const Methods = require('../models/riopele40_opcua_metodos');
+const Order = require('../models/riopele40_ordens_sap');
 
 exports.updateTable = (req, res, id_maquina) => {
 
@@ -116,11 +117,18 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         } else if(method.map == 'velocidade') {
                             if(orders_info[i-1][method.map]) {
-                                let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(orders_info[i-1][method.map]); 
-                                if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
-                                    new_value = parseFloat(machine_info[0].velocidade_minima); 
-                                }
-                                value = parseFloat(orders_info[i-1][method.map])
+                                Order.findOne({
+                                    where: {
+                                        ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
+                                    }
+                                }).then((info) => {
+                                    let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
+                                    if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
+                                        new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                    }
+                                    console.log(new_value);
+                                    value = parseFloat(orders_info[i-1][method.map])
+                                }).catch((err) => {} )
                             } else {
                                 value = method.default; 
                             }
