@@ -139,6 +139,7 @@ exports.updateTable = (req, res, id_maquina) => {
                                         value = new_value
                                         return callback();
                                     }).catch((err) => {
+                                        console.log(err);
                                         value = method.default; 
                                         return callback();
                                     } )
