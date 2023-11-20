@@ -164,7 +164,7 @@ exports.updateTable = (req, res, id_maquina) => {
                         }
                     }
 
-                    async.waterfall(createObj, ()=> {
+                    async.waterfall([createObj], ()=> {
                         let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
                         let obj =  {
                             nodeId: node_ID,
