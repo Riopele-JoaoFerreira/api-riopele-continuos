@@ -97,69 +97,88 @@ exports.updateTable = (req, res, id_maquina) => {
             let loops = res[0].repeticoes
             let array = []; 
             for (let i = 1; i <= loops; i++) {
-                res.forEach(async method => {
+                res.forEach(method => {
                     value = 0;
-                    try {
-                        if(method.map == 'ordem') {
-                            if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
-                                value = orders_info[i-1].riopele40_ordem_maquina.ordem
-                            } else {
-                                value = method.default; 
-                            }
-                        } else if(method.map == 'quantidade_produzida') {
-                            if(orders_info[i-1][method.map]) {
-                                value = orders_info[i-1][method.map]
-                                if(!(value >= 0)) {
-                                    value = 0
+                    let createObj = (callback) => {   
+                        try {
+                            if(method.map == 'ordem') {
+                                if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
+                                    value = orders_info[i-1].riopele40_ordem_maquina.ordem
+                                    return callback()
+                                } else {
+                                    value = method.default; 
+                                    return callback()
+                                }
+                            } else if(method.map == 'quantidade_produzida') {
+                                if(orders_info[i-1][method.map]) {
+                                    value = orders_info[i-1][method.map]
+                                    if(!(value >= 0)) {
+                                        value = 0
+                                        return callback()
+                                    } else {
+                                        return callback()
+                                    }
+                                } else {
+                                    value = method.default; 
+                                }
+                            } else if(method.map == 'velocidade') {
+                                if(orders_info[i-1][method.map]) {
+                                    Order.findOne({
+                                        where: {
+                                            ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
+                                        },
+                                        attributes: ['ordem', 'velocidade_sap']
+                                    }).then((info) => {
+                                        console.log(info);
+                                        let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
+                                        if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
+                                            new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                        }
+                                        console.log(new_value);
+                                        value = new_value
+                                        return callback()
+                                    }).catch((err) => {
+                                        value = method.default;
+                                        return callback() 
+                                    } )
+                                } else {
+                                    value = method.default; 
+                                    return callback()
                                 }
                             } else {
-                                value = method.default; 
-                            }
-                        } else if(method.map == 'velocidade') {
-                            if(orders_info[i-1][method.map]) {
-                                let info = await Order.findOne({
-                                    where: {
-                                        ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
-                                    },
-                                    attributes: ['ordem', 'velocidade_sap']
-                                })
-
-                                let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
-                                if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
-                                    new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                if(orders_info[i-1][method.map]) {
+                                    value = orders_info[i-1][method.map]
+                                    return callback()
+                                } else {
+                                    value = method.default; 
+                                    return callback()
                                 }
-                                value = new_value
-                            } else {
-                                value = method.default; 
                             }
-                        } else {
-                            if(orders_info[i-1][method.map]) {
-                                value = orders_info[i-1][method.map]
-                            } else {
-                                value = method.default; 
-                            }
+                        } catch (err) {
+                            value = method.default; 
+                            return callback()
                         }
-                    } catch (err) {
-                        value = method.default; 
                     }
 
-                    let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
-                    let obj =  {
-                        nodeId: node_ID,
-                        attributeId: OPCUA_Client.AttributeIds.Value,
-                        value: {
+                    async.waterfall(createObj, () => {
+                        let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
+                        let obj =  {
+                            nodeId: node_ID,
+                            attributeId: OPCUA_Client.AttributeIds.Value,
                             value: {
-                                dataType: utilities.getType(method.tipo).dataType,
-                                value: utilities.convert(method.tipo, value)
+                                value: {
+                                    dataType: utilities.getType(method.tipo).dataType,
+                                    value: utilities.convert(method.tipo, value)
+                                }
                             }
-                        }
-                    } 
-                    console.log(obj);
-                    array.push(obj)
+                        } 
+                        console.log(obj);
+                        array.push(obj)
+                    })
                 })
             }
             nodes_to_write = array
-            return callback(); 
+            //return callback(); 
         }).catch((err) => {
             error = err; 
             return callback();
@@ -282,33 +301,12 @@ exports.updateRunningTable = (req, res, id_maquina) => {
                 if(order_running[0] != '') {
                     orders_info.forEach(order_planned => {
                         if(order_running[0] == order_planned.riopele40_ordem_maquina.ordem) {
-                            res.forEach(async method => {
+                            res.forEach(method => {
                                 value = 0;
                                 try {
                                     if(method.map == 'ordem') {
                                         if(order_planned.riopele40_ordem_maquina.ordem) {
                                             value = order_planned.riopele40_ordem_maquina.ordem
-                                        } else {
-                                            value = method.default; 
-                                        }
-                                    } else if(method.map == 'velocidade') {
-                                        if(order_planned[method.map]) {
-                                            console.log("entra");
-                                            let info = await Order.findOne({
-                                                where: {
-                                                    ordem: order_planned.riopele40_ordem_maquina.ordem
-                                                },
-                                                attributes: ['ordem', 'velocidade_sap']
-                                            })
-
-                                            console.log(info);
-            
-                                            let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
-                                            if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
-                                                new_value = parseFloat(machine_info[0].velocidade_minima); 
-                                            }
-                                            value = new_value
-                                            console.log(value);
                                         } else {
                                             value = method.default; 
                                         }
