@@ -97,7 +97,7 @@ exports.updateTable = (req, res, id_maquina) => {
             let loops = res[0].repeticoes
             let array = []; 
             for (let i = 1; i <= loops; i++) {
-                res.forEach(method => {
+                res.forEach(async method => {
                     value = 0;
                     try {
                         if(method.map == 'ordem') {
@@ -117,21 +117,19 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         } else if(method.map == 'velocidade') {
                             if(orders_info[i-1][method.map]) {
-                                Order.findOne({
+                                let info = await Order.findOne({
                                     where: {
                                         ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
                                     },
                                     attributes: ['ordem', 'velocidade_sap']
-                                }).then((info) => {
-                                    let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
-                                    if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
-                                        new_value = parseFloat(machine_info[0].velocidade_minima); 
-                                    }
-                                    value = new_value
-                                    console.log(value);
-                                }).catch((err) => {
-                                    value = method.default; 
-                                } )
+                                })
+
+                                let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
+                                if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
+                                    new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                }
+                                value = new_value
+                                console.log(value);
                             } else {
                                 value = method.default; 
                             }
