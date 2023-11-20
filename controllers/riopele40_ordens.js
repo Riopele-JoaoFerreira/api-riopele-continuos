@@ -123,7 +123,6 @@ exports.updateTable = (req, res, id_maquina) => {
                                     return callback(value);
                                 }
                             } else if(method.map == 'velocidade') {
-                                    console.log("entra");
                                 if(orders_info[i-1][method.map]) {
                                 
                                     Order.findOne({
@@ -132,16 +131,13 @@ exports.updateTable = (req, res, id_maquina) => {
                                         },
                                         attributes: ['ordem', 'velocidade_sap']
                                     }).then((info) => {
-                                        console.log(info);
                                         let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
                                         if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
                                             new_value = parseFloat(machine_info[0].velocidade_minima); 
                                         }
-                                        console.log(new_value);
                                         value = new_value
                                         return callback();
                                     }).catch((err) => {
-                                        console.log(err);
                                         value = method.default; 
                                         return callback();
                                     } )
@@ -177,6 +173,7 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         } 
                         array.push(obj)
+                        console.log(obj);
                     })
                 })
             }
