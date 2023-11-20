@@ -98,28 +98,29 @@ exports.updateTable = (req, res, id_maquina) => {
             let array = []; 
             for (let i = 1; i <= loops; i++) {
                 res.forEach(method => {
-                    value = 0;
-                    let createObj = (callback) => {   
+                    let value = 0;
+                    const createObj = (callback) => {
                         try {
                             if(method.map == 'ordem') {
                                 if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
                                     value = orders_info[i-1].riopele40_ordem_maquina.ordem
-                                    return callback()
+                                    return callback();
                                 } else {
                                     value = method.default; 
-                                    return callback()
+                                    return callback();
                                 }
                             } else if(method.map == 'quantidade_produzida') {
                                 if(orders_info[i-1][method.map]) {
                                     value = orders_info[i-1][method.map]
                                     if(!(value >= 0)) {
                                         value = 0
-                                        return callback()
+                                        return callback();
                                     } else {
-                                        return callback()
+                                        return callback();
                                     }
                                 } else {
                                     value = method.default; 
+                                    return callback();
                                 }
                             } else if(method.map == 'velocidade') {
                                 if(orders_info[i-1][method.map]) {
@@ -136,31 +137,31 @@ exports.updateTable = (req, res, id_maquina) => {
                                         }
                                         console.log(new_value);
                                         value = new_value
-                                        return callback()
+                                        return callback();
                                     }).catch((err) => {
-                                        value = method.default;
-                                        return callback() 
+                                        value = method.default; 
+                                        return callback();
                                     } )
                                 } else {
                                     value = method.default; 
-                                    return callback()
+                                    return callback();
                                 }
                             } else {
                                 if(orders_info[i-1][method.map]) {
                                     value = orders_info[i-1][method.map]
-                                    return callback()
+                                    return callback();
                                 } else {
                                     value = method.default; 
-                                    return callback()
+                                    return callback();
                                 }
                             }
                         } catch (err) {
-                            value = method.default; 
-                            return callback()
+                            value = method.default;
+                            return callback(); 
                         }
                     }
 
-                    async.waterfall(createObj, () => {
+                    async.waterfall(createObj, ()=> {
                         let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
                         let obj =  {
                             nodeId: node_ID,
