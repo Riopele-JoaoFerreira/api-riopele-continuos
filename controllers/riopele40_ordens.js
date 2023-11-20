@@ -120,7 +120,7 @@ exports.updateTable = (req, res, id_maquina) => {
                                 if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
                                     new_value = parseFloat(machine_info[0].velocidade_minima); 
                                 }
-                                value = new_value; 
+                                value = parseFloat(orders_info[i-1][method.map])
                             } else {
                                 value = method.default; 
                             }
