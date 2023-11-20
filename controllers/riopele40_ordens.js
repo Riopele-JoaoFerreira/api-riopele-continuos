@@ -173,6 +173,7 @@ exports.updateTable = (req, res, id_maquina) => {
                             }
                         } 
                         array.push(obj)
+                        console.log(obj);
                     })
                 })
             }
