@@ -7,10 +7,10 @@ const OPCUA_Server = require('../models/riopele40_servidores_opcua')
 const Machine = require('../models/riopele40_maquinas')
 const Orders_Machine = require('../models/riopele40_ordem_maquinas')
 const Orders_Planned = require('../models/riopele40_ordens_planeadas')
-const Methods = require('../models/riopele40_opcua_metodos')
+const Methods = require('../models/riopele40_opcua_metodos');
+const Order = require('../models/riopele40_ordens_sap');
 
 exports.updateTable = (req, res, id_maquina) => {
-
     let machine_info = null;  
     let orders_planned = []; 
     let orders_info = null; 
@@ -95,52 +95,95 @@ exports.updateTable = (req, res, id_maquina) => {
         }).then(res => {
             let loops = res[0].repeticoes
             let array = []; 
+            let stack = []; 
             for (let i = 1; i <= loops; i++) {
                 res.forEach(method => {
-                    value = 0;
-                    try {
-                        if(method.map == 'ordem') {
-                            if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
-                                value = orders_info[i-1].riopele40_ordem_maquina.ordem
-                            } else {
-                                value = method.default; 
-                            }
-                        } else if(method.map == 'quantidade_produzida') {
-                            if(orders_info[i-1][method.map]) {
-                                value = orders_info[i-1][method.map]
-                                if(!(value >= 0)) {
-                                    value = 0
+                    let value = 0;
+                    stack.push((callback1) => {
+                        const createObj = (callback) => {
+                            try {
+                                if(method.map == 'ordem') {
+                                    if(orders_info[i-1].riopele40_ordem_maquina.ordem) {
+                                        value = orders_info[i-1].riopele40_ordem_maquina.ordem
+                                        return callback(value);
+                                    } else {
+                                        value = method.default; 
+                                        return callback(value);
+                                    }
+                                } else if(method.map == 'quantidade_produzida') {
+                                    if(orders_info[i-1][method.map]) {
+                                        value = orders_info[i-1][method.map]
+                                        if(!(value >= 0)) {
+                                            value = 0
+                                            return callback(value);
+                                        } else {
+                                            return callback(value);
+                                        }
+                                    } else {
+                                        value = method.default; 
+                                        return callback(value);
+                                    }
+                                } else if(method.map == 'velocidade') {
+                                    if(orders_info[i-1][method.map]) {
+                                        Order.findOne({
+                                            where: {
+                                                ordem: orders_info[i-1].riopele40_ordem_maquina.ordem
+                                            },
+                                            attributes: ['ordem', 'velocidade_sap']
+                                        }).then((info) => {
+                                            let new_value = parseFloat(machine_info[0].fator_velocidade) * parseFloat(info.velocidade_sap); 
+                                            if(new_value < parseFloat(machine_info[0].velocidade_minima)) {
+                                                new_value = parseFloat(machine_info[0].velocidade_minima); 
+                                            }
+                                            value = new_value
+                                            return callback(value);
+                                        }).catch((err) => {
+                                            value = method.default; 
+                                            return callback(value);
+                                        } )
+                                    } else {
+                                        value = method.default; 
+                                        return callback(value);
+                                    }
+                                } else {
+                                    if(orders_info[i-1][method.map]) {
+                                        value = orders_info[i-1][method.map]
+                                        return callback(value);
+                                    } else {
+                                        value = method.default; 
+                                        return callback(value);
+                                    }
                                 }
-                            } else {
-                                value = method.default; 
-                            }
-                        } else {
-                            if(orders_info[i-1][method.map]) {
-                                value = orders_info[i-1][method.map]
-                            } else {
-                                value = method.default; 
+                            } catch (err) {
+                                value = method.default;
+                                return callback(value); 
                             }
                         }
-                    } catch (err) {
-                        value = method.default; 
-                    }
-
-                    let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
-                    let obj =  {
-                        nodeId: node_ID,
-                        attributeId: OPCUA_Client.AttributeIds.Value,
-                        value: {
-                            value: {
-                                dataType: utilities.getType(method.tipo).dataType,
-                                value: utilities.convert(method.tipo, value)
-                            }
-                        }
-                    } 
-                    array.push(obj)
+    
+                        createObj ((value_) => {
+                            let node_ID = method.prefixo + machine_info[0].identificador_opcua+method.identificador+i+"_"+method.chave; 
+                            let obj =  {
+                                nodeId: node_ID,
+                                attributeId: OPCUA_Client.AttributeIds.Value,
+                                value: {
+                                    value: {
+                                        dataType: utilities.getType(method.tipo).dataType,
+                                        value: utilities.convert(method.tipo, value_)
+                                    }
+                                }
+                            } 
+                            console.log(obj);
+                            array.push(obj)
+                            return callback1()
+                        })
+                    })
                 })
             }
-            nodes_to_write = array
-            return callback(); 
+
+            async.waterfall(stack, () => {
+                nodes_to_write = array
+                return callback(); 
+            })
         }).catch((err) => {
             error = err; 
             return callback();
